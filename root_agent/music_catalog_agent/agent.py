@@ -46,7 +46,7 @@ def get_music_information(request: str) -> str:
 
     Input: Natural language music catalog information request (e.g., 'I like the Rolling Stones. What songs do you recommend by them or by other artists that I might like?')
     """
-    result = invoice_information_subagent.invoke({
+    result = music_catalog_information_subagent.invoke({
         "messages": [{"role": "user", "content": request}]
     })
     return result["messages"][-1].text
@@ -54,8 +54,7 @@ def get_music_information(request: str) -> str:
 
 # thread_id = uuid.uuid4() # Generate a new unique thread ID for this test conversation.
 
-# # Define a sample question for the music catalog sub-agent.
-# question = "I like the Rolling Stones. What songs do you recommend by them or by other artists that I might like?"
+# query = "I like the Rolling Stones. What songs do you recommend by them or by other artists that I might like?"
 
 # Set up the configuration with the thread ID.
 # config = {"configurable": {"thread_id": thread_id}}

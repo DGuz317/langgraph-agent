@@ -51,9 +51,8 @@ def get_invoice_infomation(request: str) -> str:
     })
     return result["messages"][-1].text
 
-# thread_id = uuid.uuid4() # Generate a new unique thread ID for this test conversation.
+# thread_id = uuid.uuid4()
 
-# # Define a sample question for the invoice sub-agent.
 # query = "My customer id is 1. What was my most recent invoice, and who was the employee that helped me with it?"
 
 # # Set up the configuration with the thread ID.
