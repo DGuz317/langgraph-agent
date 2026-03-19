@@ -4,10 +4,11 @@ import uuid
 import logging
 import uvicorn
 from dotenv import load_dotenv
-from tools import music_tools
+from .tools import music_tools
+from langchain.tools import tool
 from langchain.agents import create_agent
 from langchain_google_genai import ChatGoogleGenerativeAI
-from catalog_subagent_prompt import catalog_subagent_prompt
+from .catalog_subagent_prompt import catalog_subagent_prompt
 from langchain_core.messages import ToolMessage, SystemMessage, HumanMessage
 
 logger = logging.getLogger(__name__)
@@ -38,7 +39,17 @@ music_catalog_information_subagent = create_agent(
 # Define sub-agent as tool for supervisor-agent
 @tool
 def get_music_information(request: str) -> str:
+    """Get music catalog information using natural language.
     
+    Use this when user want to find playlists, songs, or albums associated with an artist.
+    Handels search and provide accurate information about songs, albums, artists, and playlists.
+
+    Input: Natural language music catalog information request (e.g., 'I like the Rolling Stones. What songs do you recommend by them or by other artists that I might like?')
+    """
+    result = invoice_information_subagent.invoke({
+        "messages": [{"role": "user", "content": request}]
+    })
+    return result["messages"][-1].text
 
 
 # thread_id = uuid.uuid4() # Generate a new unique thread ID for this test conversation.

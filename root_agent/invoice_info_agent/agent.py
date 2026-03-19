@@ -4,10 +4,11 @@ import uuid
 import logging
 import uvicorn
 from dotenv import load_dotenv
-from tools import invoice_tools
+from .tools import invoice_tools
+from langchain.tools import tool
 from langchain.agents import create_agent
 from langchain_google_genai import ChatGoogleGenerativeAI
-from invoice_subagent_prompt import invoice_subagent_prompt
+from .invoice_subagent_prompt import invoice_subagent_prompt
 from langchain_core.messages import ToolMessage, SystemMessage, HumanMessage
 
 logger = logging.getLogger(__name__)
@@ -38,8 +39,12 @@ invoice_information_subagent = create_agent(
 # Define sub-agent as tool for supervisor-agent
 @tool
 def get_invoice_infomation(request: str) -> str:
-    """
-    
+    """Get invoice information using natural language .
+
+    Use this when the user want to retrieve the invoice information.
+    Handles retrieves all invoices sorted by invoice date for a customer, retrieves all invoices sorted by unit price for a customer, retrieves the employee information associated with an invoice and a customer  
+
+    Input: Natural language invoice information request (e.g., 'My customer id is 1. What was my most recent invoice, and who was the employee that helped me with it?')
     """
     result = invoice_information_subagent.invoke({
         "messages": [{"role": "user", "content": request}]
