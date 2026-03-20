@@ -1,20 +1,22 @@
+from langchain_mcp_adapters.client import MultiServerMCPClient
+from langchain_mcp_adapters.tools import load_mcp_tools
+import os
 import asyncio
 
-from fastmcp import Client
+async def test_tools():
+    client = MultiServerMCPClient(
+        {
+            "My-MCP-Server": {
+                "transport": "http",
+                "url": "http://localhost:8001/mcp",
+            }
+        }
+    )
 
+    async with client.session("My-MCP-Server") as session:
+        tools = await load_mcp_tools(session)
 
-async def test_server():
-    async with Client("http://localhost:8001/mcp") as client:
-        # List available tools
-        tools = await client.list_tools()
-        for tool in tools:
-            print(f"--- 🛠️  Tool found: {tool.name} ---")
-        # Call say_hello tool
-        print("--- 🪛  Calling HELLO tool ---")
-        result = await client.call_tool(
-            "say_hello"
-        )
-        print(f"--- ✅  Success: {result.content[0].text} ---")
+    print(isinstance(tools, list))
 
 if __name__ == "__main__":
-    asyncio.run(test_server())
+    asyncio.run(test_tools())
