@@ -5,6 +5,7 @@ import asyncio
 from dotenv import load_dotenv
 from langchain_core.tools import tool
 from langchain.agents import create_agent
+from langchain_mcp_adapters.tools import load_mcp_tools
 from langchain_google_genai import ChatGoogleGenerativeAI
 from supervisor_prompt import supervisor_prompt
 from langchain_mcp_adapters.client import MultiServerMCPClient
@@ -15,8 +16,6 @@ from invoice_info_agent.agent import get_invoice_information
 from music_catalog_agent.agent import get_music_information
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(format="[%(levelname)s]: %(message)s", level=logging.INFO)
-
 load_dotenv()
 
 llm = ChatGoogleGenerativeAI(
@@ -28,28 +27,31 @@ ALLOWED_TOOL_NAMES = {
 # add hello and fare_well tools
 }
 
+client = MultiServerMCPClient(
+    {
+        "My-MCP-Server": {
+            "transport": "http",
+            "url": "http://localhost:8001/mcp",
+        }
+    }
+)
+
 # ── Initialize agent ──────────────────────────────────────
 
-async def _build_agent():
-    client = MultiServerMCPClient(
-        {
-            "My-MCP-Server": {
-                "transport": "http",
-                "url": "http://localhost:8001/mcp",
-            }
-        }
-    )
-    all_tools = await client.get_tools()
-    supervisor_tools = [t for t in all_tools if t.name in ALLOWED_TOOL_NAMES]
+async def build_supervisor_agent():
+    async with client.session("My-MCP-Server") as session:
+        tools = await load_mcp_tools(session)
+        supervisor_tools = [t for t in tools if t.name in ALLOWED_TOOL_NAMES]
 
-    return create_agent(
-        model=llm,
-        tools=[get_invoice_information, get_music_information],
-        name="supervisor_subagent",
-        system_prompt=supervisor_prompt,
-    )
+        agent = create_agent(
+            model=llm,
+            tools=[get_music_information, get_invoice_information],
+            name="supervisor_agent",
+            system_prompt=supervisor_prompt,
+        )
 
-_supervisor_agent = asyncio.run(_build_agent())
+        logger.info("✅ Supervisor agent ready with persistent MCP session")
+        yield agent
 
 # ── Debug entrypoint ───────────────────────────────────────────────────────────
 
@@ -57,12 +59,13 @@ async def run_debug():
     query = "My customer ID is 1. How much was my most recent purchase? What albums do you have by U2?"
     config = {"configurable": {"thread_id": str(uuid.uuid4())}}
 
-    async for chunk in _supervisor_agent.astream(
-        {"messages": [HumanMessage(content=query)]},
-        config,
-        stream_mode="values",
-    ):
-        chunk["messages"][-1].pretty_print()
+    async for agent in build_supervisor_agent():
+        async for chunk in agent.astream(
+            {"messages": [HumanMessage(content=query)]},
+            config,
+            stream_mode="values",
+        ):
+            chunk["messages"][-1].pretty_print()
 
 
 if __name__ == "__main__":
