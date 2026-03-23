@@ -24,7 +24,7 @@ uv sync
 ```
 uv run .\mcp\mcp_server.py
 ```
-### 2. Start Aupervisor Agent:
+### 2. Start Supervisor Agent:
 ```
 uv run .\root_agent\supervisor.py
 ```
