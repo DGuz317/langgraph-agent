@@ -1,5 +1,4 @@
 import os
-import uuid
 import logging
 import asyncio
 from dotenv import load_dotenv
@@ -12,18 +11,13 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain_core.messages import ToolMessage, SystemMessage, HumanMessage
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(format="[%(levelname)s]: %(message)s", level=logging.INFO)
 load_dotenv()
 
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
     google_api_key=os.getenv("GOOGLE_API_KEY"),
 )
-
-ALLOWED_TOOL_NAMES = {
-    "get_invoices_by_customer_sorted_by_date",
-    "get_invoices_sorted_by_unit_price",
-    "get_employee_by_invoice_and_customer",
-}
 
 client = MultiServerMCPClient(
     {
@@ -34,11 +28,23 @@ client = MultiServerMCPClient(
     }
 )
 
-# ── Initialize agent ──────────────────────────────────────
-
-async def build_invoice_agent():
+@tool
+async def get_invoice_agent(request: str) -> str:
+    """
+    Consult this tool for any questions regarding customer invoices, unit prices, or 
+    assigned support employees. 
+    
+    Args:
+        request: The user's natural language question about invoices.
+    """
     async with client.session("My-MCP-Server") as session:
         tools = await load_mcp_tools(session)
+
+        ALLOWED_TOOL_NAMES = {
+            "get_invoices_by_customer_sorted_by_date",
+            "get_invoices_sorted_by_unit_price",
+            "get_employee_by_invoice_and_customer",
+        }
         invoice_tools = [t for t in tools if t.name in ALLOWED_TOOL_NAMES]
 
         agent = create_agent(
@@ -47,44 +53,15 @@ async def build_invoice_agent():
             name="invoice_information_subagent",
             system_prompt=invoice_subagent_prompt,
         )
+        final_content = "" 
+        
+        async for chunk in agent.astream(
+            {"messages": [HumanMessage(content=request)]},
+            stream_mode="values",
+        ):
+            if chunk["messages"]:
+                last_msg = chunk["messages"][-1]
+                last_msg.pretty_print() 
+                final_content = last_msg.content
 
-        logger.info("✅ Invoice agent ready with persistent MCP session")
-        yield agent
-
-
-# ── Subagent exposed as a tool ─────────────────────────────────────────────────
-
-@tool
-async def get_invoice_information(request: str) -> str:
-    """Get invoice information using natural language.
-
-    Use this when the user wants to retrieve invoice information.
-    Handles: invoices sorted by date, invoices sorted by unit price,
-    and employee info associated with an invoice and customer.
-
-    Input: Natural language request (e.g., 'My customer id is 1. What was my most recent invoice?')
-    """
-    async for agent in build_invoice_agent():
-        result = await agent.ainvoke({
-            "messages": [HumanMessage(content=request)]
-        })
-        return result["messages"][-1].content
-
-
-# ── Debug entrypoint ───────────────────────────────────────────────────────────
-
-# async def run_debug():
-#     query = "My customer id is 1. What was my most recent invoice, and who was the employee that helped me with it?"
-#     config = {"configurable": {"thread_id": str(uuid.uuid4())}}
-
-#     async for agent in build_invoice_agent():
-#         async for chunk in agent.astream(
-#             {"messages": [HumanMessage(content=query)]},
-#             config,
-#             stream_mode="values",
-#         ):
-#             chunk["messages"][-1].pretty_print()
-
-
-# if __name__ == "__main__":
-#     asyncio.run(run_debug())
+        return final_content
