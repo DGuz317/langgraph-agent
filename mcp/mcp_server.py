@@ -10,7 +10,6 @@ import openmeteo_requests
 from fastmcp import FastMCP
 from typing import Optional, Dict, Any, List
 
-
 logger = logging.getLogger(__name__)
 logging.basicConfig(format="[%(levelname)s]: %(message)s", level=logging.INFO)
 
@@ -199,12 +198,6 @@ def get_employee_by_invoice_and_customer(invoice_id: str, customer_id: str) -> d
     
     parsed = ast.literal_eval(result)
     return parsed[0] if isinstance(parsed, list) else parsed
-
-# Aggregate all music-related tools into a list.
-# music_tools = [get_albums_by_artist, get_tracks_by_artist, get_songs_by_genre, check_for_songs]
-
-# Aggregate all invoice-related tools into a list.
-# invoice_tools = [get_invoices_by_customer_sorted_by_date, get_invoices_sorted_by_unit_price, get_employee_by_invoice_and_customer]
 
 
 if __name__ == "__main__":
