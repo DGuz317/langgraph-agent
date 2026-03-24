@@ -1,0 +1,33 @@
+{
+  "capabilities": {
+    "pushNotifications": true,
+    "streaming": true
+  },
+  "defaultInputModes": [
+    "text",
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text",
+    "text/plain"
+  ],
+  "description": "Helps retrieving and processing invoice information",
+  "name": "Invoice Agent",
+  "preferredTransport": "JSONRPC",
+  "protocolVersion": "0.3.0",
+  "skills": [
+    {
+      "description": "Helps retrieving and processing invoice information",
+      "examples": [
+        "My customer id is 1. What is my recent invoice?"
+      ],
+      "id": "invoice_retrieval",
+      "name": "Invoice information retrieval",
+      "tags": [
+        "invoice, unit price"
+      ]
+    }
+  ],
+  "url": "http://localhost:8010/",
+  "version": "1.0.0"
+}
