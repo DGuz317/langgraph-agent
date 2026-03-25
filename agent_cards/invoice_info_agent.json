@@ -11,13 +11,13 @@
     "text",
     "text/plain"
   ],
-  "description": "Helps retrieving and processing invoice information",
+  "description": "Retrieving and processing invoice information",
   "name": "Invoice Agent",
   "preferredTransport": "JSONRPC",
   "protocolVersion": "0.3.0",
   "skills": [
     {
-      "description": "Helps retrieving and processing invoice information",
+      "description": "Retrieving and processing invoice information",
       "examples": [
         "My customer id is 1. What is my recent invoice?"
       ],
