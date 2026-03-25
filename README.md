@@ -4,15 +4,22 @@
 - uv
 ## Project Structure
 ```
-├── mcp/
-│   └── mcp_server.py
-├── root_agent/
-│   └── supervisor.py
-|   └── invoice_info_agent/
-|       └── agent.py
-|   └── music_catalog_agent/
-|       └── agent.py
-└── README.md
+├── agent_cards/  # (store agent-card.json)
+|   └── invoice_info_agent.json
+|   └── orchestrator_agent.json
+|   └──..	
+├── src/
+|   └── a2a_mcp/
+|   	└── agents/ # contain all agents
+|	    └── common/ # contain prompts, types, utils, workflow, agent_executor, base_agent
+|	    └── mcp/
+|	        └── client.py
+|	        └── server.py
+|	    └── __init__.py # Convenience methods to start servers.
+├── .env
+├── pyproject.toml
+├── README.md
+├── Other files
 ```
 ## Setup
 Install all dependencies:

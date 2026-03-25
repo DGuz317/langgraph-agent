@@ -11,6 +11,30 @@ resolution-markers = [
 ]
 
 [[package]]
+name = "a2a-mcp"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "click" },
+    { name = "cryptography" },
+    { name = "flask" },
+    { name = "flask-jwt-extended" },
+    { name = "flask-limiter" },
+    { name = "gunicorn" },
+    { name = "marshmallow" },
+    { name = "prometheus-client" },
+    { name = "pyjwt" },
+    { name = "python-dateutil" },
+    { name = "python-dotenv" },
+    { name = "requests" },
+    { name = "tenacity" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ea/ba/beb1b5369349ea40809648c64debb92a462da76d3b142a621bc57a8b6620/a2a_mcp-0.1.0.tar.gz", hash = "sha256:610f4eaf5d4603977e1ca9870e0ae85761eec2ca5e1163c8824b9a4cfa346814", size = 13087, upload-time = "2025-04-30T00:47:19.746Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/31/09/2843942c1fdd180c337c5478524da2fb01b567d943ad9c4293a2eacfe400/a2a_mcp-0.1.0-py3-none-any.whl", hash = "sha256:4783768774645462fb29823d8e6a9e18df312c331319f64c93bc3c69a6fa82b5", size = 2548, upload-time = "2025-04-30T00:47:18.141Z" },
+]
+
+[[package]]
 name = "a2a-sdk"
 version = "0.3.25"
 source = { registry = "https://pypi.org/simple" }
@@ -890,6 +914,18 @@ wheels = [
 ]
 
 [[package]]
+name = "deprecated"
+version = "1.3.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "wrapt" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/49/85/12f0a49a7c4ffb70572b6c2ef13c90c88fd190debda93b23f026b25f9634/deprecated-1.3.1.tar.gz", hash = "sha256:b1b50e0ff0c1fddaa5708a2c6b0a6588bb09b892825ab2b214ac9ea9d92a5223", size = 2932523, upload-time = "2025-10-30T08:19:02.757Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/84/d0/205d54408c08b13550c733c4b85429e7ead111c7f0014309637425520a9a/deprecated-1.3.1-py2.py3-none-any.whl", hash = "sha256:597bfef186b6f60181535a29fbe44865ce137a5079f295b479886c82729d5f3f", size = 11298, upload-time = "2025-10-30T08:19:00.758Z" },
+]
+
+[[package]]
 name = "distro"
 version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1055,6 +1091,35 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/26/00/35d85dcce6c57fdc871f3867d465d780f302a175ea360f62533f12b27e2b/flask-3.1.3.tar.gz", hash = "sha256:0ef0e52b8a9cd932855379197dd8f94047b359ca0a78695144304cb45f87c9eb", size = 759004, upload-time = "2026-02-19T05:00:57.678Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/7f/9c/34f6962f9b9e9c71f6e5ed806e0d0ff03c9d1b0b2340088a0cf4bce09b18/flask-3.1.3-py3-none-any.whl", hash = "sha256:f4bcbefc124291925f1a26446da31a5178f9483862233b23c0c96a20701f670c", size = 103424, upload-time = "2026-02-19T05:00:56.027Z" },
+]
+
+[[package]]
+name = "flask-jwt-extended"
+version = "4.7.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "flask" },
+    { name = "pyjwt" },
+    { name = "werkzeug" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/51/16/96b101f18cba17ecce3225ab07bc4c8f23e6befd8552dbbed87482e7c7fb/flask_jwt_extended-4.7.1.tar.gz", hash = "sha256:8085d6757505b6f3291a2638c84d207e8f0ad0de662d1f46aa2f77e658a0c976", size = 34411, upload-time = "2024-11-20T23:44:41.044Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/67/34/9a91da47b1565811ab4aa5fb134632c8d1757960bfa7d457f486947c4d75/Flask_JWT_Extended-4.7.1-py2.py3-none-any.whl", hash = "sha256:52f35bf0985354d7fb7b876e2eb0e0b141aaff865a22ff6cc33d9a18aa987978", size = 22588, upload-time = "2024-11-20T23:44:39.435Z" },
+]
+
+[[package]]
+name = "flask-limiter"
+version = "4.1.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "flask" },
+    { name = "limits" },
+    { name = "ordered-set" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/4e/98/71780be5d1afb941219c4b48d241d4e246e3062b017caa4e79c4dc71314c/flask_limiter-4.1.1.tar.gz", hash = "sha256:ca11608fc7eec43dcea606964ca07c3bd4ec1ae89043a0f67f717899a4f48106", size = 403198, upload-time = "2025-12-06T17:39:00.575Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/75/7c/9fe9ffc83be199011bb0c6deb82cdcbc5a355601e380581de9dbc30490dd/flask_limiter-4.1.1-py3-none-any.whl", hash = "sha256:e1ae13e06e6b3e39a4902e7d240b901586b25932c2add7bd5f5eeb4bdc11111b", size = 30554, upload-time = "2025-12-06T17:38:59.162Z" },
 ]
 
 [[package]]
@@ -1509,6 +1574,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/fb/f4/5978b0f91611a64371424c109dd0027b247e5b39260abad2eaee66b6aa37/grpcio_tools-1.78.0-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:05803a5cdafe77c8bdf36aa660ad7a6a1d9e49bc59ce45c1bade2a4698826599", size = 3324724, upload-time = "2026-02-06T09:59:24.402Z" },
     { url = "https://files.pythonhosted.org/packages/b2/80/96a324dba99cfbd20e291baf0b0ae719dbb62b76178c5ce6c788e7331cb1/grpcio_tools-1.78.0-cp314-cp314-win32.whl", hash = "sha256:f7c722e9ce6f11149ac5bddd5056e70aaccfd8168e74e9d34d8b8b588c3f5c7c", size = 1015505, upload-time = "2026-02-06T09:59:26.3Z" },
     { url = "https://files.pythonhosted.org/packages/3b/d1/909e6a05bfd44d46327dc4b8a78beb2bae4fb245ffab2772e350081aaf7e/grpcio_tools-1.78.0-cp314-cp314-win_amd64.whl", hash = "sha256:7d58ade518b546120ec8f0a8e006fc8076ae5df151250ebd7e82e9b5e152c229", size = 1190196, upload-time = "2026-02-06T09:59:28.359Z" },
+]
+
+[[package]]
+name = "gunicorn"
+version = "25.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "packaging" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/dd/13/dd3f8e40ea3ee907a6cbf3d1f1f81afcc3ecd0087d313baabfe95372f15c/gunicorn-25.2.0.tar.gz", hash = "sha256:10bd7adb36d44945d97d0a1fdf9a0fb086ae9c7b39e56b4dece8555a6bf4a09c", size = 632709, upload-time = "2026-03-24T22:49:54.433Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/11/53/fb024445837e02cd5cf989cf349bfac6f3f433c05184ea5d49c8ade751c6/gunicorn-25.2.0-py3-none-any.whl", hash = "sha256:88f5b444d0055bf298435384af7294f325e2273fd37ba9f9ff7b98e0a1e5dfdc", size = 211659, upload-time = "2026-03-24T22:49:52.528Z" },
 ]
 
 [[package]]
@@ -2658,8 +2735,9 @@ wheels = [
 [[package]]
 name = "langraph-agent"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
+    { name = "a2a-mcp" },
     { name = "a2a-sdk" },
     { name = "azure-identity" },
     { name = "fastmcp" },
@@ -2697,6 +2775,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "a2a-mcp", specifier = ">=0.1.0" },
     { name = "a2a-sdk", specifier = ">=0.3.25" },
     { name = "azure-identity", specifier = ">=1.25.3" },
     { name = "fastmcp", specifier = ">=3.1.1" },
@@ -2766,6 +2845,20 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/da/34/28fff3ab31ccff1fd4f6c7c7b0ceb2b6968d8ea4950663eadcb5720591a0/lark-1.3.1.tar.gz", hash = "sha256:b426a7a6d6d53189d318f2b6236ab5d6429eaf09259f1ca33eb716eed10d2905", size = 382732, upload-time = "2025-10-27T18:25:56.653Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/82/3d/14ce75ef66813643812f3093ab17e46d3a206942ce7376d31ec2d36229e7/lark-1.3.1-py3-none-any.whl", hash = "sha256:c629b661023a014c37da873b4ff58a817398d12635d3bbb2c5a03be7fe5d1e12", size = 113151, upload-time = "2025-10-27T18:25:54.882Z" },
+]
+
+[[package]]
+name = "limits"
+version = "5.8.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "deprecated" },
+    { name = "packaging" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/71/69/826a5d1f45426c68d8f6539f8d275c0e4fcaa57f0c017ec3100986558a41/limits-5.8.0.tar.gz", hash = "sha256:c9e0d74aed837e8f6f50d1fcebcf5fd8130957287206bc3799adaee5092655da", size = 226104, upload-time = "2026-02-05T07:17:35.859Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b9/98/cb5ca20618d205a09d5bec7591fbc4130369c7e6308d9a676a28ff3ab22c/limits-5.8.0-py3-none-any.whl", hash = "sha256:ae1b008a43eb43073c3c579398bd4eb4c795de60952532dc24720ab45e1ac6b8", size = 60954, upload-time = "2026-02-05T07:17:34.425Z" },
 ]
 
 [[package]]
@@ -3504,6 +3597,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/6d/c0/4ae7973f3c2cfd2b6e321f1675626f0dab0a97027cc7a297474c9c8f3d04/opentelemetry_semantic_conventions-0.61b0.tar.gz", hash = "sha256:072f65473c5d7c6dc0355b27d6c9d1a679d63b6d4b4b16a9773062cb7e31192a", size = 145755, upload-time = "2026-03-04T14:17:32.664Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b2/37/cc6a55e448deaa9b27377d087da8615a3416d8ad523d5960b78dbeadd02a/opentelemetry_semantic_conventions-0.61b0-py3-none-any.whl", hash = "sha256:fa530a96be229795f8cef353739b618148b0fe2b4b3f005e60e262926c4d38e2", size = 231621, upload-time = "2026-03-04T14:17:19.33Z" },
+]
+
+[[package]]
+name = "ordered-set"
+version = "4.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/4c/ca/bfac8bc689799bcca4157e0e0ced07e70ce125193fc2e166d2e685b7e2fe/ordered-set-4.1.0.tar.gz", hash = "sha256:694a8e44c87657c59292ede72891eb91d34131f6531463aab3009191c77364a8", size = 12826, upload-time = "2022-01-26T14:38:56.6Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/33/55/af02708f230eb77084a299d7b08175cff006dea4f2721074b92cdb0296c0/ordered_set-4.1.0-py3-none-any.whl", hash = "sha256:046e1132c71fcf3330438a539928932caf51ddbc582496833e23de611de14562", size = 7634, upload-time = "2022-01-26T14:38:48.677Z" },
 ]
 
 [[package]]
