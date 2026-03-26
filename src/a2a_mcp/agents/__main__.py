@@ -20,10 +20,10 @@ from a2a.server.tasks import (
 from a2a.types import AgentCard
 from a2a_mcp.common import prompts
 from a2a_mcp.common.agent_executor import GenericAgentExecutor
-from adk_travel_agent import TravelAgent
-from langgraph_planner_agent import LangGraphPlannerAgent
-from orchestrator_agent import OrchestratorAgent
-
+from a2a_mcp.agents.langgraph_planner_agent import LangGraphPlannerAgent
+from a2a_mcp.agents.orchestrator_agent import OrchestratorAgent
+from a2a_mcp.agents.invoice_info_agent import InvoiceAgent
+from a2a_mcp.agents.music_catalog_agent import MusicAgent
 
 logger = logging.getLogger(__name__)
 
@@ -33,27 +33,13 @@ def get_agent(agent_card: AgentCard):
     try:
         if agent_card.name == 'Orchestrator Agent':
             return OrchestratorAgent()
-        if agent_card.name == 'Langraph Planner Agent':
+        if agent_card.name == 'Langgraph Planner Agent':
             return LangGraphPlannerAgent()
-        if agent_card.name == 'Air Ticketing Agent':
-            return TravelAgent(
-                agent_name='AirTicketingAgent',
-                description='Book air tickets given a criteria',
-                instructions=prompts.AIRFARE_COT_INSTRUCTIONS,
-            )
-        if agent_card.name == 'Hotel Booking Agent':
-            return TravelAgent(
-                agent_name='HotelBookingAgent',
-                description='Book hotels given a criteria',
-                instructions=prompts.HOTELS_COT_INSTRUCTIONS,
-            )
-        if agent_card.name == 'Car Rental Agent':
-            return TravelAgent(
-                agent_name='CarRentalBookingAgent',
-                description='Book rental cars given a criteria',
-                instructions=prompts.CARS_COT_INSTRUCTIONS,
-            )
-            # return LangraphCarRentalAgent()
+        if agent_card.name == 'Music Agent':
+            return MusicAgent()
+        if agent_card.name == 'Invoice Agent':
+            return InvoiceAgent()
+        raise ValueError(f"Unknown agent: '{agent_card.name}'")
     except Exception as e:
         raise e
 

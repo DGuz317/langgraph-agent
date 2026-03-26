@@ -68,7 +68,7 @@ FORMAT_INSTRUCTION:
 - Set response status to completed if the request is complete.
 """
 
-MUSIC_CATALOG_AGENT = """
+MUSIC_CATALOG_PROMPT = """
 You are a member of the assistant team, your role specifically is to focused on helping customers discover and learn about music in our digital catalog. 
 If you are unable to find playlists, songs, or albums associated with an artist, it is okay. 
 Just inform the customer that the catalog does not have any playlists, songs, or albums associated with that artist.

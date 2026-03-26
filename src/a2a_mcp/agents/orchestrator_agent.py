@@ -46,7 +46,7 @@ class OrchestratorAgent(BaseAgent):
         return response.text
 
     def answer_user_question(self, question) -> str:
-         try:
+        try:
             prompt = (
                 f'You are a music store assistant. Based on this conversation history: '
                 f'{str(self.query_history)}\n'
@@ -101,12 +101,10 @@ class OrchestratorAgent(BaseAgent):
     def clear_state(self):
         self.graph = None
         self.results.clear()
-        self.travel_context.clear()
+        self.store_context.clear()
         self.query_history.clear()
 
-    async def stream(
-        self, query, context_id, task_id
-    ) -> AsyncIterable[dict[str, any]]:
+    async def stream(self, query, context_id, task_id) -> AsyncIterable[dict[str, any]]:
         """Execute and stream response."""
         logger.info(
             f'Running {self.agent_name} stream for session {context_id}, task {task_id} - {query}'
@@ -152,11 +150,11 @@ class OrchestratorAgent(BaseAgent):
             async for chunk in self.graph.run_workflow(
                 start_node_id=start_node_id
             ):
-                if isinstance(chunk.root, SendStreamingMessageSuccessResponse):
+                if isinstance(chunk, SendStreamingMessageSuccessResponse):
                     # The graph node retured TaskStatusUpdateEvent
                     # Check if the node is complete and continue to the next node
-                    if isinstance(chunk.root.result, TaskStatusUpdateEvent):
-                        task_status_event = chunk.root.result
+                    if isinstance(chunk.result, TaskStatusUpdateEvent):
+                        task_status_event = chunk.result
                         context_id = task_status_event.context_id
                         if (
                             task_status_event.status.state
@@ -192,11 +190,12 @@ class OrchestratorAgent(BaseAgent):
 
                     # The graph node retured TaskArtifactUpdateEvent
                     # Store the node and continue.
-                    if isinstance(chunk.root.result, TaskArtifactUpdateEvent):
-                        artifact = chunk.root.result.artifact
+                    if isinstance(chunk.result, TaskArtifactUpdateEvent):
+                        artifact = chunk.result.artifact
                         self.results.append(artifact)
                         if artifact.name == 'conversion_result':
                             # Planning agent returned data, update graph.
+                            artifact_data = artifact.parts[0].root.data
                             logger.info(
                                 f'Updating workflow with {len(artifact_data["tasks"])} task nodes'
                             )
