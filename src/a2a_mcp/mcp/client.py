@@ -199,8 +199,8 @@ async def main(host, port, transport, query, resource, tool, tool_input):
 # Command line tester
 @click.command()
 @click.option('--host', default='localhost', help='Streamable-HTTP Host')
-@click.option('--port', default='10100', help='Streamable-HTTP Port')
-@click.option('--transport', default='stdio', help='MCP Transport')
+@click.option('--port', default='10000', help='Streamable-HTTP Port')
+@click.option('--transport', default='streamable-http', help='MCP Transport')
 @click.option('--find_agent', help='Query to find an agent')
 @click.option('--resource', help='URI of the resource to locate')
 @click.option('--tool_name', type=click.Choice(['get_tracks_by_artist', 'get_invoices_by_customer_sorted_by_date']),

@@ -9,18 +9,20 @@ from uuid import uuid4
 import httpx
 import networkx as nx
 
-from a2a.client import A2AClient
+from a2a.client import ClientFactory, ClientConfig
 from a2a.types import (
     AgentCard,
-    MessageSendParams,
-    SendStreamingMessageRequest,
+    Message,
+    Part,
+    TextPart,
+    Role,
     SendStreamingMessageSuccessResponse,
     TaskArtifactUpdateEvent,
     TaskState,
     TaskStatusUpdateEvent,
 )
 from a2a_mcp.common.utils import get_mcp_server_config
-from a2a_mcp.mcp import client
+import a2a_mcp.mcp.client as mcp_client
 
 
 logger = logging.getLogger(__name__)
@@ -61,11 +63,11 @@ class WorkflowNode:
     async def get_planner_resource(self) -> AgentCard | None:
         logger.info(f'Getting resource for node {self.id}')
         config = get_mcp_server_config()
-        async with client.init_session(
+        async with mcp_client.init_session(
             config.host, config.port, config.transport
         ) as session:
-            response = await client.find_resource(
-                session, 'resource://agent_cards/planner_agent'
+            response = await mcp_client.find_resource(
+                session, 'resource://agent_cards/langgraph_planner_agent'
             )
             data = json.loads(response.contents[0].text)
             return AgentCard(**data['agent_card'][0])
@@ -73,10 +75,10 @@ class WorkflowNode:
     async def find_agent_for_task(self) -> AgentCard | None:
         logger.info(f'Find agent for task - {self.task}')
         config = get_mcp_server_config()
-        async with client.init_session(
+        async with mcp_client.init_session(
             config.host, config.port, config.transport
         ) as session:
-            result = await client.find_agent(session, self.task)
+            result = await mcp_client.find_agent(session, self.task)
             agent_card_json = json.loads(result.content[0].text)
             logger.debug(f'Found agent {agent_card_json} for task {self.task}')
             return AgentCard(**agent_card_json)
@@ -93,30 +95,17 @@ class WorkflowNode:
             agent_card = await self.get_planner_resource()
         else:
             agent_card = await self.find_agent_for_task()
-        async with httpx.AsyncClient() as httpx_client:
-            a2a_client = A2AClient(httpx_client=httpx_client, agent_card=agent_card)
-
-            payload: dict[str, any] = {
-                'message': {
-                    'role': 'user',
-                    'parts': [{'kind': 'text', 'text': query}],
-                    'messageId': uuid4().hex,
-                    'taskId': task_id,
-                    'contextId': context_id,
-                },
-            }
-            request = SendStreamingMessageRequest(
-                id=str(uuid4()), params=MessageSendParams(**payload)
-            )
-            response_stream = client.send_message_streaming(request)
-            async for chunk in response_stream:
-                # Save the artifact as a result of the node
-                if isinstance(
-                    chunk.root, SendStreamingMessageSuccessResponse
-                ) and (isinstance(chunk.root.result, TaskArtifactUpdateEvent)):
-                    artifact = chunk.root.result.artifact
-                    self.results = artifact
-                yield chunk
+        a2a_client = await ClientFactory.connect(agent_card.url)
+        response_message = Message(
+            role=Role.user,
+            message_id=uuid4().hex,
+            parts=[Part(root=TextPart(text=query))],
+        )
+        async for chunk in a2a_client.send_message(response_message):
+            if isinstance(chunk, SendStreamingMessageSuccessResponse):
+                if isinstance(chunk.result, TaskArtifactUpdateEvent):
+                    self.results = chunk.result.artifact
+            yield chunk
 
 
 class WorkflowGraph:
@@ -173,11 +162,11 @@ class WorkflowGraph:
                 # but, let the loop complete.
                 if node.state != Status.PAUSED:
                     if isinstance(
-                        chunk.root, SendStreamingMessageSuccessResponse
+                        chunk, SendStreamingMessageSuccessResponse
                     ) and (
-                        isinstance(chunk.root.result, TaskStatusUpdateEvent)
+                        isinstance(chunk.result, TaskStatusUpdateEvent)
                     ):
-                        task_status_event = chunk.root.result
+                        task_status_event = chunk.result
                         context_id = task_status_event.context_id
                         if (
                             task_status_event.status.state

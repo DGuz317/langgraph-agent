@@ -1,33 +1,34 @@
 {
-  "capabilities": {
-    "pushNotifications": true,
-    "streaming": true
-  },
-  "defaultInputModes": [
-    "text",
-    "text/plain"
-  ],
-  "defaultOutputModes": [
-    "text",
-    "text/plain"
-  ],
-  "description": "Retrieving and processing invoice information",
-  "name": "Invoice Agent",
-  "preferredTransport": "JSONRPC",
-  "protocolVersion": "0.3.0",
-  "skills": [
-    {
-      "description": "Retrieving and processing invoice information",
-      "examples": [
-        "My customer id is 1. What is my recent invoice?"
-      ],
-      "id": "invoice_retrieval",
-      "name": "Invoice information retrieval",
-      "tags": [
-        "invoice, unit price"
-      ]
-    }
-  ],
-  "url": "http://localhost:8010/",
-  "version": "1.0.0"
+    "name": "Invoice Agent",
+    "description": "Retrieving and processing invoice information",
+    "url": "http://localhost:8010/",
+    "version": "1.0.0",
+    "preferredTransport": "JSONRPC",
+    "protocolVersion": "0.3.0",
+    "capabilities": {
+        "streaming": true,
+        "pushNotifications": true,
+        "stateTransitionHistory": false
+    },
+    "defaultInputModes": [
+        "text",
+        "text/plain"
+    ],
+    "defaultOutputModes": [
+        "text",
+        "text/plain"
+    ],
+    "skills": [
+        {
+            "id": "invoice_retrieval",
+            "name": "Invoice information retrieval",
+            "description": "Retrieving and processing invoice information",
+            "tags": [
+                "invoice, unit price"
+            ],
+            "examples": [
+                "My customer id is 1. What is my recent invoice?"
+            ]
+        }
+    ]
 }

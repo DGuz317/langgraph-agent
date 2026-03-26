@@ -1,6 +1,6 @@
 {
-    "name": "Langraph Planner Agent",
-    "description": "Helps breakdown a request in to actionable tasks",
+    "name": "Langgraph Planner Agent",
+    "description": "Breakdown the user request into executable tasks",
     "url": "http://localhost:8030/",
     "version": "1.0.0",
     "capabilities": {
