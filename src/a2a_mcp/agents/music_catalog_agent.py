@@ -126,7 +126,7 @@ class MusicAgent(BaseAgent):
                 }
             if structured_response.status == 'completed':
                 return {
-                    'response_type': 'data',
+                    'response_type': 'text',
                     'is_task_complete': True,
                     'require_user_input': False,
                     'content': structured_response.message,
