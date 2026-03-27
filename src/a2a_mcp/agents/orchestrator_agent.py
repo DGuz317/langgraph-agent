@@ -6,6 +6,7 @@ from collections.abc import AsyncIterable
 
 from a2a.types import (
     SendStreamingMessageSuccessResponse,
+    Task,
     TaskArtifactUpdateEvent,
     TaskState,
     TaskStatusUpdateEvent,
@@ -37,16 +38,34 @@ class OrchestratorAgent(BaseAgent):
         self.context_id = None
 
     async def generate_summary(self) -> str:
-        client = genai.Client()
+        client = genai.Client(api_key=os.getenv('GOOGLE_API_KEY'))
+        # Build results summary from artifacts
+        results_text = []
+        for artifact in self.results:
+            if artifact.name != 'PlannerAgent-result':
+                for part in artifact.parts:
+                    if hasattr(part.root, 'text'):
+                        results_text.append(f'{artifact.name}: {part.root.text}')
+                    elif hasattr(part.root, 'data'):
+                        results_text.append(f'{artifact.name}: {part.root.data}')
+
+        contents = (
+            f'{prompts.SUMMARY_COT_INSTRUCTIONS}\n\n'
+            f'Original query: {self.query_history[-1] if self.query_history else ""}\n\n'
+            f'Results from agents:\n' + '\n'.join(results_text) if results_text
+            else f'Query: {self.query_history[-1] if self.query_history else ""}\n'
+                 f'Please provide a helpful response based on the completed tasks.'
+        )
         response = client.models.generate_content(
             model='gemini-2.5-flash',
-            contents=prompts.SUMMARY_COT_INSTRUCTIONS + f'\n\nResults:\n{str(self.results)}',
+            contents=contents,
             config={'temperature': 0.0},
         )
         return response.text
 
     def answer_user_question(self, question) -> str:
         try:
+            client = genai.Client(api_key=os.getenv('GOOGLE_API_KEY'))
             prompt = (
                 f'You are a music store assistant. Based on this conversation history: '
                 f'{str(self.query_history)}\n'
@@ -54,7 +73,7 @@ class OrchestratorAgent(BaseAgent):
                 f'Can you answer this question: {question}\n'
                 f'Respond in JSON: {{"can_answer": "yes" or "no", "answer": "<your answer>"}}'
             )
-            response = _genai_client.models.generate_content(
+            response = client.models.generate_content(
                 model='gemini-2.5-flash',
                 contents=prompt,
                 config={
@@ -62,6 +81,7 @@ class OrchestratorAgent(BaseAgent):
                     'response_mime_type': 'application/json',
                 },
             )
+            return response.text
         except Exception as e:
             logger.info(f'Error answering user question: {e}')
         return '{"can_answer": "no", "answer": "Cannot answer based on provided context"}'
@@ -150,102 +170,105 @@ class OrchestratorAgent(BaseAgent):
             async for chunk in self.graph.run_workflow(
                 start_node_id=start_node_id
             ):
-                if isinstance(chunk, SendStreamingMessageSuccessResponse):
-                    # The graph node retured TaskStatusUpdateEvent
-                    # Check if the node is complete and continue to the next node
-                    if isinstance(chunk.result, TaskStatusUpdateEvent):
-                        task_status_event = chunk.result
-                        context_id = task_status_event.context_id
-                        if (
-                            task_status_event.status.state
-                            == TaskState.completed
-                            and context_id
-                        ):
-                            ## yeild??
-                            continue
-                        if (
-                            task_status_event.status.state
-                            == TaskState.input_required
-                        ):
-                            question = task_status_event.status.message.parts[
-                                0
-                            ].root.text
+                # ✅ FIX: New SDK yields (Task, event) tuples — extract the event
+                a2a_event = None
+                if isinstance(chunk, tuple):
+                    for element in chunk:
+                        if isinstance(element, TaskArtifactUpdateEvent):
+                            a2a_event = element
+                            break
+                        if isinstance(element, TaskStatusUpdateEvent):
+                            a2a_event = element
+                            break
+                elif isinstance(chunk, (TaskArtifactUpdateEvent, TaskStatusUpdateEvent)):
+                    a2a_event = chunk
+                elif isinstance(chunk, SendStreamingMessageSuccessResponse):
+                    a2a_event = chunk.result
 
-                            try:
-                                answer = json.loads(
-                                    self.answer_user_question(question)
+                if isinstance(a2a_event, TaskStatusUpdateEvent):
+                    task_status_event = a2a_event
+                    context_id = task_status_event.context_id
+                    if (
+                        task_status_event.status.state == TaskState.completed
+                        and context_id
+                    ):
+                        continue
+                    if task_status_event.status.state == TaskState.input_required:
+                        question = task_status_event.status.message.parts[0].root.text
+                        try:
+                            answer = json.loads(self.answer_user_question(question))
+                            logger.info(f'Agent Answer {answer}')
+                            if answer['can_answer'] == 'yes':
+                                query = answer['answer']
+                                start_node_id = self.graph.paused_node_id
+                                self.set_node_attributes(
+                                    node_id=start_node_id, query=query
                                 )
-                                logger.info(f'Agent Answer {answer}')
-                                if answer['can_answer'] == 'yes':
-                                    # Orchestrator can answer on behalf of the user set the query
-                                    # Resume workflow from paused state.
-                                    query = answer['answer']
-                                    start_node_id = self.graph.paused_node_id
-                                    self.set_node_attributes(
-                                        node_id=start_node_id, query=query
-                                    )
-                                    should_resume_workflow = True
-                            except Exception:
-                                logger.info('Cannot convert answer data')
+                                should_resume_workflow = True
+                        except Exception:
+                            logger.info('Cannot convert answer data')
 
-                    # The graph node retured TaskArtifactUpdateEvent
-                    # Store the node and continue.
-                    if isinstance(chunk.result, TaskArtifactUpdateEvent):
-                        artifact = chunk.result.artifact
-                        self.results.append(artifact)
-                        if artifact.name == 'conversion_result':
-                            # Planning agent returned data, update graph.
-                            artifact_data = artifact.parts[0].root.data
-                            logger.info(
-                                f'Updating workflow with {len(artifact_data["tasks"])} task nodes'
+                elif isinstance(a2a_event, TaskArtifactUpdateEvent):
+                    artifact = a2a_event.artifact
+                    self.results.append(artifact)
+                    if artifact.name == 'PlannerAgent-result':
+                        artifact_data = artifact.parts[0].root.data
+                        logger.info(
+                            f'Updating workflow with {len(artifact_data["tasks"])} task nodes'
+                        )
+                        current_node_id = start_node_id
+                        for idx, task_data in enumerate(artifact_data['tasks']):
+                            task_query = task_data.get('query') or task_data.get('description', '')
+                            task_agent = task_data.get('agent', '')
+                            node = self.add_graph_node(
+                                task_id=task_id,
+                                context_id=context_id,
+                                query=task_query,
+                                node_id=current_node_id,
+                                node_label=task_agent,
                             )
-                            # Define the edges
-                            current_node_id = start_node_id
-                            for idx, task_data in enumerate(
-                                artifact_data['tasks']
-                            ):
-                                node = self.add_graph_node(
-                                    task_id=task_id,
-                                    context_id=context_id,
-                                    query=task_data['query'],
-                                    node_id=current_node_id,
-                                    node_label=task_data['agent'],
-                                )
-                                current_node_id = node.id
-                                # Restart graph from the newly inserted subgraph state
-                                # Start from the new node just created.
-                                if idx == 0:
-                                    should_resume_workflow = True
-                                    start_node_id = node.id
-                        else:
-                            # Not planner but artifacts from other tasks,
-                            # continue to the next node in the workflow.
-                            # client does not get the artifact,
-                            # a summary is shown at the end of the workflow.
-                            continue
+                            current_node_id = node.id
+                            if idx == 0:
+                                should_resume_workflow = True
+                                start_node_id = node.id
+                    else:
+                        # Artifact from sub-agent — store result, don't yield
+                        logger.info(f'Sub-agent artifact received: {artifact.name}')
+                        continue
+
                 # When the workflow needs to be resumed, do not yield partial.
                 if not should_resume_workflow:
                     logger.info('No workflow resume detected, yielding chunk')
-                    # Yield partial execution
                     yield chunk
+
             # The graph is complete and no updates, so okay to break from the loop.
             if not should_resume_workflow:
-                logger.info(
-                    'Workflow iteration complete and no restart requested. Exiting main loop.'
-                )
+                logger.info('Workflow iteration complete. Exiting main loop.')
                 break
             else:
-                # Readable logs
                 logger.info('Restarting workflow loop.')
+
+        logger.info(f'Graph state after loop: {self.graph.state}')
         if self.graph.state == Status.COMPLETED:
-            # All individual actions complete, now generate the summary
             logger.info(f'Generating summary for {len(self.results)} results')
-            summary = await self.generate_summary()
+            try:
+                summary = await self.generate_summary()
+            except Exception as e:
+                logger.error(f'Error generating summary: {e}')
+                summary = f'Tasks completed. Results: {str(self.results)}'
             self.clear_state()
-            logger.info(f'Summary: {summary}')
+            logger.info(f'Summary generated: {summary[:100]}...')
             yield {
                 'response_type': 'text',
                 'is_task_complete': True,
                 'require_user_input': False,
                 'content': summary,
+            }
+        else:
+            logger.warning(f'Workflow ended in non-completed state: {self.graph.state}')
+            yield {
+                'response_type': 'text',
+                'is_task_complete': True,
+                'require_user_input': False,
+                'content': 'Tasks completed but no summary could be generated.',
             }

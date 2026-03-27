@@ -101,10 +101,10 @@ class LangGraphPlannerAgent(BaseAgent):
                 }
             if structured_response.status == 'error':
                 return {
-                    'response_type': 'text',
+                    'response_type': 'data',
                     'is_task_complete': False,
                     'require_user_input': True,
-                    'content': structured_response.question,
+                    'content': 'An error occurred during planning.',
                 }
             if structured_response.status == 'completed':
                 return {
