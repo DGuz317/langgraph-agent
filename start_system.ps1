@@ -26,7 +26,7 @@ function Start-ServiceWindow {
 
 # 1. Start the MCP Server
 Write-Host "-> Starting MCP Server..." -ForegroundColor Yellow
-$mcpCommand = "uv run -m a2a_mcp --run mcp-server --host localhost --port 10000 --transport streamable-http"
+$mcpCommand = "uv run -m src.a2a_mcp.mcp.server --host localhost --port 10000 --transport streamable-http"
 Start-ServiceWindow -Title "MCP Server (Port 10000)" -Command $mcpCommand
 
 # Give the MCP server a quick second to spin up before the agents try to connect
@@ -41,12 +41,12 @@ Write-Host "-> Starting Music Agent..." -ForegroundColor Yellow
 $musicCommand = "uv run -m a2a_mcp.agents --host localhost --port 8020 --agent-card agent_cards/music_catalog_agent.json"
 Start-ServiceWindow -Title "Music Agent (Port 8020)" -Command $musicCommand
 
-Write-Host "-> Starting Planner Agent..." -ForegroundColor Yellow
-$plannerCommand = "uv run -m a2a_mcp.agents --host localhost --port 8030 --agent-card agent_cards/langgraph_planner_agent.json"
-Start-ServiceWindow -Title "Planner Agent (Port 8030)" -Command $plannerCommand
-
 Write-Host "-> Starting Orchestrator Agent..." -ForegroundColor Yellow
 $orchestratorCommand = "uv run -m a2a_mcp.agents --host localhost --port 8040 --agent-card agent_cards/orchestrator_agent.json"
 Start-ServiceWindow -Title "Orchestrator Agent (Port 8040)" -Command $orchestratorCommand
+
+Write-Host "-> Starting Customer Service Agent..." -ForegroundColor Yellow
+$CustomerServiceCommand = "uv run -m a2a_mcp.agents --host localhost --port 8040 --agent-card agent_cards/orchestrator_agent.json"
+Start-ServiceWindow -Title "Customer Service Agent (Port 8050)" -Command $CustomerServiceCommand
 
 Write-Host "All services have been launched in separate windows!" -ForegroundColor Green

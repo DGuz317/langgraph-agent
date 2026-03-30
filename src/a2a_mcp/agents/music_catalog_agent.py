@@ -39,7 +39,7 @@ class MusicAgent(BaseAgent):
     async def fetch_mcp_tools(self) -> list:
         client = MultiServerMCPClient(
                 {
-                    "My-MCP-Server": {
+                    "MCP-Server": {
                         "transport": "streamable_http",
                         "url": "http://localhost:10000/mcp",
                     }
@@ -74,35 +74,28 @@ class MusicAgent(BaseAgent):
                 response_format=ResponseFormat,
             )
 
-    async def invoke(self, query, sessionId) -> str:
+    async def stream(self, query, context_id) -> AsyncIterable[dict[str, Any]]:
         await self._ensure_graph()
-        config = {'configurable': {'thread_id': sessionId}}
-        await self.graph.ainvoke({'messages': [('user', query)]}, config)
-        return self.get_agent_response(config)
-
-    async def stream(self, query, sessionId, task_id) -> AsyncIterable[dict[str, Any]]:
-        await self._ensure_graph()
-
         inputs = {'messages': [('user', query)]}
-        config = {'configurable': {'thread_id': sessionId}}
-
-        logger.info(f'Running InvoiceAgent stream for session {sessionId} {task_id} with input {query}')
+        config = {'configurable': {'thread_id': context_id}}
+        
+        logger.info(f'Running InvoiceAgent stream for session {context_id} with input {query}')
 
         async for item in self.graph.astream(inputs, config, stream_mode='values'):
             message = item['messages'][-1]
             if isinstance(message, AIMessage) and message.tool_calls:
                 yield {
-                    'response_type': 'text',
+                    # 'response_type': 'text',
                     'is_task_complete': False,
                     'require_user_input': False,
-                    'content': 'Looking up catalog information...',
+                    'content': 'Looking up digital catalog information...',
                 }
             elif isinstance(message, ToolMessage):
                 yield {
-                    'response_type': 'text',
+                    # 'response_type': 'text',
                     'is_task_complete': False,
                     'require_user_input': False,
-                    'content': 'Processing catalog data...',
+                    'content': 'Processing digital catalog data...',
                 }
         yield self.get_agent_response(config)
 
@@ -112,21 +105,21 @@ class MusicAgent(BaseAgent):
         if structured_response and isinstance(structured_response, ResponseFormat):
             if (structured_response.status == 'input_required'):
                 return {
-                    'response_type': 'text',
+                    # 'response_type': 'text',
                     'is_task_complete': False,
                     'require_user_input': True,
                     'content': structured_response.message,
                 }
             if structured_response.status == 'error':
                 return {
-                    'response_type': 'text',
+                    # 'response_type': 'text',
                     'is_task_complete': False,
                     'require_user_input': True,
                     'content': structured_response.message,
                 }
             if structured_response.status == 'completed':
                 return {
-                    'response_type': 'text',
+                    # 'response_type': 'text',
                     'is_task_complete': True,
                     'require_user_input': False,
                     'content': structured_response.message,

@@ -47,85 +47,47 @@ class GenericAgentExecutor(AgentExecutor):
 
         updater = TaskUpdater(event_queue, task.id, task.context_id)
         
-        async for item in self.agent.stream(query, task.context_id, task.id):
-            a2a_event = None
-            if isinstance(item, (TaskStatusUpdateEvent, TaskArtifactUpdateEvent)):
-                # New SDK — event is the item directly
-                a2a_event = item
-            elif hasattr(item, 'root') and isinstance(
-                item.root, SendStreamingMessageSuccessResponse
-            ):
-                # Old SDK — event is wrapped in .root
-                a2a_event = item.root.result
- 
-            if a2a_event is not None:
-                if isinstance(a2a_event, (TaskStatusUpdateEvent, TaskArtifactUpdateEvent)):
-                    await event_queue.enqueue_event(a2a_event)
-                continue
+        try:
+            async for item in self.agent.stream(query, task.context_id):
+                is_task_complete = item['is_task_complete']
+                require_user_input = item['require_user_input']
 
-            # ✅ FIX 1: New SDK yields (Task, ...) tuples — extract Task and enqueue its artifacts
-            if isinstance(item, tuple):
-                for element in item:
-                    if isinstance(element, Task):
-                        for artifact in (element.artifacts or []):
-                            await event_queue.enqueue_event(
-                                TaskArtifactUpdateEvent(
-                                    artifact=artifact,
-                                    context_id=task.context_id,
-                                    task_id=task.id,
-                                )
-                            )
-                        if element.status and element.status.state == TaskState.completed:
-                            await updater.complete()
-                            return
-                continue
-
-            # ✅ FIX 2: Skip any other non-dict items
-            if not isinstance(item, dict):
-                logger.warning(f'Unexpected item type: {type(item).__name__}')
-                continue
-
-            is_task_complete = item['is_task_complete']
-            require_user_input = item['require_user_input']
-
-            if is_task_complete:
-                content = item['content']
-                if item['response_type'] == 'data' and isinstance(content, dict):
-                    part = Part(root=DataPart(data=content))
+                if not is_task_complete and not require_user_input:
+                    await updater.update_status(
+                        TaskState.working,
+                        new_agent_text_message(
+                            item['content'],
+                            task.context_id,
+                            task.id,
+                        ),
+                    )
+                elif require_user_input:
+                    await updater.update_status(
+                        TaskState.input_required,
+                        new_agent_text_message(
+                            item['content'],
+                            task.context_id,
+                            task.id,
+                        ),
+                        final=True,
+                    )
+                    break
                 else:
-                    # Fallback: if content is a string (or data but not dict), use TextPart
-                    part = Part(root=TextPart(text=str(content)))
- 
-                await updater.add_artifact(
-                    [part],
-                    name=f'{self.agent.agent_name}-result',
-                )
-                await updater.complete()
-                break
-            if require_user_input:
-                await updater.update_status(
-                    TaskState.input_required,
-                    new_agent_text_message(
-                        item['content'],
-                        task.context_id,
-                        task.id,
-                    ),
-                    final=True,
-                )
-                break
-            await updater.update_status(
-                TaskState.working,
-                new_agent_text_message(
-                    item['content'],
-                    task.context_id,
-                    task.id,
-                ),
-            )
+                    await updater.add_artifact(
+                        [Part(root=TextPart(text=item['content']))],
+                        name='conversion_result',
+                    )
+                    await updater.complete()
+                    break
+
+        except Exception as e:
+            logger.error(f'An error occurred while streaming the response: {e}')
+            raise ServerError(error=InternalError()) from e
 
     def _validate_request(self, context: RequestContext) -> bool:
         return False
 
     async def cancel(
-        self, request: RequestContext, event_queue: EventQueue
-    ) -> Task | None:
+        self, context: RequestContext, event_queue: EventQueue
+    ) -> None:
         raise ServerError(error=UnsupportedOperationError())

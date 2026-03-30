@@ -82,37 +82,37 @@ async def init_session(host, port, transport):
         )
 
 
-async def find_agent(session: ClientSession, query) -> CallToolResult:
-    """Calls the 'find_agent' tool on the connected MCP server.
+# async def find_agent(session: ClientSession, query) -> CallToolResult:
+#     """Calls the 'find_agent' tool on the connected MCP server.
 
-    Args:
-        session: The active ClientSession.
-        query: The natural language query to send to the 'find_agent' tool.
+#     Args:
+#         session: The active ClientSession.
+#         query: The natural language query to send to the 'find_agent' tool.
 
-    Returns:
-        The result of the tool call.
-    """
-    logger.info(f"Calling 'find_agent' tool with query: '{query[:50]}...'")
-    return await session.call_tool(
-        name='find_agent',
-        arguments={
-            'query': query,
-        },
-    )
+#     Returns:
+#         The result of the tool call.
+#     """
+#     logger.info(f"Calling 'find_agent' tool with query: '{query[:50]}...'")
+#     return await session.call_tool(
+#         name='find_agent',
+#         arguments={
+#             'query': query,
+#         },
+#     )
 
 
-async def find_resource(session: ClientSession, resource) -> ReadResourceResult:
-    """Reads a resource from the connected MCP server.
+# async def find_resource(session: ClientSession, resource) -> ReadResourceResult:
+#     """Reads a resource from the connected MCP server.
 
-    Args:
-        session: The active ClientSession.
-        resource: The URI of the resource to read (e.g., 'resource://agent_cards/list').
+#     Args:
+#         session: The active ClientSession.
+#         resource: The URI of the resource to read (e.g., 'resource://agent_cards/list').
 
-    Returns:
-        The result of the resource read operation.
-    """
-    logger.info(f'Reading resource: {resource}')
-    return await session.read_resource(resource)
+#     Returns:
+#         The result of the resource read operation.
+#     """
+#     logger.info(f'Reading resource: {resource}')
+#     return await session.read_resource(resource)
 
 
 async def get_tracks_by_artist(session: ClientSession, artist: str) -> CallToolResult:

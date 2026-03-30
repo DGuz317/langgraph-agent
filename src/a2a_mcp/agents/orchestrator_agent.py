@@ -21,8 +21,27 @@ from pydantic import BaseModel, Field
 logger = logging.getLogger(__name__)
 
 
+class SubAgentTask(BaseModel):
+    agent_name: str = Field(description="Name of the calling agent (e.g., 'music_catalog_agent', 'invoice_info_agent')")
+    query: str = Field(description="The specific query to send to this agent")
+
+
+class RoutingDecision(BaseModel):
+    tasks: List[SubAgentTask] = Field(description="List of sub-agents to query. Can be empty if the orchestrator can answer directly.")
+
+
+ROUTING_PROMPT = """
+You are the Orchestrator for a digital music store. You have two sub-agents:
+1. music_catalog_agent: Use for tracks, artists, albums, and genres.
+2. invoice_info_agent: Use for invoices, billing, and customer purchases.
+
+Analyze the user's request. Decide which agent(s) need to be queried and what exactly to ask them.
+User Request: {user_query}
+"""
+
+
 class OrchestratorAgent(BaseAgent):
-    """Orchestrator Agent."""
+    """Orchestrator Agent"""
 
     def __init__(self):
         init_api_key()
@@ -87,11 +106,9 @@ class OrchestratorAgent(BaseAgent):
         return '{"can_answer": "no", "answer": "Cannot answer based on provided context"}'
 
     def set_node_attributes(
-        self, node_id, task_id=None, context_id=None, query=None
+        self, node_id, context_id=None, query=None
     ):
         attr_val = {}
-        if task_id:
-            attr_val['task_id'] = task_id
         if context_id:
             attr_val['context_id'] = context_id
         if query:
@@ -101,7 +118,6 @@ class OrchestratorAgent(BaseAgent):
 
     def add_graph_node(
         self,
-        task_id,
         context_id,
         query: str,
         node_id: str = None,
@@ -124,10 +140,10 @@ class OrchestratorAgent(BaseAgent):
         self.store_context.clear()
         self.query_history.clear()
 
-    async def stream(self, query, context_id, task_id) -> AsyncIterable[dict[str, any]]:
+    async def stream(self, query, context_id) -> AsyncIterable[dict[str, any]]:
         """Execute and stream response."""
         logger.info(
-            f'Running {self.agent_name} stream for session {context_id}, task {task_id} - {query}'
+            f'Running {self.agent_name} stream for session {context_id} - {query}'
         )
         if not query:
             raise ValueError('Query cannot be empty')
@@ -142,7 +158,6 @@ class OrchestratorAgent(BaseAgent):
         if not self.graph:
             self.graph = WorkflowGraph()
             planner_node = self.add_graph_node(
-                task_id=task_id,
                 context_id=context_id,
                 query=query,
                 node_key='planner',
@@ -162,7 +177,6 @@ class OrchestratorAgent(BaseAgent):
             # Set attributes on the node so we propagate task and context
             self.set_node_attributes(
                 node_id=start_node_id,
-                task_id=task_id,
                 context_id=context_id,
             )
             # Resume workflow, used when the workflow nodes are updated.
@@ -221,7 +235,6 @@ class OrchestratorAgent(BaseAgent):
                             task_query = task_data.get('query') or task_data.get('description', '')
                             task_agent = task_data.get('agent', '')
                             node = self.add_graph_node(
-                                task_id=task_id,
                                 context_id=context_id,
                                 query=task_query,
                                 node_id=current_node_id,
@@ -259,7 +272,7 @@ class OrchestratorAgent(BaseAgent):
             self.clear_state()
             logger.info(f'Summary generated: {summary[:100]}...')
             yield {
-                'response_type': 'text',
+                # 'response_type': 'text',
                 'is_task_complete': True,
                 'require_user_input': False,
                 'content': summary,
@@ -267,7 +280,7 @@ class OrchestratorAgent(BaseAgent):
         else:
             logger.warning(f'Workflow ended in non-completed state: {self.graph.state}')
             yield {
-                'response_type': 'text',
+                # 'response_type': 'text',
                 'is_task_complete': True,
                 'require_user_input': False,
                 'content': 'Tasks completed but no summary could be generated.',
