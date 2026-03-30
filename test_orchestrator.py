@@ -17,7 +17,7 @@ async def send_message(text: str):
     print('='*60)
 
     # 1. Create a custom HTTP client with an extended timeout (e.g., 120 seconds)
-    custom_http_client = httpx.AsyncClient(timeout=120.0)
+    custom_http_client = httpx.AsyncClient(timeout=300.0)
     
     # 2. Inject it into the ClientConfig
     config = ClientConfig(httpx_client=custom_http_client)
