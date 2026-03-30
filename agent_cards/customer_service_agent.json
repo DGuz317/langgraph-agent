@@ -1,0 +1,36 @@
+{
+    "name": "Customer Service Agent",
+    "description": "Customer service agent for a digital music store",
+    "url": "http://localhost:8050/a2a/agents",
+    "version": "1.0.0",
+    "preferredTransport": "JSONRPC",
+    "protocolVersion": "0.3.0",
+    "capabilities": {
+        "streaming": true,
+        "pushNotifications": true,
+        "stateTransitionHistory": false
+    },
+    "defaultInputModes": [
+        "text",
+        "text/plain"
+    ],
+    "defaultOutputModes": [
+        "text",
+        "text/plain"
+    ],
+    "skills": [
+        {
+            "id": "customer_service",
+            "name": "Customer Service",
+            "description": "Assist customers with their inquiries and requests",
+            "tags": [
+                "customer_service",
+                "support",
+                "assistance"
+            ],
+            "examples": [
+                "Assist customers with their inquiries about music tracks, albums, or invoices by coordinating with the Orchestrator Agent to find the answers."
+            ]
+        }
+    ]
+}
