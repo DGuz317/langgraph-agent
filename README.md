@@ -3,7 +3,7 @@
 - Python
 - uv
 ## Project Structure
-```
+```bash
 ├── agent_cards/  # (store agent-card.json)
 |   └── invoice_info_agent.json
 |   └── orchestrator_agent.json
@@ -27,13 +27,13 @@
 ```
 ## Setup
 Adjust project path in `start_system.ps1` file (if you don't want new tab popping everywhere, go to setting at your PowerShell, look for `New instance behavior` and change it to `Attach to the most recently used window`)
-```
+```bash
 $projectPath = "...\langraph_agent"
 ```
 ## Quickstart
 ### 1. Start the system
 In your powershell, cd to the `langraph_agent` directory then run
-```
+```bash
 .\start_system.ps1
 ```
 ### 2. Navigate to Customer Service Agent tab
