@@ -6,6 +6,7 @@ from a2a.server.tasks import TaskUpdater
 from a2a.types import (
     DataPart,
     InvalidParamsError,
+    InternalError,
     Part,
     SendStreamingMessageSuccessResponse,
     Task,
@@ -49,35 +50,32 @@ class GenericAgentExecutor(AgentExecutor):
         
         try:
             async for item in self.agent.stream(query, task.context_id):
-                is_task_complete = item['is_task_complete']
-                require_user_input = item['require_user_input']
+                require_user_input = item.get('require_user_input', False)
+                is_task_complete = item.get('is_task_complete', False)
+                content = item.get('content', '')
 
-                if not is_task_complete and not require_user_input:
+                if not is_task_complete:
                     await updater.update_status(
                         TaskState.working,
-                        new_agent_text_message(
-                            item['content'],
-                            task.context_id,
-                            task.id,
-                        ),
+                        new_agent_text_message(content, task.context_id, task.id),
                     )
-                elif require_user_input:
-                    await updater.update_status(
-                        TaskState.input_required,
-                        new_agent_text_message(
-                            item['content'],
-                            task.context_id,
-                            task.id,
-                        ),
-                        final=True,
-                    )
-                    break
                 else:
-                    await updater.add_artifact(
-                        [Part(root=TextPart(text=item['content']))],
-                        name='conversion_result',
-                    )
-                    await updater.complete()
+                    if require_user_input:
+                        await updater.update_status(
+                            TaskState.input_required,
+                            new_agent_text_message(content, task.context_id, task.id),
+                            final=True,
+                        )
+                    else:
+                        await updater.add_artifact(
+                            [Part(root=TextPart(text=content))],
+                            name='orchestrator_result',
+                        )
+                        await updater.update_status(
+                            TaskState.completed,
+                            new_agent_text_message(content, task.context_id, task.id),
+                            final=True,
+                        )
                     break
 
         except Exception as e:

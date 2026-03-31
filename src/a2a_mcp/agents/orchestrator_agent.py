@@ -1,33 +1,39 @@
-import json
 import logging
 import os
-
+import httpx
+from uuid import uuid4
 from collections.abc import AsyncIterable
-
-from a2a.types import (
-    SendStreamingMessageSuccessResponse,
-    Task,
-    TaskArtifactUpdateEvent,
-    TaskState,
-    TaskStatusUpdateEvent,
-)
-from a2a_mcp.common import prompts
-from a2a_mcp.common.base_agent import BaseAgent
-from a2a_mcp.common.utils import init_api_key
-from a2a_mcp.common.workflow import Status, WorkflowGraph, WorkflowNode
-from google import genai
 from pydantic import BaseModel, Field
 
+from google import genai
+from google.genai import types
+
+from a2a.client import ClientFactory, ClientConfig
+from a2a.types import Message, Part, TextPart, Role
+
+from a2a_mcp.common.base_agent import BaseAgent
+from a2a_mcp.common.utils import init_api_key
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
 class SubAgentTask(BaseModel):
-    agent_name: str = Field(description="Name of the calling agent (e.g., 'music_catalog_agent', 'invoice_info_agent')")
-    query: str = Field(description="The specific query to send to this agent")
+    agent_name: str = Field(
+        description="The name of the agent to call (e.g., 'music_catalog_agent', 'invoice_info_agent')"
+    )
+    query: str = Field(
+        description="The specific query to send to this agent"
+    )
 
 
 class RoutingDecision(BaseModel):
-    tasks: List[SubAgentTask] = Field(description="List of sub-agents to query. Can be empty if the orchestrator can answer directly.")
+    tasks: list[SubAgentTask] = Field(
+        description="List of sub-agents to query. Can be empty if the orchestrator can answer directly."
+    )
 
 
 ROUTING_PROMPT = """
@@ -40,248 +46,206 @@ User Request: {user_query}
 """
 
 
+AGENT_DIRECTORY = {
+    'music_catalog_agent': 'http://localhost:8020',
+    'invoice_info_agent':  'http://localhost:8010',
+}
+
+
 class OrchestratorAgent(BaseAgent):
-    """Orchestrator Agent"""
+    """A standalone Orchestrator that dynamically routes queries to sub-agents."""
 
     def __init__(self):
         init_api_key()
         super().__init__(
             agent_name='Orchestrator Agent',
-            description='Facilitate inter agent communication',
+            description='Main entry point. Analyzes queries and coordinates with specialized sub-agents.',
             content_types=['text', 'text/plain'],
         )
-        self.graph = None
-        self.results = []
-        self.store_context = {}
-        self.query_history = []
-        self.context_id = None
 
-    async def generate_summary(self) -> str:
+    async def _determine_routing(self, user_query: str) -> RoutingDecision:
+        """Uses Gemini to decide which sub-agents to call."""
+        prompt = ROUTING_PROMPT.format(user_query=user_query)
         client = genai.Client(api_key=os.getenv('GOOGLE_API_KEY'))
-        # Build results summary from artifacts
-        results_text = []
-        for artifact in self.results:
-            if artifact.name != 'PlannerAgent-result':
-                for part in artifact.parts:
-                    if hasattr(part.root, 'text'):
-                        results_text.append(f'{artifact.name}: {part.root.text}')
-                    elif hasattr(part.root, 'data'):
-                        results_text.append(f'{artifact.name}: {part.root.data}')
-
-        contents = (
-            f'{prompts.SUMMARY_COT_INSTRUCTIONS}\n\n'
-            f'Original query: {self.query_history[-1] if self.query_history else ""}\n\n'
-            f'Results from agents:\n' + '\n'.join(results_text) if results_text
-            else f'Query: {self.query_history[-1] if self.query_history else ""}\n'
-                 f'Please provide a helpful response based on the completed tasks.'
-        )
         response = client.models.generate_content(
             model='gemini-2.5-flash',
-            contents=contents,
-            config={'temperature': 0.0},
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=RoutingDecision,
+            ),
+        )
+        return RoutingDecision.model_validate_json(response.text)
+
+    async def _call_sub_agent(self, agent_name: str, query: str) -> str:
+        """Connects to a remote A2A sub-agent and returns its final answer."""
+
+        url = AGENT_DIRECTORY.get(agent_name)
+        if not url:
+            return f"Error: Agent '{agent_name}' not found in directory."
+
+        custom_http = httpx.AsyncClient(timeout=300.0)
+        config     = ClientConfig(httpx_client=custom_http)
+
+        try:
+            logger.info(f"[{agent_name}] Connecting to {url} ...")
+            client = await ClientFactory.connect(url, client_config=config)
+            logger.info(f"[{agent_name}] Connected. Client type: {type(client).__name__}")
+            request_message = Message(
+                role=Role.user,
+                messageId=uuid4().hex,
+                parts=[Part(root=TextPart(text=query))]
+            )
+            logger.info(f"[{agent_name}] Sending query: {query[:120]}")
+
+            artifact_texts      = []   
+            final_status_texts  = []   
+            event_count         = 0
+
+            async for raw_event in client.send_message(request_message):
+                event_count += 1
+                if isinstance(raw_event, tuple) and len(raw_event) == 2:
+                    _task_snapshot, event_obj = raw_event
+                else:
+                    event_obj = raw_event
+
+                event_type = type(event_obj).__name__
+                logger.info(f"[{agent_name}] Event #{event_count}: {event_type}")
+
+                if hasattr(event_obj, 'artifact') and event_obj.artifact:
+                    artifact = event_obj.artifact
+                    if hasattr(artifact, 'parts'):
+                        for part in artifact.parts:
+                            text = _extract_text(part)
+                            if text:
+                                artifact_texts.append(text)
+                                logger.info(f"[{agent_name}] ✅ Artifact text: {text[:120]}")
+
+                elif hasattr(event_obj, 'status') and event_obj.status:
+                    status = event_obj.status
+                    state  = str(getattr(status, 'state', ''))
+                    logger.info(f"[{agent_name}] Status state: {state}")
+
+                    if 'completed' in state.lower():
+                        msg = getattr(status, 'message', None)
+                        if msg and hasattr(msg, 'parts'):
+                            for part in msg.parts:
+                                text = _extract_text(part)
+                                if text:
+                                    final_status_texts.append(text)
+                                    logger.info(f"[{agent_name}] ✅ Completed status text: {text[:120]}")
+
+            logger.info(f"[{agent_name}] Loop done. {event_count} events received.")
+            logger.info(f"[{agent_name}] artifact_texts:     {artifact_texts}")
+            logger.info(f"[{agent_name}] final_status_texts: {final_status_texts}")
+
+            best = artifact_texts if artifact_texts else final_status_texts
+            result = "\n".join(best).strip()
+
+            if result:
+                logger.info(f"[{agent_name}] Returning result: {result[:200]}")
+            else:
+                logger.warning(f"[{agent_name}] ⚠️  No content collected – returning empty message.")
+
+            return result if result else "No content returned from agent."
+
+        except Exception as e:
+            logger.error(
+                f"[{agent_name}] ❌ Exception: {type(e).__name__}: {e}",
+                exc_info=True
+            )
+            return f"I couldn't reach the {agent_name.replace('_', ' ')} right now."
+
+    async def _generate_summary(self, user_query: str, results: list[str]) -> str:
+        """Asks Gemini to synthesise a final answer from sub-agent responses."""
+        if not results:
+            return "I couldn't gather any information to answer that request."
+
+        context = "\n\n".join(results)
+        prompt  = f"""
+        User Question: {user_query}
+
+        Information gathered from sub-agents:
+        {context}
+
+        Please provide a clear, helpful, and comprehensive response to the user
+        based ONLY on the information provided above.
+        """
+        client   = genai.Client(api_key=os.getenv('GOOGLE_API_KEY'))
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
         )
         return response.text
 
-    def answer_user_question(self, question) -> str:
+    async def stream(self, query: str, context_id: str) -> AsyncIterable[dict]:
+        """Main execution stream: route → execute → synthesise."""
+
+        logger.info(f"OrchestratorAgent stream started | session={context_id} | query={query}")
+
         try:
-            client = genai.Client(api_key=os.getenv('GOOGLE_API_KEY'))
-            prompt = (
-                f'You are a music store assistant. Based on this conversation history: '
-                f'{str(self.query_history)}\n'
-                f'And this context: {str(self.store_context)}\n'
-                f'Can you answer this question: {question}\n'
-                f'Respond in JSON: {{"can_answer": "yes" or "no", "answer": "<your answer>"}}'
-            )
-            response = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=prompt,
-                config={
-                    'temperature': 0.0,
-                    'response_mime_type': 'application/json',
-                },
-            )
-            return response.text
+            logger.info("Phase 1: Determining routing strategy ...")
+            routing_decision = await self._determine_routing(query)
+
+            if not routing_decision.tasks:
+                yield {
+                    'response_type': 'text',
+                    'is_task_complete': True,
+                    'require_user_input': False,
+                    'content': "I don't need any sub-agents for this. How can I help you?",
+                }
+                return
+
+            logger.info(f"Phase 2: Executing {len(routing_decision.tasks)} sub-agent task(s) ...")
+            agent_results = []
+
+            for task in routing_decision.tasks:
+                logger.info(f"  → Delegating to [{task.agent_name}]: {task.query}")
+
+                yield {
+                    'response_type': 'text',
+                    'is_task_complete': False,
+                    'require_user_input': False,
+                    'content': f"Checking with {task.agent_name.replace('_', ' ')}...",
+                }
+
+                result_text = await self._call_sub_agent(task.agent_name, task.query)
+                agent_results.append(
+                    f"--- Response from {task.agent_name} ---\n{result_text}"
+                )
+                logger.info(f"  ← [{task.agent_name}] returned {len(result_text)} chars")
+
+            logger.info("Phase 3: Synthesising final response ...")
+            yield {
+                'response_type':    'text',
+                'is_task_complete': False,
+                'require_user_input': False,
+                'content': "Compiling the final answer...",
+            }
+
+            final_summary = await self._generate_summary(query, agent_results)
+            logger.info("Phase 3: Summary generated successfully.")
+
+            yield {
+                'response_type':    'text',
+                'is_task_complete': True,
+                'require_user_input': False,
+                'content': final_summary,
+            }
+
         except Exception as e:
-            logger.info(f'Error answering user question: {e}')
-        return '{"can_answer": "no", "answer": "Cannot answer based on provided context"}'
-
-    def set_node_attributes(
-        self, node_id, context_id=None, query=None
-    ):
-        attr_val = {}
-        if context_id:
-            attr_val['context_id'] = context_id
-        if query:
-            attr_val['query'] = query
-
-        self.graph.set_node_attributes(node_id, attr_val)
-
-    def add_graph_node(
-        self,
-        context_id,
-        query: str,
-        node_id: str = None,
-        node_key: str = None,
-        node_label: str = None,
-    ) -> WorkflowNode:
-        """Add a node to the graph."""
-        node = WorkflowNode(
-            task=query, node_key=node_key, node_label=node_label
-        )
-        self.graph.add_node(node)
-        if node_id:
-            self.graph.add_edge(node_id, node.id)
-        self.set_node_attributes(node.id, task_id, context_id, query)
-        return node
-
-    def clear_state(self):
-        self.graph = None
-        self.results.clear()
-        self.store_context.clear()
-        self.query_history.clear()
-
-    async def stream(self, query, context_id) -> AsyncIterable[dict[str, any]]:
-        """Execute and stream response."""
-        logger.info(
-            f'Running {self.agent_name} stream for session {context_id} - {query}'
-        )
-        if not query:
-            raise ValueError('Query cannot be empty')
-        if self.context_id != context_id:
-            # Clear state when the context changes
-            self.clear_state()
-            self.context_id = context_id
-
-        self.query_history.append(query)
-        start_node_id = None
-        # Graph does not exist, start a new graph with planner node.
-        if not self.graph:
-            self.graph = WorkflowGraph()
-            planner_node = self.add_graph_node(
-                context_id=context_id,
-                query=query,
-                node_key='planner',
-                node_label='Planner',
-            )
-            start_node_id = planner_node.id
-        # Paused state is when the agent might need more information.
-        elif self.graph.state == Status.PAUSED:
-            start_node_id = self.graph.paused_node_id
-            self.set_node_attributes(node_id=start_node_id, query=query)
-
-        # This loop can be avoided if the workflow graph is dynamic or
-        # is built from the results of the planner when the planner
-        # iself is not a part of the graph.
-        # TODO: Make the graph dynamically iterable over edges
-        while True:
-            # Set attributes on the node so we propagate task and context
-            self.set_node_attributes(
-                node_id=start_node_id,
-                context_id=context_id,
-            )
-            # Resume workflow, used when the workflow nodes are updated.
-            should_resume_workflow = False
-            async for chunk in self.graph.run_workflow(
-                start_node_id=start_node_id
-            ):
-                # ✅ FIX: New SDK yields (Task, event) tuples — extract the event
-                a2a_event = None
-                if isinstance(chunk, tuple):
-                    for element in chunk:
-                        if isinstance(element, TaskArtifactUpdateEvent):
-                            a2a_event = element
-                            break
-                        if isinstance(element, TaskStatusUpdateEvent):
-                            a2a_event = element
-                            break
-                elif isinstance(chunk, (TaskArtifactUpdateEvent, TaskStatusUpdateEvent)):
-                    a2a_event = chunk
-                elif isinstance(chunk, SendStreamingMessageSuccessResponse):
-                    a2a_event = chunk.result
-
-                if isinstance(a2a_event, TaskStatusUpdateEvent):
-                    task_status_event = a2a_event
-                    context_id = task_status_event.context_id
-                    if (
-                        task_status_event.status.state == TaskState.completed
-                        and context_id
-                    ):
-                        continue
-                    if task_status_event.status.state == TaskState.input_required:
-                        question = task_status_event.status.message.parts[0].root.text
-                        try:
-                            answer = json.loads(self.answer_user_question(question))
-                            logger.info(f'Agent Answer {answer}')
-                            if answer['can_answer'] == 'yes':
-                                query = answer['answer']
-                                start_node_id = self.graph.paused_node_id
-                                self.set_node_attributes(
-                                    node_id=start_node_id, query=query
-                                )
-                                should_resume_workflow = True
-                        except Exception:
-                            logger.info('Cannot convert answer data')
-
-                elif isinstance(a2a_event, TaskArtifactUpdateEvent):
-                    artifact = a2a_event.artifact
-                    self.results.append(artifact)
-                    if artifact.name == 'PlannerAgent-result':
-                        artifact_data = artifact.parts[0].root.data
-                        logger.info(
-                            f'Updating workflow with {len(artifact_data["tasks"])} task nodes'
-                        )
-                        current_node_id = start_node_id
-                        for idx, task_data in enumerate(artifact_data['tasks']):
-                            task_query = task_data.get('query') or task_data.get('description', '')
-                            task_agent = task_data.get('agent', '')
-                            node = self.add_graph_node(
-                                context_id=context_id,
-                                query=task_query,
-                                node_id=current_node_id,
-                                node_label=task_agent,
-                            )
-                            current_node_id = node.id
-                            if idx == 0:
-                                should_resume_workflow = True
-                                start_node_id = node.id
-                    else:
-                        # Artifact from sub-agent — store result, don't yield
-                        logger.info(f'Sub-agent artifact received: {artifact.name}')
-                        continue
-
-                # When the workflow needs to be resumed, do not yield partial.
-                if not should_resume_workflow:
-                    logger.info('No workflow resume detected, yielding chunk')
-                    yield chunk
-
-            # The graph is complete and no updates, so okay to break from the loop.
-            if not should_resume_workflow:
-                logger.info('Workflow iteration complete. Exiting main loop.')
-                break
-            else:
-                logger.info('Restarting workflow loop.')
-
-        logger.info(f'Graph state after loop: {self.graph.state}')
-        if self.graph.state == Status.COMPLETED:
-            logger.info(f'Generating summary for {len(self.results)} results')
-            try:
-                summary = await self.generate_summary()
-            except Exception as e:
-                logger.error(f'Error generating summary: {e}')
-                summary = f'Tasks completed. Results: {str(self.results)}'
-            self.clear_state()
-            logger.info(f'Summary generated: {summary[:100]}...')
+            logger.error(f"OrchestratorAgent error: {e}", exc_info=True)
             yield {
-                # 'response_type': 'text',
+                'response_type':    'text',
                 'is_task_complete': True,
                 'require_user_input': False,
-                'content': summary,
+                'content': f"An error occurred while orchestrating the response: {e}",
             }
-        else:
-            logger.warning(f'Workflow ended in non-completed state: {self.graph.state}')
-            yield {
-                # 'response_type': 'text',
-                'is_task_complete': True,
-                'require_user_input': False,
-                'content': 'Tasks completed but no summary could be generated.',
-            }
+
+
+def _extract_text(part) -> str:
+    """Safely pull .root.text out of an A2A Part object."""
+    try:
+        return part.root.text or ""
+    except AttributeError:
+        return ""

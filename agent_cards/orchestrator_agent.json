@@ -30,7 +30,7 @@
                 "routing"
             ],
             "examples": [
-                "Coordinate tasks between the planner, music, and invoice agents to fulfill a complex user request."
+                "Coordinate tasks between the music agent and invoice agent to fulfill user request."
             ]
         }
     ]

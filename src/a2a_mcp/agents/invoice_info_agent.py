@@ -72,12 +72,6 @@ class InvoiceAgent(BaseAgent):
                 response_format=ResponseFormat,
             )
 
-    # async def invoke(self, query, context_id) -> str:
-    #     await self._ensure_graph()
-    #     config = {'configurable': {'thread_id': context_id}}
-    #     await self.graph.ainvoke({'messages': [('user', query)]}, config)
-    #     return self.get_agent_response(config)
-
     async def stream(self, query, context_id) -> AsyncIterable[dict[str, Any]]:
         await self._ensure_graph()
         inputs = {'messages': [('user', query)]}
@@ -89,14 +83,14 @@ class InvoiceAgent(BaseAgent):
             message = item['messages'][-1]
             if isinstance(message, AIMessage) and message.tool_calls:
                 yield {
-                    # 'response_type': 'text',
+                    'response_type': 'text',
                     'is_task_complete': False,
                     'require_user_input': False,
                     'content': 'Looking up invoice information...',
                 }
             elif isinstance(message, ToolMessage):
                 yield {
-                    # 'response_type': 'text',
+                    'response_type': 'text',
                     'is_task_complete': False,
                     'require_user_input': False,
                     'content': 'Processing invoice data...',
@@ -109,21 +103,21 @@ class InvoiceAgent(BaseAgent):
         if structured_response and isinstance(structured_response, ResponseFormat):
             if (structured_response.status == 'input_required'):
                 return {
-                    # 'response_type': 'text',
+                    'response_type': 'text',
                     'is_task_complete': False,
                     'require_user_input': True,
                     'content': structured_response.message,
                 }
             if structured_response.status == 'error':
                 return {
-                    # 'response_type': 'text',
+                    'response_type': 'text',
                     'is_task_complete': False,
                     'require_user_input': True,
                     'content': structured_response.message,
                 }
             if structured_response.status == 'completed':
                 return {
-                    # 'response_type': 'data',
+                    'response_type': 'text',
                     'is_task_complete': True,
                     'require_user_input': False,
                     'content': structured_response.message,

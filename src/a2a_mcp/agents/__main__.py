@@ -20,21 +20,22 @@ from a2a.server.tasks import (
 from a2a.types import AgentCard
 from a2a_mcp.common import prompts
 from a2a_mcp.common.agent_executor import GenericAgentExecutor
-from a2a_mcp.agents.langgraph_planner_agent import LangGraphPlannerAgent
 from a2a_mcp.agents.orchestrator_agent import OrchestratorAgent
 from a2a_mcp.agents.invoice_info_agent import InvoiceAgent
 from a2a_mcp.agents.music_catalog_agent import MusicAgent
+from a2a_mcp.agents.customer_service_agent import Customer_Service_Agent
 
 logger = logging.getLogger(__name__)
-
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s"
+)
 
 def get_agent(agent_card: AgentCard):
     """Get the agent, given an agent card."""
     try:
         if agent_card.name == 'Orchestrator Agent':
             return OrchestratorAgent()
-        if agent_card.name == 'Langgraph Planner Agent':
-            return LangGraphPlannerAgent()
         if agent_card.name == 'Music Agent':
             return MusicAgent()
         if agent_card.name == 'Invoice Agent':

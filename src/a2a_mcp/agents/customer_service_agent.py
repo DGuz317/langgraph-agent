@@ -45,16 +45,3 @@ app = get_fast_api_app(
     web=True,
     a2a=True
 )
-
-# print("\n" + "="*50)
-# print("URL list (ENDPOINTS) created:")
-# print("="*50)
-
-# for route in app.routes:
-#     if hasattr(route, "methods") and hasattr(route, "path"):
-#         methods = ", ".join(route.methods)
-#         print(f"[{methods:^10}] -> {route.path}")
-#     elif hasattr(route, "path"):
-#         print(f"[  MOUNTED  ] -> {route.path}")
-
-# print("="*50 + "\n")
