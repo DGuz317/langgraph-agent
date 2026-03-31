@@ -1,12 +1,7 @@
-# =================================================================
-# LangGraph Multi-Agent System Launcher (Tabbed Version)
-# =================================================================
-
+# Adjust this path
+#=======================================================================
 $projectPath = "C:\Users\nvdung1\Desktop\langraph_agent"
-
-# =================================================================
-# Custom Commands / Setup Environment (Runs ONCE in main window)
-# =================================================================
+#=======================================================================
 
 function Setup-LangGraph {
     Write-Host "Setting up LangGraph Agent Environment..." -ForegroundColor Cyan
@@ -34,14 +29,9 @@ function Setup-LangGraph {
     Write-Host "Setup complete! Launching agents...`n" -ForegroundColor Green
 }
 
-# =================================================================
-# Tab Launcher Function (Using Encoded Commands for Reliability)
-# =================================================================
-
 function Start-ServiceTab {
     param([string]$Title, [string]$Command)
     
-    # 1. Write the exact multi-line script we want the new tab to execute
     $tabScript = @"
 Write-Host 'Initializing $Title...' -ForegroundColor Cyan
 try { conda deactivate 2>`$null } catch {}
@@ -49,7 +39,6 @@ if (Test-Path '.\.venv\Scripts\Activate.ps1') { .\.venv\Scripts\Activate.ps1 }
 $Command
 "@
 
-    # 2. Encode the script to Base64 to bypass all Windows Terminal quoting issues
     $bytes = [System.Text.Encoding]::Unicode.GetBytes($tabScript)
     $encodedCommand = [Convert]::ToBase64String($bytes)
     
@@ -72,11 +61,9 @@ Write-Host "Starting LangGraph Multi-Agent System in Windows Terminal Tabs..." -
 Write-Host "-> Starting MCP Server..." -ForegroundColor Yellow
 $mcpCommand = "uv run -m src.a2a_mcp.mcp.server --host localhost --port 10000 --transport streamable-http"
 Start-ServiceTab -Title "MCP Server (Port 10000)" -Command $mcpCommand
-
-# Give the MCP server a quick second to spin up
 Start-Sleep -Seconds 2
 
-# 3. Start the Agents
+# 3. Start the LangGraph Agents
 Write-Host "-> Starting Invoice Agent..." -ForegroundColor Yellow
 $invoiceCommand = "uv run -m a2a_mcp.agents --host localhost --port 8010 --agent-card agent_cards/invoice_info_agent.json"
 Start-ServiceTab -Title "Invoice Agent (Port 8010)" -Command $invoiceCommand
@@ -89,6 +76,7 @@ Write-Host "-> Starting Orchestrator Agent..." -ForegroundColor Yellow
 $orchestratorCommand = "uv run -m a2a_mcp.agents --host localhost --port 8040 --agent-card agent_cards/orchestrator_agent.json"
 Start-ServiceTab -Title "Orchestrator Agent (Port 8040)" -Command $orchestratorCommand
 
+# 4. Start the ADK Agent
 Write-Host "-> Starting Customer Service Agent..." -ForegroundColor Yellow
 $CustomerServiceCommand = "uvicorn src.a2a_mcp.agents.customer_service_agent:app --port 8050"
 Start-ServiceTab -Title "Customer Service Agent (Port 8050)" -Command $CustomerServiceCommand
