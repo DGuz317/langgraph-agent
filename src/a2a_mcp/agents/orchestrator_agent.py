@@ -212,9 +212,27 @@ class OrchestratorAgent(BaseAgent):
                     artifact = a2a_event.artifact
                     self.results.append(artifact)
                     if artifact.name == 'PlannerAgent-result':
-                        artifact_data = artifact.parts[0].root.data
+                        root_part = artifact.parts[0].root
+                        
+                        # Safely extract data whether the SDK sent a DataPart or TextPart
+                        if hasattr(root_part, 'data'):
+                            artifact_data = root_part.data
+                        elif hasattr(root_part, 'text'):
+                            if isinstance(root_part.text, str) and root_part.text.strip():
+                                try:
+                                    # Try to parse the text as JSON
+                                    artifact_data = json.loads(root_part.text)
+                                except json.JSONDecodeError:
+                                    logger.error(f"PlannerAgent returned invalid JSON: {root_part.text}")
+                                    continue # Skip this artifact since we can't read the tasks
+                            else:
+                                artifact_data = {"tasks": []} # Fallback for empty text
+                        else:
+                            logger.error("Unknown part type received from PlannerAgent")
+                            continue
+
                         logger.info(
-                            f'Updating workflow with {len(artifact_data["tasks"])} task nodes'
+                            f'Updating workflow with {len(artifact_data.get("tasks", []))} task nodes'
                         )
                         current_node_id = start_node_id
                         for idx, task_data in enumerate(artifact_data['tasks']):

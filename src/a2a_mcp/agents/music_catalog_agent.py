@@ -13,7 +13,7 @@ from langchain_core.messages import AIMessage, ToolMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.checkpoint.memory import MemorySaver
 from langchain.agents import create_agent
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 memory = MemorySaver()
 logger = logging.getLogger(__name__)
@@ -29,8 +29,8 @@ ALLOWED_TOOL_NAMES = {
 class ResponseFormat(BaseModel):
     """Respond to the user in this format."""
 
-    status: Literal['input_required', 'completed', 'error'] = 'input_required'
-    message: str
+    answer: str = Field(description="The answer to the user's requested music information query")
+    confidence: float = Field(description="A score from 0.0 to 1.0 representing confidence")
 
 
 class MusicAgent(BaseAgent):
@@ -109,28 +109,19 @@ class MusicAgent(BaseAgent):
     def get_agent_response(self, config):
         current_state = self.graph.get_state(config)
         structured_response = current_state.values.get('structured_response')
+        
         if structured_response and isinstance(structured_response, ResponseFormat):
-            if (structured_response.status == 'input_required'):
-                return {
-                    'response_type': 'text',
-                    'is_task_complete': False,
-                    'require_user_input': True,
-                    'content': structured_response.message,
-                }
-            if structured_response.status == 'error':
-                return {
-                    'response_type': 'text',
-                    'is_task_complete': False,
-                    'require_user_input': True,
-                    'content': structured_response.message,
-                }
-            if structured_response.status == 'completed':
-                return {
-                    'response_type': 'text',
-                    'is_task_complete': True,
-                    'require_user_input': False,
-                    'content': structured_response.message,
-                }
+            
+            # Combine the answer and the confidence score into a single string
+            final_text = f"{structured_response.answer}\n\n[Confidence Score: {structured_response.confidence}]"
+
+            return {
+                'response_type': 'text',
+                'is_task_complete': True, 
+                'require_user_input': False,
+                'content': final_text,  # Now the Orchestrator will read both!
+            }
+            
         return {
             'is_task_complete': False,
             'require_user_input': True,
