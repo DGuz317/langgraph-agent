@@ -26,6 +26,10 @@ from a2a_mcp.agents.invoice_info_agent import InvoiceAgent
 from a2a_mcp.agents.music_catalog_agent import MusicAgent
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s"
+)
 
 
 def get_agent(agent_card: AgentCard):
