@@ -86,33 +86,24 @@ class LangGraphPlannerAgent(BaseAgent):
     def get_agent_response(self, config):
         current_state = self.graph.get_state(config)
         structured_response = current_state.values.get('structured_response')
-        if structured_response and isinstance(
-            structured_response, ResponseFormat
-        ):
-            if (
-                structured_response.status == 'input_required'
-                # and structured_response.content.tasks
-            ):
+        
+        if structured_response and isinstance(structured_response, ResponseFormat):
+            if structured_response.status == 'input_required':
                 return {
                     'response_type': 'text',
                     'is_task_complete': False,
                     'require_user_input': True,
                     'content': structured_response.question,
                 }
-            if structured_response.status == 'error':
-                return {
-                    'response_type': 'data',
-                    'is_task_complete': False,
-                    'require_user_input': True,
-                    'content': 'An error occurred during planning.',
-                }
             if structured_response.status == 'completed':
                 return {
                     'response_type': 'data',
                     'is_task_complete': True,
                     'require_user_input': False,
-                    'content': structured_response.content.model_dump(),
+                    # We must dump the TaskList to a dictionary so the Orchestrator can read ['tasks']
+                    'content': structured_response.content.model_dump(), 
                 }
+            
         return {
             'is_task_complete': False,
             'require_user_input': True,

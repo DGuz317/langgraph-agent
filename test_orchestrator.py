@@ -38,13 +38,13 @@ async def send_message(text: str):
  
 async def main():
     # Test 1: Invoice only
-    await send_message('My customer id is 1. What is my most recent invoice?')
+    # await send_message('My customer id is 1. What is my most recent invoice?')
  
     # Test 2: Music only
     await send_message('Show me tracks by Aerosmith')
  
     # Test 3: Both agents
-    await send_message('Show me AC/DC tracks and my latest invoice. My customer id is 2.')
+    # await send_message('Show me AC/DC tracks and my latest invoice. My customer id is 2.')
  
 if __name__ == "__main__":
     asyncio.run(main())
