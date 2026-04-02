@@ -85,4 +85,8 @@ Write-Host "-> Starting Customer Service Agent..." -ForegroundColor Yellow
 $CustomerServiceCommand = "uvicorn src.a2a_mcp.agents.customer_service_agent:app --port 8050"
 Start-ServiceTab -Title "Customer Service Agent (Port 8050)" -Command $CustomerServiceCommand
 
+Write-Host "-> Starting Refund Agent..." -ForegroundColor Yellow
+$RefundCommand = "uvicorn src.a2a_mcp.agents.refund_agent:app --port 8060"
+Start-ServiceTab -Title "Refund Agent (Port 8060)" -Command $RefundCommand
+
 Write-Host "All services have been launched in separate windows!" -ForegroundColor Green
