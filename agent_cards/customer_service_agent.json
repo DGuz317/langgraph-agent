@@ -1,7 +1,7 @@
 {
     "name": "Customer Service Agent",
     "description": "Customer service agent for a digital music store",
-    "url": "http://localhost:8050/a2a/agents",
+    "url": "http://localhost:8050/",
     "version": "1.0.0",
     "preferredTransport": "JSONRPC",
     "protocolVersion": "0.3.0",
