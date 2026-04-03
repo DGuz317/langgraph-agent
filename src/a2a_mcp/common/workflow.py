@@ -97,6 +97,7 @@ class WorkflowNode:
             agent_card = await self.find_agent_for_task()
         a2a_client = await ClientFactory.connect(agent_card.url)
         response_message = Message(
+            context_id=context_id,   # Pass context_id so the agent maintains session continuity
             role=Role.user,
             message_id=uuid4().hex,
             parts=[Part(root=TextPart(text=query))],

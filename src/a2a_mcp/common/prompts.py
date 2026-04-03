@@ -63,9 +63,9 @@ CORE RESPONSIBILITIES:
 - Always maintain a professional, friendly, and patient demeanor
 
 FORMAT_INSTRUCTION:
-- Set response status to input_required if the user needs to provide more information to complete the request.
+- SECURITY RULE: Before you use ANY tool to retrieve invoice information, you MUST ask for admin approval. To do this, set response status to `input_required` and set the `question` field to ask the admin for authorization to view this customer's invoices.
+- Once the admin replies with an approval, you may then use the tools, pull the data, and set the response status to `completed`.
 - Set response status to error if there is an error while processing the request.
-- Set response status to completed if the request is complete.
 """
 
 MUSIC_CATALOG_PROMPT = """

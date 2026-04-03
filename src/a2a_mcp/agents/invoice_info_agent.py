@@ -28,8 +28,13 @@ ALLOWED_TOOL_NAMES = {
 class ResponseFormat(BaseModel):
     """Respond to the user in this format."""
 
-    answer: str = Field(description="The answer to the user's requested invoice information query")
+    status: Literal['input_required', 'completed', 'error'] = 'completed'
+    answer: str = Field(description="The answer to the user's requested invoice information query. Only provide if status is completed.")
+    question: str = Field(description="Input needed from the admin/user for approval if status is input_required", default="")
     confidence: float = Field(description="A score from 0.0 to 1.0 representing confidence")
+
+
+APPROVAL_WORDS = {'yes', 'y', 'approve', 'approved', 'ok', 'okay', 'sure', 'proceed'}
 
 
 class InvoiceAgent(BaseAgent):
@@ -60,6 +65,8 @@ class InvoiceAgent(BaseAgent):
         self.model = ChatGoogleGenerativeAI(model='gemini-2.5-flash')
         # graph is built lazily in stream/invoke after async tool fetch
         self.graph = None
+        # Track per-thread approval state: thread_id -> bool
+        self._awaiting_approval: dict[str, bool] = {}
     
     async def _ensure_graph(self):
         if self.graph is None:
@@ -80,8 +87,28 @@ class InvoiceAgent(BaseAgent):
 
     async def stream(self, query, sessionId, task_id) -> AsyncIterable[dict[str, Any]]:
         await self._ensure_graph()
-        inputs = {'messages': [('user', query)]}
         config = {'configurable': {'thread_id': sessionId}}
+
+        # Check if this thread is currently waiting for admin approval
+        if self._awaiting_approval.get(sessionId):
+            if query.strip().lower() in APPROVAL_WORDS:
+                logger.info(f'Admin approved for session {sessionId}. Proceeding with tool call.')
+                # Clear the approval flag for this thread
+                self._awaiting_approval[sessionId] = False
+                # Inject an approval acknowledgement so the LLM knows to proceed with tools
+                inputs = {'messages': [('user', 'Admin has approved. Please now use the tools to retrieve the invoice information as originally requested.')]}
+            else:
+                logger.info(f'Admin denied for session {sessionId}. Cancelling invoice lookup.')
+                self._awaiting_approval[sessionId] = False
+                yield {
+                    'response_type': 'text',
+                    'is_task_complete': True,
+                    'require_user_input': False,
+                    'content': 'Admin approval was not granted. Invoice lookup has been cancelled.',
+                }
+                return
+        else:
+            inputs = {'messages': [('user', query)]}
 
         logger.info(f'Running InvoiceAgent stream for session {sessionId} {task_id} with input {query}')
 
@@ -108,6 +135,17 @@ class InvoiceAgent(BaseAgent):
         structured_response = current_state.values.get('structured_response')
         
         if structured_response and isinstance(structured_response, ResponseFormat):
+            if structured_response.status == 'input_required':
+                thread_id = config['configurable']['thread_id']
+                # Mark this thread as awaiting approval so the next incoming message is treated as the answer
+                self._awaiting_approval[thread_id] = True
+                logger.info(f'Thread {thread_id} is now awaiting admin approval.')
+                return {
+                    'response_type': 'text',
+                    'is_task_complete': False,
+                    'require_user_input': True,
+                    'content': f"ADMIN ACTION REQUIRED: {structured_response.question}",
+                }
             
             # Combine the answer and the confidence score into a single string
             final_text = f"{structured_response.answer}\n\n[Confidence Score: {structured_response.confidence}]"
@@ -116,7 +154,7 @@ class InvoiceAgent(BaseAgent):
                 'response_type': 'text',
                 'is_task_complete': True, 
                 'require_user_input': False,
-                'content': final_text,  # Now the Orchestrator will read both!
+                'content': final_text, 
             }
             
         return {
