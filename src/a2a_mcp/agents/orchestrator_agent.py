@@ -36,6 +36,7 @@ class OrchestratorAgent(BaseAgent):
         self.store_context = {}
         self.query_history = []
         self.context_id = None
+        self._pending_approval_query = None  # Stores the original query when awaiting admin approval
 
     async def generate_summary(self) -> str:
         client = genai.Client(api_key=os.getenv('GOOGLE_API_KEY'))
@@ -49,6 +50,10 @@ class OrchestratorAgent(BaseAgent):
                     elif hasattr(part.root, 'data'):
                         results_text.append(f'{artifact.name}: {part.root.data}')
 
+        if len(results_text) == 1 and results_text[0]:
+            # Save an API call! Just parse out the prefix and return the agent's exact text!
+            return results_text[0].split(': ', 1)[-1]
+            
         contents = (
             f'{prompts.SUMMARY_COT_INSTRUCTIONS}\n\n'
             f'Original query: {self.query_history[-1] if self.query_history else ""}\n\n'
@@ -123,6 +128,7 @@ class OrchestratorAgent(BaseAgent):
         self.results.clear()
         self.store_context.clear()
         self.query_history.clear()
+        self._pending_approval_query = None
 
     async def stream(self, query, context_id, task_id) -> AsyncIterable[dict[str, any]]:
         """Execute and stream response."""
@@ -152,7 +158,28 @@ class OrchestratorAgent(BaseAgent):
         # Paused state is when the agent might need more information.
         elif self.graph.state == Status.PAUSED:
             start_node_id = self.graph.paused_node_id
-            self.set_node_attributes(node_id=start_node_id, query=query)
+            # If we are resuming after an admin approval, reformulate the query
+            # so the InvoiceAgent has full context (not just "yes")
+            if self._pending_approval_query:
+                approval_words = {'yes', 'y', 'approve', 'approved', 'ok', 'okay', 'sure', 'proceed'}
+                if query.strip().lower() in approval_words:
+                    logger.info('Admin approved. Reformulating query with full context for InvoiceAgent.')
+                    resume_query = f"Admin has approved this request. Please proceed to retrieve the following information: {self._pending_approval_query}"
+                    self._pending_approval_query = None
+                else:
+                    logger.info('Admin denied. Cancelling invoice lookup.')
+                    self._pending_approval_query = None
+                    self.clear_state()
+                    yield {
+                        'response_type': 'text',
+                        'is_task_complete': True,
+                        'require_user_input': False,
+                        'content': 'Admin approval was not granted. Invoice lookup has been cancelled.',
+                    }
+                    return
+                self.set_node_attributes(node_id=start_node_id, query=resume_query)
+            else:
+                self.set_node_attributes(node_id=start_node_id, query=query)
 
         # This loop can be avoided if the workflow graph is dynamic or
         # is built from the results of the planner when the planner
@@ -195,6 +222,22 @@ class OrchestratorAgent(BaseAgent):
                         continue
                     if task_status_event.status.state == TaskState.input_required:
                         question = task_status_event.status.message.parts[0].root.text
+                        
+                        if "ADMIN ACTION REQUIRED" in question:
+                            logger.info('Bypassing auto-answer for Admin task. Bubbling to user.')
+                            # Get the original query from the paused node's attributes
+                            if self.graph.paused_node_id:
+                                self._pending_approval_query = self.graph.graph.nodes[self.graph.paused_node_id].get('query')
+                                logger.info(f'Saved pending approval query: {self._pending_approval_query}')
+                            self.graph.state = Status.PAUSED
+                            yield {
+                                'response_type': 'text',
+                                'is_task_complete': False,
+                                'require_user_input': True,
+                                'content': question,
+                            }
+                            return
+                        
                         try:
                             answer = json.loads(self.answer_user_question(question))
                             logger.info(f'Agent Answer {answer}')
@@ -205,6 +248,16 @@ class OrchestratorAgent(BaseAgent):
                                     node_id=start_node_id, query=query
                                 )
                                 should_resume_workflow = True
+                            else:
+                                logger.info('Orchestrator cannot answer. Bubbling Human-in-the-loop requirement to the user.')
+                                self.graph.state = Status.PAUSED
+                                yield {
+                                    'response_type': 'text',
+                                    'is_task_complete': False,
+                                    'require_user_input': True,
+                                    'content': question,
+                                }
+                                return
                         except Exception:
                             logger.info('Cannot convert answer data')
 
@@ -284,9 +337,11 @@ class OrchestratorAgent(BaseAgent):
             }
         else:
             logger.warning(f'Workflow ended in non-completed state: {self.graph.state}')
+            # We must only yield completed = True if it's genuinely errored or aborted.
+            # If it's paused, we shouldn't emit a completed fallback, though our return above prevents this. 
             yield {
                 'response_type': 'text',
                 'is_task_complete': True,
                 'require_user_input': False,
-                'content': 'Tasks completed but no summary could be generated.',
+                'content': 'Tasks interrupted or could not complete.',
             }
