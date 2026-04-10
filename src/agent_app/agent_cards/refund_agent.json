@@ -1,7 +1,7 @@
 {
     "name": "RefundAgent",
     "description": "Agent that exclusively processes refunds for customers.",
-    "url": "http://localhost:8060/",
+    "url": "http://localhost:8030/",
     "version": "1.0.0",
     "preferredTransport": "JSONRPC",
     "protocolVersion": "0.3.0",

@@ -12,23 +12,18 @@ import sqlite3
 import traceback
 from pathlib import Path
 from google import genai
-import numpy as np
+# import numpy as np
 import pandas as pd
 import click
 import logging
 from dotenv import load_dotenv
 
-from a2a_mcp.common.utils import init_api_key
+from common.utils import init_api_key
 from langchain_community.utilities import SQLDatabase
 
 logging.basicConfig(format="[%(levelname)s]: %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# sys.path.insert(1, r'C:/Users/nvdung1/Desktop/langraph_agent/database')
-# import get_database
-# db = get_database.db 
-
-# mcp = FastMCP("My-MCP-Server")
 
 AGENT_CARDS_DIR = 'agent_cards'
 MODEL = 'gemini-embedding-001'
@@ -136,7 +131,7 @@ def serve(host, port, transport):
     global client
     client = init_api_key()
     logger.info('Starting Agent Cards MCP Server')
-    mcp = FastMCP('agent-cards')
+    mcp = FastMCP('MCP Server')
     df = build_agent_card_embeddings()
     
     db = SQLDatabase.from_uri(f'sqlite:///{SQLLITE_DB}')
@@ -398,16 +393,15 @@ def serve(host, port, transport):
     mcp.run(host=host, port=port, transport=transport)
 
 @click.command()
-@click.option('--run', 'command', default='mcp-server', help='Command to run')
-@click.option('--host', 'host', default='localhost', help='Host for the server')
-@click.option('--port', 'port', default=10000, help='Port for the server')
-@click.option('--transport', 'transport', default='stdio', help='MCP Transport')
+@click.option('--run', 'command', default='mcp-server')
+@click.option('--host','host', default='localhost')
+@click.option('--port','port', default=10000)
+@click.option('--transport','transport', default='streamable-http')
 def main(command, host, port, transport) -> None:
     if command == 'mcp-server':
         serve(host, port, transport)
     else:
         raise ValueError(f'Unknown run option: {command}')
- 
- 
+
 if __name__ == '__main__':
     main()

@@ -19,17 +19,18 @@ class PlannerTask(BaseModel):
  
     id: int = Field(description='Sequential ID for the task.')
  
-    # agent: Literal['music_catalog_agent', 'invoice_info_agent'] = Field(
-    #     description=(
-    #         'The agent responsible for executing this task. '
-    #         'Use music_catalog_agent for anything related to music, artists, albums, tracks, genres, or playlists. '
-    #         'Use invoice_info_agent for anything related to invoices, billing, purchases, unit prices, or employee support.'
-    #     )
-    # )
+    agent: Literal['music_agent', 'invoice_agent', 'refund_agent'] = Field(
+        description=(
+            'The agent responsible for executing this task. '
+            'Use music_agent for anything related to music, artists, albums, tracks, genres, or playlists. '
+            'Use invoice_agent for anything related to invoices, billing, purchases, unit prices, or employee support.'
+            'Use refund_agent for anything related to refund.'
+        )
+    )
  
-    # query: str = Field(
-    #     description='The exact query to send to the assigned agent.'
-    # )
+    query: str = Field(
+        description='The exact query to send to the assigned agent.'
+    )
  
     description: str = Field(
         description='Clear human-readable description of what this task does.'

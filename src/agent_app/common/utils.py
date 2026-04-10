@@ -4,7 +4,7 @@ import os
 
 from google import genai
 
-from a2a_mcp.common.types import ServerConfig
+from common.types import ServerConfig
 from dotenv import load_dotenv
 
 load_dotenv()
