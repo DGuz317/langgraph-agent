@@ -136,7 +136,7 @@ class ResponseFormat(BaseModel):
     status: Literal["input_required", "completed", "failed"] = Field(..., description="The current state of the agent's execution loop.")
     task_id: str = Field(..., description="The specific task or query the agent was asked to process.") 
     answer: str = Field(None, description="The generated response or tool output.")
-    confidence: float = Field(..., description="Confident score of the answer", ge=0, le=1)
+    confidence: float = Field(..., description="Confident score of the answer.", ge=0, le=1)
 
 
 MODEL = init_chat_model(
