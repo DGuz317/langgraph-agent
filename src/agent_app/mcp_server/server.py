@@ -18,19 +18,23 @@ import click
 import logging
 from dotenv import load_dotenv
 
-from common.utils import init_api_key
+from agent_app.common.utils import init_api_key
 from langchain_community.utilities import SQLDatabase
 
 logging.basicConfig(format="[%(levelname)s]: %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-AGENT_CARDS_DIR = 'agent_cards'
-MODEL = 'gemini-embedding-001'
-SQLLITE_DB = 'chinook.db'
+AGENT_CARDS_DIR = 'src/agent_app/agent_cards'
+
+#-- Local Embedding Model --
+MODEL = os.environ.get('EMBED_MODEL', 'nomic-embed-text')
+EMBED_URL = os.environ.get('OLLAMA_EMBED_URL', 'http://localhost:11434/api/embed')
+
+SQLLITE_DB = 'src/agent_app/database/chinook.db'
 
 def generate_embeddings(text):
-    """Generates embeddings for the given text using Google Generative AI.
+    """Generates embeddings for the given text using local Ollama API.
 
     Args:
         text: The input string for which to generate embeddings.
@@ -38,12 +42,23 @@ def generate_embeddings(text):
     Returns:
         A list of embeddings representing the input text.
     """
-    response = client.models.embed_content(
-        model=MODEL,
-        contents=text,
-        config={'task_type': 'RETRIEVAL_DOCUMENT'}
-    )
-    return response.embeddings[0].values
+    payload = {
+        "model": MODEL,
+        "input": text,
+        "keep_alive": -1  # Keeps the model loaded in memory for faster subsequent requests
+    }
+    
+    try:
+        response = requests.post(EMBED_URL, json=payload)
+        response.raise_for_status()
+        
+        # Ollama's /api/embed returns a dictionary with an 'embeddings' array of arrays.
+        # We grab the first array [0] since we only sent one text input.
+        return response.json().get('embeddings', [[]])[0]
+        
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error generating embeddings with Ollama: {e}")
+        return []
 
 def load_agent_cards():
     """Loads agent card data from JSON files within a specified directory.
@@ -123,13 +138,11 @@ def serve(host, port, transport):
     Args:
         host: The hostname or IP address to bind the server to.
         port: The port number to bind the server to.
-        transport: The transport mechanism for the MCP server (e.g., 'stdio', 'sse').
+        transport: The transport mechanism for the MCP server (e.g., 'stdio', 'http').
 
     Raises:
         ValueError: If the 'GOOGLE_API_KEY' environment variable is not set.
     """
-    global client
-    client = init_api_key()
     logger.info('Starting Agent Cards MCP Server')
     mcp = FastMCP('MCP Server')
     df = build_agent_card_embeddings()

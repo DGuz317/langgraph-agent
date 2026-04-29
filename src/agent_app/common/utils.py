@@ -4,7 +4,7 @@ import os
 
 from google import genai
 
-from common.types import ServerConfig
+from agent_app.common.types import ServerConfig
 from dotenv import load_dotenv
 
 load_dotenv()
