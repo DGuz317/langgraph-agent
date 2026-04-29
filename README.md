@@ -4,25 +4,58 @@
 - uv
 ## Project Structure
 ```bash
-├── agent_cards/  # (store agent-card.json)
-|   └── invoice_info_agent.json
-|   └── orchestrator_agent.json
-|   └──..	
-├── src/
-|   └── a2a_mcp/
-|   	└── agents/ # contain all agents
-|	    └── common/ # contain prompts, types, utils, workflow, agent_executor, base_agent
-|	    └── mcp/
-|	        └── client.py
-|	        └── server.py
-|	    └── __init__.py # Convenience methods to start servers.
-|       └── agent.py # help with adk agent
-├── .env
+.
+├── assets/
+│   └── MultiAgentSystem.png
+├── graphify-out/
+│   ├── graph.html
+│   ├── graph.json
+│   ├── GRAPH_REPORT.md
+│   └── memory/
 ├── pyproject.toml
 ├── README.md
-├── .gitignore
-├── chinook.db
-├── start_system.ps1 # All in one set up environment and run all services
+├── run.sh
+├── src/
+│   └── agent_app/
+│       ├── agent_cards/
+│       │   ├── invoice_agent.json
+│       │   ├── music_agent.json
+│       │   ├── orchestrator_agent.json
+│       │   ├── planner_agent.json
+│       │   └── refund_agent.json
+│       ├── agents/
+│       │   ├── __init__.py
+│       │   ├── invoice_agent_2.py
+│       │   ├── invoice_agent.py
+│       │   ├── __main__.py
+│       │   ├── music_agent_2.py
+│       │   ├── music_agent.py
+│       │   ├── orchestrator_agent.py
+│       │   ├── planner_agent_2.py
+│       │   ├── planner_agent.py
+│       │   └── refund_agent.py
+│       ├── common/
+│       │   ├── agent_executor.py
+│       │   ├── base_agent.py
+│       │   ├── __init__.py
+│       │   ├── prompts.py
+│       │   ├── types.py
+│       │   ├── utils.py
+│       │   └── workflow.py
+│       ├── database/
+│       │   ├── chinook.db
+│       │   ├── get_database.py
+│       │   └── __init__.py
+│       ├── __init__.py
+│       └── mcp_server/
+│           ├── __init__.py
+│           └── server.py
+├── start_system.ps1
+├── test/
+│   ├── test_client.py
+│   ├── test_orchestrator.py
+│   └── test_refund.py
+└── uv.lock
 ```
 ## Setup
 Adjust project path in start_system.ps1 file (if you don't want new tab popping everywhere, go to setting at your PowerShell, look for `New instance behavior` and change it to `Attach to the most recently used window`)
