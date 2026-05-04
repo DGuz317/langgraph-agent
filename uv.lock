@@ -3247,6 +3247,7 @@ dependencies = [
     { name = "scikit-learn" },
     { name = "uuid" },
     { name = "uvicorn" },
+    { name = "watchdog" },
 ]
 
 [package.metadata]
@@ -3293,6 +3294,7 @@ requires-dist = [
     { name = "scikit-learn", specifier = ">=1.8.0" },
     { name = "uuid", specifier = ">=1.30" },
     { name = "uvicorn", specifier = ">=0.42.0" },
+    { name = "watchdog", specifier = ">=6.0.0" },
 ]
 
 [[package]]
