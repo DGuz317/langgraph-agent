@@ -46,6 +46,7 @@ dependencies = [
     "uuid>=1.30",
     "uvicorn>=0.42.0",
     "deepagents>=0.5.3",
+    "colorlog>=6.10.1",
 ]
 
 [tool.setuptools.packages.find]
