@@ -1,0 +1,37 @@
+{
+    "name": "Orchestrator Agent",
+    "description": "Facilitate inter agent communication",
+    "url": "http://localhost:8050/",
+    "version": "1.0.0",
+    "preferredTransport": "JSONRPC",
+    "protocolVersion": "0.3.0",
+    "capabilities": {
+        "streaming": true,
+        "pushNotifications": true,
+        "stateTransitionHistory": false
+    },
+    "defaultInputModes": [
+        "text",
+        "text/plain"
+    ],
+    "defaultOutputModes": [
+        "text",
+        "text/plain"
+    ],
+    "skills": [
+        {
+            "id": "orchestrator_management",
+            "name": "Workflow Orchestration",
+            "description": "Facilitate inter agent communication and manage task workflows",
+            "tags": [
+                "orchestrator",
+                "workflow",
+                "manager",
+                "routing"
+            ],
+            "examples": [
+                "Coordinate tasks between the planner, music, and invoice agents to fulfill a complex user request."
+            ]
+        }
+    ]
+}
