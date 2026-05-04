@@ -1,111 +1,61 @@
-# type: ignore
+import os
+import ast 
+# import asyncio
+# import logging
+# import colorlog
+from dotenv import load_dotenv
 
-import logging
-import asyncio
-
-from collections.abc import AsyncIterable
-from typing import Any, Literal
-
-from a2a_mcp.common import prompts
-from a2a_mcp.common.base_agent import BaseAgent
-from a2a_mcp.common.types import TaskList
-from a2a_mcp.common.utils import init_api_key
-from langchain_core.messages import AIMessage
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langgraph.checkpoint.memory import MemorySaver
-from langchain.agents import create_agent
 from pydantic import BaseModel, Field
+from typing import Literal, List, Optional, Dict, Any
+
+from langchain.agents import create_agent
+from langchain.chat_models import init_chat_model
+from langgraph.checkpoint.memory import InMemorySaver
+
+from agent_app.common.prompts import PLANNER_AGENT_PROMT
 
 
-memory = MemorySaver()
-logger = logging.getLogger(__name__)
+load_dotenv()
+checkpointer = InMemorySaver()
 
 
 class ResponseFormat(BaseModel):
-    """Respond to the user in this format."""
-
-    status: Literal['input_required', 'completed', 'error'] = 'input_required'
-    question: str = Field(
-        description='Input needed from the user to generate the plan'
-    )
-    content: TaskList = Field(
-        description='List of tasks when the plan is generated'
-    )
-
-
-class LangGraphPlannerAgent(BaseAgent):
-    """Planner Agent backed by LangGraph."""
-
-    def __init__(self):
-        init_api_key()
-        logger.info('Initializing LanggraphPlannerAgent')
-        super().__init__(
-            agent_name='PlannerAgent',
-            description='Breakdown the user request into executable tasks',
-            content_types=['text', 'text/plain'],
+    """Response to user using this format"""
+    status: Literal["input_required", "not_started", "completed", "failed"] = Field(..., description="The current state of the agent's execution loop.")
+    answer: List = Field(..., description="List of tasks when the plan is generated.")
+    clarification_request: Optional[str] = Field(None, description="Information needed from the user before planning can proceed. The orchestrator should relay this to the user (e.g. customer ID, artist name).")
+    requires_aggregation: bool = Field(
+        False,
+        description=(
+            "Set to True only if the final answer requires combining or summarizing results "
+            "from multiple tasks or agents into a single coherent response. "
+            "Set to False if a single task result is sufficient to directly answer the user's query, "
+            "or if multiple tasks are independent and do not need to be merged."
         )
+    )
+    confidence: float = Field(..., description="Confident score of the answer.", ge=0, le=1)
 
-        self.model = ChatGoogleGenerativeAI(model='gemini-2.5-flash', temperature=0.0)
 
-        self.graph = None
+MODEL = init_chat_model(
+    model=os.getenv("LLM_MODEL"),
+    model_provider=os.getenv("MODEL_PROVIDER"),
+    base_url=os.getenv("OLLAMA_API_URL"),
+    temperature=0,
+    timeout=300,
+    max_tokens=25000,
+)
 
-    async def _ensure_graph(self):
-        if self.graph is None:
-            self.graph = create_agent(
-                self.model,
-                tools=[],
-                checkpointer=memory,
-                system_prompt=prompts.PLANNER_COT_INSTRUCTIONS,
-                response_format=ResponseFormat,
-            )
+planner_agent = create_agent(
+    model=MODEL,
+    system_prompt=PLANNER_AGENT_PROMT,
+    response_format=ResponseFormat,
+    checkpointer=checkpointer,
+)
 
-    async def invoke(self, query, sessionId) -> str:
-        await self._ensure_graph()
-        config = {'configurable': {'thread_id': sessionId}}
-        await self.graph.ainvoke({'messages': [('user', query)]}, config)
-        return self.get_agent_response(config)
+# --- Simple test ---
+# agent_result = planner_agent.invoke(
+#     {"messages": [{"role": "user", "content": "Show me AC/DC songs and my invoices sorted by price, my customer id is 5"}]},
+#     config={"configurable": {"thread_id": "1"}},
+# )
 
-    async def stream(self, query, sessionId, task_id) -> AsyncIterable[dict[str, Any]]:
-        await self._ensure_graph()
-        inputs = {'messages': [('user', query)]}
-        config = {'configurable': {'thread_id': sessionId}}
-
-        logger.info(f'Running LanggraphPlannerAgent stream for session {sessionId} {task_id} with input {query}')
-
-        async for item in self.graph.astream(inputs, config, stream_mode='values'):
-            message = item['messages'][-1]
-            if isinstance(message, AIMessage):
-                yield {
-                    'response_type': 'text',
-                    'is_task_complete': False,
-                    'require_user_input': False,
-                    'content': message.content,
-                }
-        yield self.get_agent_response(config)
-
-    def get_agent_response(self, config):
-        current_state = self.graph.get_state(config)
-        structured_response = current_state.values.get('structured_response')
-        
-        if structured_response and isinstance(structured_response, ResponseFormat):
-            if structured_response.status == 'input_required':
-                return {
-                    'response_type': 'text',
-                    'is_task_complete': False,
-                    'require_user_input': True,
-                    'content': structured_response.question,
-                }
-            if structured_response.status == 'completed':
-                return {
-                    'response_type': 'data',
-                    'is_task_complete': True,
-                    'require_user_input': False,
-                    # We must dump the TaskList to a dictionary so the Orchestrator can read ['tasks']
-                    'content': structured_response.content.model_dump(), 
-                }
-            
-        return {
-            'is_task_complete': False,
-            'require_user_input': True,
-            'content': 'We are unable to process your request at the moment. Please try again.',
-        }
+# print(agent_result["messages"][-1].content_blocks)
