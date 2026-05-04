@@ -1,5 +1,5 @@
 {
-    "name": "Langgraph Planner Agent",
+    "name": "Planner Agent",
     "description": "Breakdown the user request into executable tasks",
     "url": "http://localhost:8040/",
     "version": "1.0.0",
