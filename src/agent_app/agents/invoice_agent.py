@@ -1,42 +1,21 @@
 import os
-import ast 
 import asyncio
-# import logging
-# import colorlog
 from dotenv import load_dotenv
 
 from pydantic import BaseModel, Field
 from typing import Literal, List, Optional, Dict, Any
 
-# from langchain_community.utilities import SQLDatabase
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain_mcp_adapters.tools import load_mcp_tools
 from langchain.agents import create_agent
-# from langchain.tools import tool, ToolRuntime
 from langchain.chat_models import init_chat_model
 from langgraph.checkpoint.memory import InMemorySaver
-# from langchain_ollama import ChatOllama
 
 from agent_app.common.prompts import INVOICE_AGENT_PROMPT
 
 
 load_dotenv()
 checkpointer = InMemorySaver()
-# handler = colorlog.StreamHandler()
-# handler.setFormatter(colorlog.ColoredFormatter(
-#     "%(log_color)s%(asctime)s - %(levelname)s - %(name)s - %(message)s",
-#     log_colors={
-#         "DEBUG": "cyan",
-#         "INFO": "green",
-#         "WARNING": "yellow",
-#         "ERROR": "red",
-#         "CRITICAL": "bold_red",
-#     }
-# ))
-
-# logger = colorlog.getLogger(__name__)
-# logger.addHandler(handler)
-# logger.setLevel(logging.INFO)
 
 
 # --- Defined Response Format ---
@@ -64,8 +43,14 @@ ALLOWED_TOOL_NAMES = {
     "get_employee_by_invoice_and_customer",
 }
 
+
+invoice_agent = None 
+client = None 
+
 # --- Connect MCP Server ---
-async def invoice_agent_response():
+async def init_invoice_agent():
+    global invoice_agent, client
+
     client = MultiServerMCPClient(
         {
             "data_tools": {
@@ -75,26 +60,27 @@ async def invoice_agent_response():
         }
     )
 
-    async with client.session("data_tools") as session:
-        tools = await load_mcp_tools(session)
-        invoice_tools = [t for t in tools if t.name in ALLOWED_TOOL_NAMES]
-        # logger.info(f"Allowed tools from MCP Server: {invoice_tools}")
-        invoice_agent = create_agent(
-            model=MODEL,
-            tools=invoice_tools,
-            system_prompt=INVOICE_AGENT_PROMPT,
-            response_format=ResponseFormat,
-            checkpointer=checkpointer,
-        )
+    tools = await client.get_tools()
+    invoice_tools = [t for t in tools if t.name in ALLOWED_TOOL_NAMES]
+    invoice_agent = create_agent(
+        model=MODEL,
+        tools=invoice_tools,
+        system_prompt=INVOICE_AGENT_PROMPT,
+        response_format=ResponseFormat,
+        checkpointer=checkpointer,
+    )
+
+    return invoice_agent
 
 # --- Simple test ---
-        # agent_result = await invoice_agent.ainvoke(
-        #     {"messages": [{"role": "user", "content": "My customer id is 1. What is my latest invoice?"}]},
-        #     config={"configurable": {"thread_id": "1"}},
-        # )
-        # # logger.info(f"Agent Response:")
-        # print(agent_result["messages"][-1].content_blocks)
+# async def _test():
+#     await init_invoice_agent()
+#     result = await invoice_agent.ainvoke(
+#         {"messages": [{"role": "user", "content": "My customer id is 1. What is my latest invoice?"}]},
+#         config={"configurable": {"thread_id": "test-1"}},
+#     )
+#     print(result["structured_response"])
 
 
-if __name__ == "__main__":
-    asyncio.run(invoice_agent_response())
+# if __name__ == "__main__":
+#     asyncio.run(_test())
