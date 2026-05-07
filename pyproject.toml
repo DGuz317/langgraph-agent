@@ -49,6 +49,7 @@ dependencies = [
     "colorlog>=6.10.1",
     "watchdog>=6.0.0",
     "pytest>=9.0.3",
+    "httpx>=0.28.1",
 ]
 
 [tool.setuptools.packages.find]
