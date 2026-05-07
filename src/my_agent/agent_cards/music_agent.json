@@ -1,0 +1,34 @@
+{
+    "name": "Music Agent",
+    "description": "Helping customers discover and learn about music in given digital catalog",
+    "url": "http://localhost:8020/",
+    "version": "1.0.0",
+    "preferredTransport": "JSONRPC",
+    "protocolVersion": "0.3.0",
+    "capabilities": {
+        "streaming": true,
+        "pushNotifications": true,
+        "stateTransitionHistory": false
+    },
+    "defaultInputModes": [
+        "text",
+        "text/plain"
+    ],
+    "defaultOutputModes": [
+        "text",
+        "text/plain"
+    ],
+    "skills": [
+        {
+            "id": "music_retrieval",
+            "name": "Music information retrieval",
+            "description": "Helping customers discover and learn about music in given digital catalog",
+            "tags": [
+                "music, artist, album, song, genre"
+            ],
+            "examples": [
+                "My favourite artist is AC/DC. Recommend some songs for me."
+            ]
+        }
+    ]
+}
