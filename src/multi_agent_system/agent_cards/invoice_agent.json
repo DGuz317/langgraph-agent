@@ -1,0 +1,30 @@
+{
+  "name": "Invoice Agent",
+  "description": "Retrieving and processing invoice information",
+  "supportedInterfaces": [
+    {
+      "protocolBinding": "JSONRPC",
+      "url": "http://localhost:11001/a2a/jsonrpc/"
+    }
+  ],
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false
+  },
+  "defaultInputModes": ["text/plain"],
+  "defaultOutputModes": ["text/plain"],
+  "skills": [
+    {
+      "id": "invoice_retrieval",
+      "name": "Invoice information retrieval",
+      "description": "Retrieving and processing invoice information by customer ID",
+      "tags": ["invoice", "customer", "billing", "unit price"],
+      "examples": [
+        "My customer id is 1. What is my recent invoice?",
+        "Get latest invoice for customer_id=5",
+        "Show invoices for customer_id=5 sorted by unit price"
+      ]
+    }
+  ]
+}
