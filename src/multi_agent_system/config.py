@@ -1,5 +1,3 @@
-# src/multi_agent_system/config.py
-
 from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -24,7 +22,7 @@ class Settings(BaseSettings):
     a2a_timeout_seconds: int = 30
 
     # LangSmith
-    langsmith_api_key: str = "REMOVED_LANGSMITH_TOKEN"
+    langsmith_api_key: str | None = None
     langsmith_endpoint: str = "https://api.smith.langchain.com"
     langsmith_tracing: bool = True
     langsmith_project: str = "multi-agent-system"
