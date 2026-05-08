@@ -1,0 +1,51 @@
+{
+  "name": "Music Agent",
+  "description": "Retrieving and processing music information such as tracks, albums, artists, genres, and song existence checks",
+  "supportedInterfaces": [
+    {
+      "protocolBinding": "JSONRPC",
+      "url": "http://localhost:11002/a2a/jsonrpc/"
+    }
+  ],
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false
+  },
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "get_albums_by_artist",
+      "name": "Album lookup by artist",
+      "description": "Retrieve albums by artist name",
+      "tags": ["music", "album", "artist"],
+      "examples": ["Show me albums by AC/DC", "Find albums from artist Queen"]
+    },
+    {
+      "id": "get_tracks_by_artist",
+      "name": "Track lookup by artist",
+      "description": "Retrieve tracks or songs by artist name",
+      "tags": ["music", "track", "song", "artist"],
+      "examples": ["Show me songs by Queen", "Find tracks by AC/DC"]
+    },
+    {
+      "id": "get_songs_by_genre",
+      "name": "Song lookup by genre",
+      "description": "Retrieve songs that match a specific music genre",
+      "tags": ["music", "song", "genre"],
+      "examples": ["Recommend rock songs", "Show me jazz songs", "Find songs in the metal genre"]
+    },
+    {
+      "id": "check_for_songs",
+      "name": "Song existence check",
+      "description": "Check whether a song exists by title",
+      "tags": ["music", "song", "track", "search"],
+      "examples": ["Check if the song Imagine exists", "Do you have a track called Billie Jean?"]
+    }
+  ]
+}
