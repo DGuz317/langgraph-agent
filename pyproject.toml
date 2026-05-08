@@ -1,55 +1,31 @@
 [project]
-name = "langraph-agent"
+name = "multi-agent-system"
 version = "0.1.0"
-description = "A2A - MCP Sample"
+description = "Multi-agent system using LangGraph, A2A, FastMCP, Ollama, and uv"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = [
-    "a2a-mcp>=0.1.0",
-    "a2a-sdk>=0.3.25",
-    "azure-identity>=1.25.3",
-    "dataclasses>=0.8",
+    "a2a-sdk[http-server]>=0.3.25",
     "fastapi>=0.135.1",
     "fastmcp>=3.2.0",
-    "google-adk>=1.28.0",
-    "ipython>=9.11.0",
-    "langchain[ollama]>=1.2.12",
-    "langchain-anthropic>=1.4.0",
-    "langchain-chroma>=1.1.0",
+    "httpx>=0.28.1",
+    "langchain>=1.2.12",
     "langchain-community>=0.4.1",
     "langchain-core>=1.2.19",
-    "langchain-experimental>=0.4.1",
-    "langchain-google-genai>=4.2.1",
-    "langchain-google-vertexai>=3.2.2",
     "langchain-mcp-adapters>=0.2.2",
-    "langchain-openai>=1.1.11",
-    "langchain-together>=0.0.2.post1",
+    "langchain-ollama>=1.0.0",
     "langgraph>=1.1.2",
-    "langgraph-api>=0.7.100",
     "langgraph-checkpoint-sqlite>=3.0.3",
-    "langgraph-cli[inmem]>=0.4.18",
-    "langgraph-sdk>=0.3.11",
-    "langgraph-supervisor>=0.0.31",
-    "langgraph-swarm>=0.1.0",
     "langsmith>=0.7.20",
-    "networkx>=3.6.1",
-    "notebook>=7.5.5",
-    "numpy>=2.4.3",
-    "openai>=2.29.0",
-    "openevals>=0.1.3",
-    "openmeteo-requests>=1.7.5",
-    "pandas>=3.0.1",
-    "pyppeteer>=0.0.25",
-    "python-a2a[langchain]>=0.5.10",
+    "pydantic-settings>=2.0.0",
     "python-dotenv>=1.2.2",
-    "scikit-learn>=1.8.0",
-    "uuid>=1.30",
     "uvicorn>=0.42.0",
-    "deepagents>=0.5.3",
-    "colorlog>=6.10.1",
-    "watchdog>=6.0.0",
+    "click>=8.0.0",
+]
+
+[dependency-groups]
+dev = [
     "pytest>=9.0.3",
-    "httpx>=0.28.1",
 ]
 
 [tool.setuptools.packages.find]
