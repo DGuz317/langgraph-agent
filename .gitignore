@@ -190,3 +190,5 @@ graphify-out/manifest.json
 graphify-out/cost.json
 .cursor/
 .opencode/
+.codex/
+.benchmarks/
