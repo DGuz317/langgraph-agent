@@ -1,2 +1,0 @@
-/home/nvdung1/Desktop/MultiAgentSystem/langgraph-agent/README.md
-/home/nvdung1/Desktop/MultiAgentSystem/langgraph-agent/assets/MultiAgentSystem.png
