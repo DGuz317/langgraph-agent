@@ -1,11 +1,9 @@
-import json
 import re
-from typing import Any, Literal
+from typing import Literal
 
-from langchain_mcp_adapters.client import MultiServerMCPClient
 from pydantic import BaseModel
 
-from multi_agent_system.config import settings
+from multi_agent_system.common.mcp_tool_agent import MCPToolAgent
 from multi_agent_system.a2a_servers.invoice_agent.schemas import (
     InvoiceAgentResponse,
 )
@@ -24,30 +22,20 @@ class InvoiceRequest(BaseModel):
     invoice_id: str | None = None
 
 
-class InvoiceAgent:
-    def __init__(self) -> None:
-        self.mcp_client = MultiServerMCPClient(
-            {
-                "multi_agent_mcp": {
-                    "transport": "streamable_http",
-                    "url": settings.mcp_server_url,
-                }
-            }
-        )
-
+class InvoiceAgent(MCPToolAgent):
     async def ainvoke(self, query: str) -> InvoiceAgentResponse:
         request = self._parse_request(query)
 
         if error := self._validate_request(request):
             return error
 
-        if request.intent == "support_employee":
-            return await self._get_support_employee(request)
+        handlers = {
+            "latest_invoice": self._get_latest_invoice,
+            "invoices_by_unit_price": self._get_invoices_by_unit_price,
+            "support_employee": self._get_support_employee,
+        }
 
-        if request.intent == "invoices_by_unit_price":
-            return await self._get_invoices_by_unit_price(request)
-
-        return await self._get_latest_invoice(request)
+        return await handlers[request.intent](request)
 
     def _parse_request(self, query: str) -> InvoiceRequest:
         normalized = query.lower()
@@ -90,7 +78,7 @@ class InvoiceAgent:
         self,
         request: InvoiceRequest,
     ) -> InvoiceAgentResponse:
-        data = await self._call_tool(
+        data = await self.call_tool(
             "get_invoices_by_customer_sorted_by_date",
             {"customer_id": request.customer_id},
         )
@@ -112,7 +100,7 @@ class InvoiceAgent:
         self,
         request: InvoiceRequest,
     ) -> InvoiceAgentResponse:
-        data = await self._call_tool(
+        data = await self.call_tool(
             "get_invoices_sorted_by_unit_price",
             {"customer_id": request.customer_id},
         )
@@ -130,7 +118,7 @@ class InvoiceAgent:
         self,
         request: InvoiceRequest,
     ) -> InvoiceAgentResponse:
-        data = await self._call_tool(
+        data = await self.call_tool(
             "get_employee_by_invoice_and_customer",
             {
                 "customer_id": request.customer_id,
@@ -144,19 +132,6 @@ class InvoiceAgent:
             data=data,
         )
 
-    async def _call_tool(self, tool_name: str, args: dict[str, Any]) -> Any:
-        tools = await self.mcp_client.get_tools()
-        tool_map = {tool.name: tool for tool in tools}
-
-        if tool_name not in tool_map:
-            raise RuntimeError(
-                f"MCP tool not found: {tool_name}. "
-                f"Available tools: {list(tool_map.keys())}"
-            )
-
-        result = await tool_map[tool_name].ainvoke(args)
-        return self._unwrap_mcp_result(result)
-
     def _extract_number(self, text: str, field_names: list[str]) -> str | None:
         normalized = text.lower()
 
@@ -168,14 +143,3 @@ class InvoiceAgent:
                 return match.group(1)
 
         return None
-
-    def _unwrap_mcp_result(self, result: Any) -> Any:
-        if isinstance(result, dict) and result.get("type") == "text":
-            text = result.get("text", "")
-
-            try:
-                return json.loads(text)
-            except json.JSONDecodeError:
-                return text
-
-        return result
