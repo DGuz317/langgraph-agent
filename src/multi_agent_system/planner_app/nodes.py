@@ -28,7 +28,7 @@ def missing_info_node(state: PlannerAppState) -> dict:
     extracted = interrupt_for_missing_info(missing_fields)
 
     planner_output = state["planner_output"]
-    tasks = planner_output["answer"]
+    tasks = planner_output["tasks"]
 
     for task in tasks:
         if task["agent"] == "invoice" and extracted.get("customer_id"):
@@ -55,7 +55,7 @@ async def invoice_node(state: PlannerAppState) -> dict:
     planner_output = state["planner_output"]
 
     invoice_task = next(
-        task for task in planner_output["answer"]
+        task for task in planner_output["tasks"]
         if task["agent"] == "invoice"
     )
 
@@ -71,7 +71,7 @@ async def music_node(state: PlannerAppState) -> dict:
     planner_output = state["planner_output"]
 
     music_task = next(
-        task for task in planner_output["answer"]
+        task for task in planner_output["tasks"]
         if task["agent"] == "music"
     )
 
