@@ -3,9 +3,12 @@ from multi_agent_system.a2a_client.music_client import MusicA2AClient
 from multi_agent_system.planner.agent import PlannerAgent
 from multi_agent_system.planner_app.state import PlannerAppState
 from multi_agent_system.planner_app.hitl import interrupt_for_missing_info
+from multi_agent_system.aggregator.agent import AggregatorAgent
+from multi_agent_system.aggregator.schemas import AggregatorInput, AgentResult
 
 
 planner = PlannerAgent()
+aggregator = AggregatorAgent()
 
 
 def planner_node(state: PlannerAppState) -> dict:
@@ -80,20 +83,36 @@ def final_response_node(state: PlannerAppState) -> dict:
     invoice_result = state.get("invoice_result")
     music_result = state.get("music_result")
 
-    if invoice_result and music_result:
-        return {
-            "final_answer": (
-                f"Invoice result:\n{invoice_result}\n\n"
-                f"Music result:\n{music_result}"
-            )
-        }
+    results: list[AgentResult] = []
 
     if invoice_result:
-        return {"final_answer": invoice_result}
+        results.append(
+            AgentResult(
+                agent="invoice",
+                result=invoice_result,
+            )
+        )
 
     if music_result:
-        return {"final_answer": music_result}
+        results.append(
+            AgentResult(
+                agent="music",
+                result=music_result,
+            )
+        )
+
+    if not results:
+        return {
+            "final_answer": "I could not complete the request."
+        }
+
+    output = aggregator.invoke(
+        AggregatorInput(
+            user_input=state["user_input"],
+            results=results,
+        )
+    )
 
     return {
-        "final_answer": "I could not complete the request."
+        "final_answer": output.final_answer
     }

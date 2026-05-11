@@ -1,19 +1,35 @@
 import asyncio
+from uuid import uuid4
 
 from multi_agent_system.planner_app.graph import planner_graph
 
 
 async def run_case(user_input: str) -> None:
+    config = {
+        "configurable": {
+            "thread_id": str(uuid4()),
+        }
+    }
+
     result = await planner_graph.ainvoke(
         {
             "user_input": user_input,
             "invoice_result": None,
             "music_result": None,
             "final_answer": None,
-        }
+        },
+        config=config,
     )
 
     print("\nUSER:", user_input)
+
+    interrupts = result.get("__interrupt__")
+    if interrupts:
+        interrupt_value = interrupts[0].value
+        print("INTERRUPT:")
+        print(interrupt_value)
+        return
+
     print("FINAL ANSWER:")
     print(result["final_answer"])
 

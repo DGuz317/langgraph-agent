@@ -21,6 +21,9 @@ dependencies = [
     "python-dotenv>=1.2.2",
     "uvicorn>=0.42.0",
     "click>=8.0.0",
+    "langchain-openai>=1.2.1",
+    "langchain-google-genai>=4.2.2",
+    "langchain-anthropic>=1.4.3",
 ]
 
 [dependency-groups]
