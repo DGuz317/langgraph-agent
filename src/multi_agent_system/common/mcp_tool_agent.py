@@ -31,12 +31,20 @@ class MCPToolAgent:
         return self._unwrap_mcp_result(result)
 
     def _unwrap_mcp_result(self, result: Any) -> Any:
-        if isinstance(result, dict) and result.get("type") == "text":
-            text = result.get("text", "")
+        if isinstance(result, list) and len(result) == 1:
+            first_item = result[0]
 
-            try:
-                return json.loads(text)
-            except json.JSONDecodeError:
-                return text
+            if isinstance(first_item, dict) and first_item.get("type") == "text":
+                return self._parse_text_result(first_item.get("text", ""))
+
+        if isinstance(result, dict) and result.get("type") == "text":
+            return self._parse_text_result(result.get("text", ""))
 
         return result
+
+
+    def _parse_text_result(self, text: str) -> Any:
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            return text

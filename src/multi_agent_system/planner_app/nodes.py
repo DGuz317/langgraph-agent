@@ -1,92 +1,99 @@
-import asyncio
-from importlib import import_module
-from typing import Any
-
-from my_agent.utils.state import AppState
-
-
-class _UnavailableService:
-    """Fallback used while service modules are still scaffolds."""
-
-    def __init__(self, service_name: str, original_exc: Exception):
-        self._service_name = service_name
-        self._original_exc = original_exc
-
-    async def plan(self, *args: Any, **kwargs: Any) -> Any:
-        raise RuntimeError(f"{self._service_name} is unavailable") from self._original_exc
-
-    async def execute(self, *args: Any, **kwargs: Any) -> Any:
-        raise RuntimeError(f"{self._service_name} is unavailable") from self._original_exc
-
-    async def aggregate(self, *args: Any, **kwargs: Any) -> Any:
-        raise RuntimeError(f"{self._service_name} is unavailable") from self._original_exc
+from multi_agent_system.a2a_client.invoice_client import InvoiceA2AClient
+from multi_agent_system.a2a_client.music_client import MusicA2AClient
+from multi_agent_system.planner.agent import PlannerAgent
+from multi_agent_system.planner_app.state import PlannerAppState
+from multi_agent_system.planner_app.hitl import interrupt_for_missing_info
 
 
-def _load_service(module_name: str, class_name: str) -> Any:
-    try:
-        module = import_module(module_name)
-        service_cls = getattr(module, class_name)
-        return service_cls()
-    except (ImportError, AttributeError) as exc:
-        return _UnavailableService(class_name, exc)
+planner = PlannerAgent()
 
 
-planner_service = _load_service("my_agent.services.planner_service", "PlannerService")
-task_execution_service = _load_service(
-    "my_agent.services.task_execution_service", "TaskExecutionService"
-)
-aggregator_service = _load_service(
-    "my_agent.services.aggregator_service", "AggregatorService"
-)
-
-
-async def planner_node(state: AppState) -> dict:
-    """
-    Generate executable tasks from the latest user message.
-    """
-    user_input = _last_user_message(state)
-
-    tasks = await planner_service.plan(user_input=user_input)
-
-    return {"tasks": tasks}
-
-
-async def execute_tasks_node(state: AppState) -> dict:
-    """
-    Execute planned tasks against remote A2A agents.
-    """
-    tasks = state.get("tasks", [])
-
-    if not tasks:
-        return {"results": []}
-
-    results = await asyncio.gather(
-        *(task_execution_service.execute(task=task) for task in tasks)
-    )
-
-    return {"results": results}
-
-
-async def aggregate_node(state: AppState) -> dict:
-    """
-    Combine all agent outputs into a final response.
-    """
-    results = state.get("results", [])
-    final_response = await aggregator_service.aggregate(results=results)
-
-    existing_messages = state.get("messages", [])
-    assistant_message = {"role": "assistant", "content": final_response}
-    updated_messages = existing_messages + [assistant_message]
+def planner_node(state: PlannerAppState) -> dict:
+    output = planner.invoke(state["user_input"])
 
     return {
-        "final_response": final_response,
-        "messages": updated_messages,
+        "planner_output": output.model_dump(),
+        "missing_fields": output.missing_fields,
     }
 
-# --- Helpers ---
-def _last_user_message(state: AppState) -> str:
-    """Return the content of the most recent user message, or empty string."""
-    for msg in reversed(state.get("messages", [])):
-        if msg.get("role") == "user":
-            return msg.get("content", "")
-    return ""
+
+def missing_info_node(state: PlannerAppState) -> dict:
+    missing_fields = state.get("missing_fields", [])
+    extracted = interrupt_for_missing_info(missing_fields)
+
+    planner_output = state["planner_output"]
+    tasks = planner_output["answer"]
+
+    for task in tasks:
+        if task["agent"] == "invoice" and extracted.get("customer_id"):
+            task["instruction"] = f"Get latest invoice for customer_id={extracted['customer_id']}"
+            task["required_fields"] = []
+
+        if task["agent"] == "music" and extracted.get("artist"):
+            task["instruction"] = f"Find tracks by artist {extracted['artist']}"
+            task["required_fields"] = []
+
+        if task["agent"] == "music" and extracted.get("genre"):
+            task["instruction"] = f"Recommend {extracted['genre']} songs"
+            task["required_fields"] = []
+
+    return {
+        **extracted,
+        "planner_output": planner_output,
+        "missing_fields": [],
+    }
+
+
+async def invoice_node(state: PlannerAppState) -> dict:
+    client = InvoiceA2AClient()
+    planner_output = state["planner_output"]
+
+    invoice_task = next(
+        task for task in planner_output["answer"]
+        if task["agent"] == "invoice"
+    )
+
+    result = await client.ask(invoice_task["instruction"])
+
+    return {
+        "invoice_result": result,
+    }
+
+
+async def music_node(state: PlannerAppState) -> dict:
+    client = MusicA2AClient()
+    planner_output = state["planner_output"]
+
+    music_task = next(
+        task for task in planner_output["answer"]
+        if task["agent"] == "music"
+    )
+
+    result = await client.ask(music_task["instruction"])
+
+    return {
+        "music_result": result,
+    }
+
+
+def final_response_node(state: PlannerAppState) -> dict:
+    invoice_result = state.get("invoice_result")
+    music_result = state.get("music_result")
+
+    if invoice_result and music_result:
+        return {
+            "final_answer": (
+                f"Invoice result:\n{invoice_result}\n\n"
+                f"Music result:\n{music_result}"
+            )
+        }
+
+    if invoice_result:
+        return {"final_answer": invoice_result}
+
+    if music_result:
+        return {"final_answer": music_result}
+
+    return {
+        "final_answer": "I could not complete the request."
+    }
