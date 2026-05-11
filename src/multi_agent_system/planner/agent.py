@@ -21,7 +21,7 @@ class PlannerAgent:
     def _normalize_output(self, output: PlannerOutput) -> PlannerOutput:
         tasks: list[PlannedTask] = []
 
-        for task in output.answer:
+        for task in output.tasks:
             task.id = task.id or str(uuid4())
             task.status = "not_started"
             tasks.append(task)
@@ -36,7 +36,7 @@ class PlannerAgent:
 
         return PlannerOutput(
             status="completed",
-            answer=tasks,
+            tasks=tasks,
             confidence=output.confidence,
             requires_aggregation=len(tasks) > 1,
             missing_fields=missing_fields,
@@ -66,7 +66,7 @@ class PlannerAgent:
 
         looks_supported = any(keyword in text for keyword in domain_keywords)
 
-        if looks_supported and not output.answer:
+        if looks_supported and not output.tasks:
             raise ValueError(
                 "LLM planner returned no tasks for a supported request.\n"
                 f"User input: {user_input}\n"
@@ -83,7 +83,7 @@ class PlannerAgent:
             "check_song",
         }
 
-        for task in output.answer:
+        for task in output.tasks:
             if task.intent not in valid_intents:
                 raise ValueError(
                     "LLM planner returned invalid intent.\n"
@@ -204,7 +204,7 @@ class PlannerAgent:
 
         if not tasks:
             return PlannerOutput(
-                answer=[],
+                tasks=[],
                 confidence=0.0,
                 requires_aggregation=False,
                 missing_fields=[],
@@ -219,7 +219,7 @@ class PlannerAgent:
         )
 
         return PlannerOutput(
-            answer=tasks,
+            tasks=tasks,
             confidence=0.75,
             requires_aggregation=len(tasks) > 1,
             missing_fields=missing_fields,

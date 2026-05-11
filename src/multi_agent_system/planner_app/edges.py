@@ -6,7 +6,7 @@ def route_after_planner(state: PlannerAppState) -> str:
         return "missing_info"
 
     planner_output = state["planner_output"]
-    tasks = planner_output["answer"]
+    tasks = planner_output["tasks"]
 
     agents = {task["agent"] for task in tasks}
 
@@ -24,7 +24,7 @@ def route_after_planner(state: PlannerAppState) -> str:
 
 def route_after_invoice(state: PlannerAppState) -> str:
     planner_output = state["planner_output"]
-    tasks = planner_output["answer"]
+    tasks = planner_output["tasks"]
 
     has_music_task = any(task["agent"] == "music" for task in tasks)
 
