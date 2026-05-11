@@ -2,13 +2,25 @@ from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+ModelProvider = Literal["ollama", "openai", "google", "anthropic"]
 
 class Settings(BaseSettings):
     # LLM
-    model_provider: Literal["ollama"] = "ollama"
+    model_provider: ModelProvider = "ollama"
     llm_model: str = "gpt-oss"
     llm_temperature: float = 0.0
+
+    # Ollama
     ollama_api_url: str = "http://localhost:11434"
+
+    # OpenAI
+    openai_api_key: str | None = None
+
+    # Google Gemini
+    google_api_key: str | None = None
+
+    # Anthropic
+    anthropic_api_key: str | None = None
 
     # Database
     sqlite_db: str
