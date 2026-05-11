@@ -7,7 +7,10 @@ from multi_agent_system.aggregator.agent import AggregatorAgent
 from multi_agent_system.aggregator.schemas import AggregatorInput, AgentResult
 
 
-planner = PlannerAgent()
+planner = PlannerAgent(
+    use_llm=True,
+    fallback_to_deterministic=False,
+)
 aggregator = AggregatorAgent()
 
 
@@ -30,15 +33,15 @@ def missing_info_node(state: PlannerAppState) -> dict:
     for task in tasks:
         if task["agent"] == "invoice" and extracted.get("customer_id"):
             task["instruction"] = f"Get latest invoice for customer_id={extracted['customer_id']}"
-            task["required_fields"] = []
+            task["missing_fields"] = []
 
         if task["agent"] == "music" and extracted.get("artist"):
             task["instruction"] = f"Find tracks by artist {extracted['artist']}"
-            task["required_fields"] = []
+            task["missing_fields"] = []
 
         if task["agent"] == "music" and extracted.get("genre"):
             task["instruction"] = f"Recommend {extracted['genre']} songs"
-            task["required_fields"] = []
+    task["missing_fields"] = []
 
     return {
         **extracted,
