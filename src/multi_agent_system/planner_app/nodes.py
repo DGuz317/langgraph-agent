@@ -1,3 +1,5 @@
+import re
+
 from multi_agent_system.a2a_client.invoice_client import InvoiceA2AClient
 from multi_agent_system.a2a_client.music_client import MusicA2AClient
 from multi_agent_system.planner.agent import PlannerAgent
@@ -12,6 +14,17 @@ planner = PlannerAgent(
     fallback_to_deterministic=False,
 )
 aggregator = AggregatorAgent()
+
+
+def _extract_instruction_number(instruction: str, field_names: list[str]) -> str | None:
+    for field_name in field_names:
+        pattern = rf"\b{re.escape(field_name)}\s*(?:=|:|is)?\s*(\d+)"
+        match = re.search(pattern, instruction, flags=re.IGNORECASE)
+
+        if match:
+            return match.group(1)
+
+    return None
 
 
 def planner_node(state: PlannerAppState) -> dict:
@@ -31,22 +44,66 @@ def missing_info_node(state: PlannerAppState) -> dict:
     tasks = planner_output["tasks"]
 
     for task in tasks:
-        if task["agent"] == "invoice" and extracted.get("customer_id"):
-            task["instruction"] = f"Get latest invoice for customer_id={extracted['customer_id']}"
-            task["missing_fields"] = []
+        if task["agent"] == "invoice":
+            customer_id = extracted.get("customer_id") or _extract_instruction_number(
+                task["instruction"],
+                ["customer_id", "customer id"],
+            )
+            invoice_id = extracted.get("invoice_id") or _extract_instruction_number(
+                task["instruction"],
+                ["invoice_id", "invoice id"],
+            )
+
+            if task.get("intent") == "support_employee":
+                if customer_id and invoice_id:
+                    task["instruction"] = (
+                        f"Find employee for invoice_id={invoice_id} "
+                        f"and customer_id={customer_id}"
+                    )
+                    task["missing_fields"] = []
+                else:
+                    task["missing_fields"] = [
+                        field
+                        for field, value in {
+                            "customer_id": customer_id,
+                            "invoice_id": invoice_id,
+                        }.items()
+                        if not value
+                    ]
+            elif customer_id:
+                if task.get("intent") == "invoices_by_unit_price":
+                    task["instruction"] = (
+                        f"Show invoices for customer_id={customer_id} "
+                        "sorted by unit price"
+                    )
+                else:
+                    task["instruction"] = f"Get latest invoice for customer_id={customer_id}"
+                task["missing_fields"] = []
 
         if task["agent"] == "music" and extracted.get("artist"):
             task["instruction"] = f"Find tracks by artist {extracted['artist']}"
             task["missing_fields"] = []
 
         if task["agent"] == "music" and extracted.get("genre"):
-            task["instruction"] = f"Recommend {extracted['genre']} songs"
-    task["missing_fields"] = []
+            task["instruction"] = f"Recommend songs by genre {extracted['genre']}"
+            task["missing_fields"] = []
+
+        if task["agent"] == "music" and extracted.get("song_title"):
+            task["instruction"] = f"Check for song {extracted['song_title']}"
+            task["missing_fields"] = []
+
+    missing_fields = sorted(
+        {
+            field
+            for task in tasks
+            for field in task.get("missing_fields", [])
+        }
+    )
 
     return {
         **extracted,
         "planner_output": planner_output,
-        "missing_fields": [],
+        "missing_fields": missing_fields,
     }
 
 
