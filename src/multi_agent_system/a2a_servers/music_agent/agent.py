@@ -15,6 +15,25 @@ MusicIntent = Literal[
 ]
 
 
+KNOWN_GENRES = (
+    "rock",
+    "jazz",
+    "metal",
+    "blues",
+    "latin",
+    "reggae",
+    "pop",
+    "classical",
+    "alternative",
+    "punk",
+    "hip hop",
+    "electronic",
+    "world",
+    "soundtrack",
+    "opera",
+)
+
+
 class MusicRequest(BaseModel):
     intent: MusicIntent
     artist: str | None = None
@@ -50,19 +69,19 @@ class MusicAgent(MCPToolAgent):
                 ),
             )
 
-        if self._is_genre_query(normalized):
-            return MusicRequest(
-                intent="songs_by_genre",
-                genre=self._extract_after_keywords(
-                    query,
-                    ["genre", "songs", "music", "recommend"],
-                ),
-            )
-
+        # Important: check song existence before genre.
+        # Example: "Let There Be Rock" contains "rock",
+        # but it is a song title, not a genre query.
         if self._is_song_check_query(normalized):
             return MusicRequest(
                 intent="check_song",
                 song_title=self._extract_song_title(query),
+            )
+
+        if self._is_genre_query(normalized):
+            return MusicRequest(
+                intent="songs_by_genre",
+                genre=self._extract_genre(query),
             )
 
         return MusicRequest(
@@ -72,6 +91,23 @@ class MusicAgent(MCPToolAgent):
                 ["artist", "by", "from"],
             ),
         )
+
+    def _extract_genre(self, text: str) -> str | None:
+        normalized = text.lower()
+
+        for genre in KNOWN_GENRES:
+            if re.search(rf"\b{re.escape(genre)}\b", normalized):
+                return genre
+
+        value = self._extract_after_keywords(
+            text,
+            ["genre", "songs", "tracks", "music", "recommend"],
+        )
+
+        if value:
+            return self._clean_extracted_value(value)
+
+        return None
 
     def _validate_request(
         self,
@@ -169,7 +205,10 @@ class MusicAgent(MCPToolAgent):
         return "album" in text or "albums" in text
 
     def _is_genre_query(self, text: str) -> bool:
-        return "genre" in text or "rock" in text or "jazz" in text or "metal" in text
+        return "genre" in text or any(
+            re.search(rf"\b{re.escape(genre)}\b", text)
+            for genre in KNOWN_GENRES
+        )
 
     def _is_song_check_query(self, text: str) -> bool:
         return (
@@ -178,6 +217,8 @@ class MusicAgent(MCPToolAgent):
             or "do you have" in text
             or "song called" in text
             or "track called" in text
+            or "song name" in text
+            or "song title" in text
             or "check for song" in text
         )
 
@@ -200,14 +241,18 @@ class MusicAgent(MCPToolAgent):
 
     def _extract_song_title(self, text: str) -> str | None:
         patterns = [
-            r"check\s+for\s+song\s+(.+)$",
-            r"check\s+song\s+(.+)$",
-            r"song\s+called\s+(.+)$",
-            r"track\s+called\s+(.+)$",
-            r"song\s+(.+?)\s+exists",
-            r"track\s+(.+?)\s+exists",
-            r"do you have\s+(.+)$",
-            r"check\s+(.+)$",
+            r"check\s+for\s+song\s+(?:the\s+)?song\s+name\s+is\s+['\"]?(.+?)['\"]?$",
+            r"check\s+for\s+song\s+(?:the\s+)?song\s+title\s+is\s+['\"]?(.+?)['\"]?$",
+            r"check\s+for\s+song\s+['\"]?(.+?)['\"]?$",
+            r"(?:song_title|song title)\s*(?:=|:|is)\s*['\"]?(.+?)['\"]?$",
+            r"(?:song name|title)\s*(?:=|:|is)\s*['\"]?(.+?)['\"]?$",
+            r"the\s+song\s+name\s+is\s+['\"]?(.+?)['\"]?$",
+            r"check\s+if\s+the\s+song\s+['\"]?(.+?)['\"]?\s+exists",
+            r"check\s+if\s+song\s+['\"]?(.+?)['\"]?\s+exists",
+            r"check\s+song\s+['\"]?(.+?)['\"]?$",
+            r"song\s+called\s+['\"]?(.+?)['\"]?$",
+            r"track\s+called\s+['\"]?(.+?)['\"]?$",
+            r"do you have\s+['\"]?(.+?)['\"]?$",
         ]
 
         for pattern in patterns:
@@ -230,16 +275,24 @@ class MusicAgent(MCPToolAgent):
             "artist",
             "genre",
             "recommend",
+            "retrieve",
+            "list",
+            "a list of",
+            "provide",
             "show me",
             "find",
             "get",
             "music",
             "songs",
+            "song",
             "tracks",
+            "track",
             "albums",
+            "album",
             "some",
             "a few",
             "please",
+            "of",
         ]
 
         cleaned = value.strip(" ?.\"'")
@@ -248,7 +301,7 @@ class MusicAgent(MCPToolAgent):
             cleaned = re.sub(
                 rf"\b{re.escape(phrase)}\b",
                 "",
-                cleaned,    
+                cleaned,
                 flags=re.IGNORECASE,
             )
 

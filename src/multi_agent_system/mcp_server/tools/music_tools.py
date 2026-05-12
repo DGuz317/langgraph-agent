@@ -55,31 +55,36 @@ def register_music_tools(mcp: FastMCP, db: SQLDatabase) -> None:
         return ast.literal_eval(result)
 
     @mcp.tool()
-    def get_songs_by_genre(genre: str):
+    def get_songs_by_genre(genre: str) -> list[dict]:
         """
-        Fetch songs from the database that match a specific genre.
-        
-        Args:
-            genre (str): The genre of the songs to fetch.
-        
-        Returns:
-            list[dict]: A list of songs that match the specified genre.
+        Fetch songs that match a specific genre.
         """
-        genre_id_query = f"SELECT GenreId FROM Genre WHERE Name LIKE '%{genre}%'"
-        genre_ids = db.run(genre_id_query)
+        genre_query = """
+            SELECT GenreId
+            FROM Genre
+            WHERE Name LIKE :genre;
+        """
 
-        if not genre_ids:
+        genre_result = db.run(
+            genre_query,
+            parameters={"genre": f"%{genre}%"},
+        )
+
+        if not genre_result:
             return []
 
-        genre_ids = ast.literal_eval(genre_ids)
-        genre_id_list = ", ".join(str(gid[0]) for gid in genre_ids)
+        genre_ids = ast.literal_eval(genre_result)
+        genre_id_values = [str(row[0]) for row in genre_ids]
+
+        if not genre_id_values:
+            return []
 
         songs_query = f"""
-            SELECT Track.Name as SongName, Artist.Name as ArtistName
+            SELECT Track.Name AS SongName, Artist.Name AS ArtistName
             FROM Track
             LEFT JOIN Album ON Track.AlbumId = Album.AlbumId
             LEFT JOIN Artist ON Album.ArtistId = Artist.ArtistId
-            WHERE Track.GenreId IN ({genre_id_list})
+            WHERE Track.GenreId IN ({",".join(genre_id_values)})
             LIMIT 8;
         """
 
@@ -87,25 +92,27 @@ def register_music_tools(mcp: FastMCP, db: SQLDatabase) -> None:
 
         if not songs:
             return []
+
         return ast.literal_eval(songs)
 
     @mcp.tool()
-    def check_for_songs(song_title: str):
+    def check_for_songs(song_title: str) -> list[dict]:
         """
-        Check if a song exists by its name.
-        
-        Args:
-            song_title (str): Name of the song.
+        Check whether a song exists by title.
+        """
+        query = """
+            SELECT *
+            FROM Track
+            WHERE Name LIKE :song_title;
+        """
 
-        Returns:
-            list[dict]: A list of songs that match the song name.
-        """
         result = db.run(
-            f"""
-            SELECT * FROM Track WHERE Name LIKE '%{song_title}%';
-            """,
-            include_columns=True
+            query,
+            parameters={"song_title": f"%{song_title}%"},
+            include_columns=True,
         )
+
         if not result:
             return []
+
         return ast.literal_eval(result)
