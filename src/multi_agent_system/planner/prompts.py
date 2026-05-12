@@ -54,6 +54,17 @@ Music missing field rules:
 - songs_by_genre needs genre.
 - check_song needs song_title.
 
+For songs_by_genre, always format instruction as:
+"Recommend songs by genre <genre>"
+
+Examples:
+User: recommend some rock tracks
+Instruction: Recommend songs by genre rock
+
+User: show me jazz songs
+Instruction: Recommend songs by genre jazz
+
+
 Return PlannerOutput with this structure:
 {
   "status": "completed",
