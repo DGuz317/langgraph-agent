@@ -194,3 +194,4 @@ graphify-out/cost.json
 .codex/
 .benchmarks/
 AGENTS.md
+.agents/
