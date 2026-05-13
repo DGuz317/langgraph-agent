@@ -1,14 +1,26 @@
-import asyncio
 import json
+import os
 from uuid import uuid4
 
 import httpx
+import pytest
 
+
+pytestmark = pytest.mark.skipif(
+    os.getenv("RUN_A2A_INTEGRATION_TESTS") != "1",
+    reason="Set RUN_A2A_INTEGRATION_TESTS=1 and start the invoice A2A service to run this test.",
+)
 
 INVOICE_A2A_URL = "http://localhost:11001/a2a/jsonrpc/"
 
 
-async def main() -> None:
+@pytest.fixture
+def anyio_backend() -> str:
+    return "asyncio"
+
+
+@pytest.mark.anyio
+async def test_invoice_a2a_jsonrpc_get_latest_invoice() -> None:
     payload = {
         "jsonrpc": "2.0",
         "id": str(uuid4()),
@@ -18,7 +30,7 @@ async def main() -> None:
                 "role": "ROLE_USER",
                 "parts": [
                     {
-                        "text": "Get latest invoice for customer_id=5"
+                        "text": "Get latest invoice for customer_id=5",
                     }
                 ],
                 "messageId": str(uuid4()),
@@ -37,9 +49,9 @@ async def main() -> None:
             },
         )
 
-    print("Status:", response.status_code)
-    print(json.dumps(response.json(), indent=2))
+    body = response.json()
 
-
-if __name__ == "__main__":
-    asyncio.run(main())
+    assert response.status_code == 200
+    assert body.get("jsonrpc") == "2.0"
+    assert "error" not in body, json.dumps(body, indent=2)
+    assert "result" in body
