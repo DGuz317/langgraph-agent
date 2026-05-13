@@ -1,40 +1,55 @@
-import asyncio
-from uuid import uuid4
-
-from langgraph.types import Command
-
-from multi_agent_system.planner_app.graph import planner_graph
+from multi_agent_system.planner_app.hitl import (
+    ask_for_missing_info,
+    extract_missing_fields,
+)
 
 
-async def main() -> None:
-    thread_id = str(uuid4())
-    config = {
-        "configurable": {
-            "thread_id": thread_id,
-        }
-    }
+def test_ask_for_missing_song_title() -> None:
+    question = ask_for_missing_info(["song_title"])
 
-    first = await planner_graph.ainvoke(
-        {
-            "user_input": "What is my latest invoice?",
-            "invoice_result": None,
-            "music_result": None,
-            "final_answer": None,
-        },
-        config=config,
+    assert question == "Which song title should I check?"
+
+
+def test_extract_song_title_from_plain_answer() -> None:
+    result = extract_missing_fields(
+        user_response="Ligia",
+        missing_fields=["song_title"],
     )
 
-    print("FIRST RESULT:")
-    print(first)
+    assert result == {"song_title": "Ligia"}
 
-    second = await planner_graph.ainvoke(
-        Command(resume="my id is 5"),
-        config=config,
+
+def test_extract_customer_id_from_plain_number() -> None:
+    result = extract_missing_fields(
+        user_response="5",
+        missing_fields=["customer_id"],
     )
 
-    print("\nSECOND RESULT:")
-    print(second["final_answer"])
+    assert result == {"customer_id": "5"}
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+def test_extract_customer_id_from_sentence() -> None:
+    result = extract_missing_fields(
+        user_response="my customer id is 5",
+        missing_fields=["customer_id"],
+    )
+
+    assert result == {"customer_id": "5"}
+
+
+def test_extract_artist_from_plain_answer() -> None:
+    result = extract_missing_fields(
+        user_response="AC/DC",
+        missing_fields=["artist"],
+    )
+
+    assert result == {"artist": "AC/DC"}
+
+
+def test_extract_genre_from_plain_answer() -> None:
+    result = extract_missing_fields(
+        user_response="rock",
+        missing_fields=["genre"],
+    )
+
+    assert result == {"genre": "rock"}
