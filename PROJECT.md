@@ -29,8 +29,6 @@ The system is designed with **separation of concerns** and modularity in mind:
 ## File Structure
 ```bash
 multi-agent-system/
-├── assets
-│   └── MultiAgentSystem.png
 ├── graphify-out
 │   ├── graph.html
 │   ├── graph.json
@@ -113,7 +111,6 @@ multi-agent-system/
 │   ├── test_a2a_clients.py
 │   ├── test_invoice_a2a_client.py
 │   ├── test_llm_planner.py
-│   ├── test_llm_planner_raw.py
 │   ├── test_mcp_tools.py
 │   ├── test_music_a2a_client.py
 │   ├── test_planner_graph.py
