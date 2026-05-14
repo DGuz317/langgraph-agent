@@ -81,7 +81,10 @@ def missing_info_node(state: PlannerAppState) -> dict:
                 task["missing_fields"] = []
 
         if task["agent"] == "music" and extracted.get("artist"):
-            task["instruction"] = f"Find tracks by artist {extracted['artist']}"
+            if task.get("intent") == "albums_by_artist":
+                task["instruction"] = f"Show albums by artist {extracted['artist']}"
+            else:
+                task["instruction"] = f"Find tracks by artist {extracted['artist']}"
             task["missing_fields"] = []
 
         if task["agent"] == "music" and extracted.get("genre"):
