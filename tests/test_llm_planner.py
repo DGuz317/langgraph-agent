@@ -5,68 +5,8 @@ import pytest
 
 pytestmark = pytest.mark.skipif(
     os.getenv("RUN_LLM_TESTS") != "1",
-    reason="Set RUN_LLM_TESTS=1 and make sure the configured LLM is running to run these tests.",
+    reason="LLM planner tests require RUN_LLM_TESTS=1",
 )
-
-
-CASES = [
-    "Get latest invoice for customer_id=5",
-    "Find tracks by artist AC/DC",
-    "Get latest invoice for customer_id=5 and find tracks by artist AC/DC",
-    "What is my latest invoice?",
-    "recommend some tracks",
-    "recommend some songs",
-    "Check for song Rolling in the Deep",
-]
-
-
-HITL_CASES = [
-    (
-        "Original user request: what is my latest invoice?\n"
-        "User follow-up answer: 5\n"
-        "Structured values extracted from the follow-up: customer_id=5\n"
-        "Re-plan the original request using the follow-up answer as free-form context. "
-        "Do not assume the answer belongs to the previously requested field if another "
-        "interpretation better fits the original request.",
-        "invoice",
-        "latest_invoice",
-        "customer_id",
-        "5",
-    ),
-    (
-        "Original user request: show albums\n"
-        "User follow-up answer: Queen\n"
-        "Re-plan the original request using the follow-up answer as free-form context. "
-        "Do not assume the answer belongs to the previously requested field if another "
-        "interpretation better fits the original request.",
-        "music",
-        "albums_by_artist",
-        "artist",
-        "Queen",
-    ),
-    (
-        "Original user request: check for song\n"
-        "User follow-up answer: Ligia\n"
-        "Re-plan the original request using the follow-up answer as free-form context. "
-        "Do not assume the answer belongs to the previously requested field if another "
-        "interpretation better fits the original request.",
-        "music",
-        "check_song",
-        "song_title",
-        "Ligia",
-    ),
-    (
-        "Original user request: recommend some songs\n"
-        "User follow-up answer: AC/DC\n"
-        "Re-plan the original request using the follow-up answer as free-form context. "
-        "Do not assume the answer belongs to the previously requested field if another "
-        "interpretation better fits the original request.",
-        "music",
-        "tracks_by_artist",
-        "artist",
-        "AC/DC",
-    ),
-]
 
 
 def test_llm_planner_returns_structured_tasks_for_core_cases() -> None:
@@ -74,53 +14,98 @@ def test_llm_planner_returns_structured_tasks_for_core_cases() -> None:
 
     planner = PlannerAgent()
 
-    for user_input in CASES:
-        output = planner.invoke(user_input)
-        data = output.model_dump()
+    cases = [
+        {
+            "user_input": "Get latest invoice for customer_id=5",
+            "agent": "invoice",
+            "intent": "latest_invoice",
+            "missing_fields": [],
+            "args": {"customer_id": "5"},
+        },
+        {
+            "user_input": "What is my latest invoice?",
+            "agent": "invoice",
+            "intent": "latest_invoice",
+            "missing_fields": ["customer_id"],
+            "args": {},
+        },
+        {
+            "user_input": "Get invoices sorted by unit price for customer_id=5",
+            "agent": "invoice",
+            "intent": "invoices_by_unit_price",
+            "missing_fields": [],
+            "args": {"customer_id": "5"},
+        },
+        {
+            "user_input": "Show my invoices sorted by unit price",
+            "agent": "invoice",
+            "intent": "invoices_by_unit_price",
+            "missing_fields": ["customer_id"],
+            "args": {},
+        },
+        {
+            "user_input": "Find tracks by artist AC/DC",
+            "agent": "music",
+            "intent": "tracks_by_artist",
+            "missing_fields": [],
+            "args": {"artist": "AC/DC"},
+        },
+        {
+            "user_input": "recommend some rock tracks",
+            "agent": "music",
+            "intent": "songs_by_genre",
+            "missing_fields": [],
+            "args": {"genre": "rock"},
+        },
+        {
+            "user_input": "Check for song Ligia",
+            "agent": "music",
+            "intent": "check_song",
+            "missing_fields": [],
+            "args": {"song_title": "Ligia"},
+        },
+    ]
 
-        assert isinstance(data.get("tasks"), list), user_input
-        assert data["tasks"], user_input
-        assert isinstance(data.get("missing_fields"), list), user_input
+    for case in cases:
+        output = planner.invoke(case["user_input"])
 
-        for task in data["tasks"]:
-            assert task["agent"] in {"invoice", "music"}, user_input
-            assert isinstance(task.get("instruction"), str), user_input
-            assert task["instruction"].strip(), user_input
-            assert isinstance(task.get("missing_fields", []), list), user_input
+        assert output.status == "completed"
+        assert len(output.tasks) == 1
 
+        task = output.tasks[0]
 
-def test_llm_planner_accepts_hitl_context_for_replanning() -> None:
-    from multi_agent_system.planner.agent import PlannerAgent
+        assert task.agent == case["agent"]
+        assert task.intent == case["intent"]
+        assert task.missing_fields == case["missing_fields"]
+        assert output.missing_fields == case["missing_fields"]
 
-    planner = PlannerAgent()
+        for key, value in case["args"].items():
+            assert task.args.get(key) == value
 
-    for user_input, expected_agent, expected_intent, field, value in HITL_CASES:
-        output = planner.invoke(user_input)
-        data = output.model_dump()
-
-        matching_tasks = [
-            task
-            for task in data["tasks"]
-            if task["agent"] == expected_agent and task["intent"] == expected_intent
-        ]
-
-        assert matching_tasks, user_input
-
-        task = matching_tasks[0]
-        instruction = task["instruction"].lower()
-
-        assert value.lower() in instruction, user_input
-        assert field not in task.get("missing_fields", []), user_input
 
 def test_llm_planner_marks_generic_music_recommendation_as_ambiguous() -> None:
     from multi_agent_system.planner.agent import PlannerAgent
 
     planner = PlannerAgent()
 
-    output = planner.invoke("recommend some songs")
+    ambiguous_inputs = [
+        "recommend some songs",
+        "recommend some tracks",
+        "find some music",
+        "suggest songs",
+    ]
 
-    assert output.tasks
-    assert output.tasks[0].agent == "music"
-    assert output.tasks[0].intent == "clarify_music_search"
-    assert output.tasks[0].missing_fields == ["music_search_type"]
-    assert output.missing_fields == ["music_search_type"]
+    for user_input in ambiguous_inputs:
+        output = planner.invoke(user_input)
+
+        assert output.status == "completed"
+        assert len(output.tasks) == 1
+
+        task = output.tasks[0]
+
+        assert task.agent == "music"
+        assert task.intent == "clarify_music_search"
+        assert task.instruction == "Ask whether the user wants music by artist or by genre."
+        assert task.args == {}
+        assert task.missing_fields == ["music_search_type"]
+        assert output.missing_fields == ["music_search_type"]

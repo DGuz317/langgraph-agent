@@ -35,20 +35,30 @@ class PlannerAgent:
 
         structured_llm = self.llm.with_structured_output(PlannerOutput)
 
-        output = structured_llm.invoke(
-            [
-                SystemMessage(content=PLANNER_SYSTEM_PROMPT),
-                HumanMessage(content=user_input),
-            ]
+        output = self._invoke_structured_planner(
+            structured_llm=structured_llm,
+            user_input=user_input,
         )
 
-        if not isinstance(output, PlannerOutput):
-            output = PlannerOutput.model_validate(output)
+        try:
+            normalized_output = self._normalize_output(output)
+            self._validate_llm_output(normalized_output)
+            return normalized_output
+        except ValueError:
+            repaired_output = self._invoke_structured_planner(
+                structured_llm=structured_llm,
+                user_input=(
+                    "The previous planner output was invalid or empty.\n"
+                    "Re-plan the user request and follow the system prompt exactly.\n"
+                    "If the request is a generic music recommendation, return a "
+                    "clarify_music_search task with missing_fields=[\"music_search_type\"].\n\n"
+                    f"User request: {user_input}"
+                ),
+            )
 
-        normalized_output = self._normalize_output(output)
-        self._validate_llm_output(normalized_output)
-
-        return normalized_output
+            normalized_output = self._normalize_output(repaired_output)
+            self._validate_llm_output(normalized_output)
+            return normalized_output
 
     def _normalize_output(self, output: PlannerOutput) -> PlannerOutput:
         tasks: list[PlannedTask] = []
@@ -75,6 +85,9 @@ class PlannerAgent:
         )
 
     def _validate_llm_output(self, output: PlannerOutput) -> None:
+        if not output.tasks:
+            raise ValueError("LLM planner returned no tasks.")
+
         for task in output.tasks:
             self._validate_intent(task)
             self._validate_agent_intent_pair(task)
@@ -112,3 +125,25 @@ class PlannerAgent:
                 "LLM planner created invoice task with unclear instruction.\n"
                 f"Task: {task.model_dump_json(indent=2)}"
             )
+    
+    def _invoke_structured_planner(
+        self,
+        structured_llm,
+        user_input: str,
+    ) -> PlannerOutput:
+        output = structured_llm.invoke(
+            [
+                SystemMessage(content=PLANNER_SYSTEM_PROMPT),
+                HumanMessage(
+                    content=(
+                        "Plan this user request. Return a valid PlannerOutput.\n\n"
+                        f"User request: {user_input}"
+                    )
+                ),
+            ]
+        )
+
+        if isinstance(output, PlannerOutput):
+            return output
+
+        return PlannerOutput.model_validate(output)
