@@ -105,3 +105,26 @@ def test_extract_customer_id_from_sentence() -> None:
     )
 
     assert result == {"customer_id": "5"}
+
+def test_extract_music_search_type_genre_without_colon() -> None:
+    result = extract_missing_fields(
+        user_response="genre rock",
+        missing_fields=["music_search_type"],
+    )
+
+    assert result == {
+        "music_search_type": "genre",
+        "genre": "rock",
+    }
+
+
+def test_extract_music_search_type_artist_without_colon() -> None:
+    result = extract_missing_fields(
+        user_response="artist AC/DC",
+        missing_fields=["music_search_type"],
+    )
+
+    assert result == {
+        "music_search_type": "artist",
+        "artist": "AC/DC",
+    }

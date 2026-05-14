@@ -32,6 +32,10 @@ def planner_node(state: PlannerAppState) -> dict:
         "missing_fields": output.missing_fields,
     }
 
+def _update_task_args(task: dict, values: dict[str, str]) -> None:
+    args = task.get("args") or {}
+    args.update(values)
+    task["args"] = args
 
 def missing_info_node(state: PlannerAppState) -> dict:
     missing_fields = state.get("missing_fields", [])
@@ -42,28 +46,43 @@ def missing_info_node(state: PlannerAppState) -> dict:
 
     for task in tasks:
         if task["agent"] == "invoice" and extracted.get("customer_id"):
-            if task.get("intent") == "invoices_by_unit_price":
+            customer_id = extracted["customer_id"]
+            intent = task.get("intent")
+
+            if intent == "invoices_by_unit_price":
                 task["instruction"] = (
-                    "Get invoices sorted by unit price "
-                    f"for customer_id={extracted['customer_id']}"
+                    f"Get invoices sorted by unit price for customer_id={customer_id}"
                 )
             else:
-                task["instruction"] = (
-                    f"Get latest invoice for customer_id={extracted['customer_id']}"
-                )
+                task["intent"] = "latest_invoice"
+                task["instruction"] = f"Get latest invoice for customer_id={customer_id}"
+
             task["missing_fields"] = []
+            _update_task_args(task, {"customer_id": customer_id})
 
         if task["agent"] == "music" and extracted.get("artist"):
-            task["instruction"] = f"Find tracks by artist {extracted['artist']}"
+            artist = extracted["artist"]
+
+            task["intent"] = "tracks_by_artist"
+            task["instruction"] = f"Find tracks by artist {artist}"
             task["missing_fields"] = []
+            _update_task_args(task, {"artist": artist})
 
         if task["agent"] == "music" and extracted.get("genre"):
-            task["instruction"] = f"Recommend songs by genre {extracted['genre']}"
+            genre = extracted["genre"]
+
+            task["intent"] = "songs_by_genre"
+            task["instruction"] = f"Recommend songs by genre {genre}"
             task["missing_fields"] = []
+            _update_task_args(task, {"genre": genre})
 
         if task["agent"] == "music" and extracted.get("song_title"):
-            task["instruction"] = f"Check for song {extracted['song_title']}"
+            song_title = extracted["song_title"]
+
+            task["intent"] = "check_song"
+            task["instruction"] = f"Check for song {song_title}"
             task["missing_fields"] = []
+            _update_task_args(task, {"song_title": song_title})
 
     return {
         **extracted,

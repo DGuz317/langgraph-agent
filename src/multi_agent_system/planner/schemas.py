@@ -8,23 +8,18 @@ TaskStatus = Literal["not_started", "completed", "failed"]
 
 
 class PlannedTask(BaseModel):
-    id: str = Field(default="")
+    id: str
     agent: AgentName
     intent: str
     instruction: str
+    args: dict[str, str] = Field(default_factory=dict)
     missing_fields: list[str] = Field(default_factory=list)
     status: TaskStatus = "not_started"
 
 
 class PlannerOutput(BaseModel):
-    status: Literal["completed"] = "completed"
-    tasks: list[PlannedTask] = Field(
-        default_factory=list,
-        description=(
-            "List of tasks to execute. Return an empty list only when the user "
-            "request is unrelated to invoice or music."
-        ),
-    )
-    confidence: float = Field(default=1.0, ge=0.0, le=1.0)
-    requires_aggregation: bool = False
+    status: Literal["completed", "failed"]
+    tasks: list[PlannedTask] = Field(default_factory=list)
+    confidence: float
+    requires_aggregation: bool
     missing_fields: list[str] = Field(default_factory=list)

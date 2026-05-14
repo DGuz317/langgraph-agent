@@ -12,6 +12,10 @@ CRITICAL RULES:
 - Do not invent values.
 - Do not silently choose between multiple valid interpretations.
 - If the user's request is ambiguous, create a task that asks for clarification.
+- Every task must include args.
+- args must contain extracted structured values from the user request.
+- If a value is missing, do not invent it. Leave args empty or only include known values.
+- instruction must remain a clear executable natural-language instruction for the target agent.
 
 Available agents:
 
@@ -38,6 +42,11 @@ Invoice instruction rules:
 - invoices_by_unit_price instruction format:
   "Get invoices sorted by unit price for customer_id=<customer_id>"
 
+Invoice args rules:
+- latest_invoice args: {"customer_id": "<customer_id>"}
+- invoices_by_unit_price args: {"customer_id": "<customer_id>"}
+- If customer_id is missing, args should be {}.
+
 2. music
 
 Use music for:
@@ -62,26 +71,32 @@ Music missing field rules:
 - check_song needs song_title.
 - clarify_music_search needs music_search_type.
 
-Music ambiguity rules:
-- If the user asks for general music recommendations without specifying artist, genre, or song title, do NOT choose artist or genre yourself.
-- General requests include:
-  - "recommend some songs"
-  - "recommend some tracks"
-  - "find some songs"
-  - "find some tracks"
-  - "suggest music"
-  - "show me some music"
-- For these ambiguous requests, create a music task with:
-  - intent: "clarify_music_search"
-  - instruction: "Ask whether the user wants music by artist or by genre."
-  - missing_fields: ["music_search_type"]
-- The top-level missing_fields must also include "music_search_type".
+IMPORTANT MUSIC AMBIGUITY RULE:
+Generic music recommendation requests are still valid music requests.
 
-Music clarification behavior:
-- If the user explicitly says an artist, use tracks_by_artist.
-- If the user explicitly says a genre, use songs_by_genre.
-- If the user explicitly asks whether a song exists, use check_song.
-- If the user gives only a generic request like "recommend some songs", do not guess.
+If the user asks for music, songs, tracks, or recommendations, but does not specify:
+- artist
+- genre
+- song title
+
+you MUST still create one music task.
+
+Do NOT return tasks=[] for generic music requests.
+
+For generic music requests, return:
+- agent: "music"
+- intent: "clarify_music_search"
+- instruction: "Ask whether the user wants music by artist or by genre."
+- args: {}
+- missing_fields: ["music_search_type"]
+
+Examples of generic music requests:
+- "recommend some songs"
+- "recommend some tracks"
+- "find some music"
+- "suggest songs"
+- "show me some songs"
+- "give me some tracks"
 
 Music instruction rules:
 - tracks_by_artist instruction format:
@@ -95,6 +110,13 @@ Music instruction rules:
 - clarify_music_search instruction format:
   "Ask whether the user wants music by artist or by genre."
 
+Music args rules:
+- tracks_by_artist args: {"artist": "<artist>"}
+- albums_by_artist args: {"artist": "<artist>"}
+- songs_by_genre args: {"genre": "<genre>"}
+- check_song args: {"song_title": "<song_title>"}
+- clarify_music_search args: {}
+
 Examples:
 
 User: recommend some rock tracks
@@ -105,21 +127,13 @@ Output task:
   "agent": "music",
   "intent": "songs_by_genre",
   "instruction": "Recommend songs by genre rock",
+  "args": {
+    "genre": "rock"
+  },
   "missing_fields": [],
   "status": "not_started"
 }
 
-User: show me jazz songs
-Reasoning: The user provided genre=jazz.
-Output task:
-{
-  "id": "music_1",
-  "agent": "music",
-  "intent": "songs_by_genre",
-  "instruction": "Recommend songs by genre jazz",
-  "missing_fields": [],
-  "status": "not_started"
-}
 
 User: find tracks by artist AC/DC
 Reasoning: The user provided artist=AC/DC.
@@ -129,30 +143,35 @@ Output task:
   "agent": "music",
   "intent": "tracks_by_artist",
   "instruction": "Find tracks by artist AC/DC",
+  "args": {
+    "artist": "AC/DC"
+  },
   "missing_fields": [],
   "status": "not_started"
 }
 
 User: recommend some songs
-Reasoning: The user did not specify artist, genre, or song title. This is ambiguous.
+Reasoning: The user is asking for music, but did not specify artist, genre, or song title. This is ambiguous, but it is still a valid music request.
 Output task:
 {
   "id": "music_1",
   "agent": "music",
   "intent": "clarify_music_search",
   "instruction": "Ask whether the user wants music by artist or by genre.",
+  "args": {},
   "missing_fields": ["music_search_type"],
   "status": "not_started"
 }
 
-User: recommend some tracks
-Reasoning: The user did not specify artist, genre, or song title. This is ambiguous.
+User: find some music
+Reasoning: The user is asking for music, but did not specify artist, genre, or song title. This is ambiguous, but it is still a valid music request.
 Output task:
 {
   "id": "music_1",
   "agent": "music",
   "intent": "clarify_music_search",
   "instruction": "Ask whether the user wants music by artist or by genre.",
+  "args": {},
   "missing_fields": ["music_search_type"],
   "status": "not_started"
 }
@@ -165,9 +184,14 @@ Output task:
   "agent": "music",
   "intent": "check_song",
   "instruction": "Check for song Ligia",
+  "args": {
+    "song_title": "Ligia"
+  },
   "missing_fields": [],
   "status": "not_started"
 }
+
+
 
 Return PlannerOutput with this structure:
 {
@@ -178,6 +202,7 @@ Return PlannerOutput with this structure:
       "agent": "invoice or music",
       "intent": "intent name",
       "instruction": "clear executable instruction",
+      "args": {},
       "missing_fields": [],
       "status": "not_started"
     }
