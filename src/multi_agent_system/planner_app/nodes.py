@@ -1,5 +1,3 @@
-import re
-
 from multi_agent_system.a2a_client.invoice_client import InvoiceA2AClient
 from multi_agent_system.a2a_client.music_client import MusicA2AClient
 from multi_agent_system.planner.agent import PlannerAgent
@@ -16,15 +14,21 @@ planner = PlannerAgent(
 aggregator = AggregatorAgent()
 
 
-def _extract_instruction_number(instruction: str, field_names: list[str]) -> str | None:
-    for field_name in field_names:
-        pattern = rf"\b{re.escape(field_name)}\s*(?:=|:|is)?\s*(\d+)"
-        match = re.search(pattern, instruction, flags=re.IGNORECASE)
+def _build_hitl_planner_input(user_input: str, extracted: dict) -> str:
+    details = [
+        f"{field}={value}"
+        for field, value in sorted(extracted.items())
+        if value not in (None, "")
+    ]
 
-        if match:
-            return match.group(1)
+    if not details:
+        return user_input
 
-    return None
+    return (
+        f"{user_input}\n\n"
+        "Additional information collected from the user: "
+        f"{', '.join(details)}"
+    )
 
 
 def planner_node(state: PlannerAppState) -> dict:
@@ -40,73 +44,13 @@ def missing_info_node(state: PlannerAppState) -> dict:
     missing_fields = state.get("missing_fields", [])
     extracted = interrupt_for_missing_info(missing_fields)
 
-    planner_output = state["planner_output"]
-    tasks = planner_output["tasks"]
-
-    for task in tasks:
-        if task["agent"] == "invoice":
-            customer_id = extracted.get("customer_id") or _extract_instruction_number(
-                task["instruction"],
-                ["customer_id", "customer id"],
-            )
-            invoice_id = extracted.get("invoice_id") or _extract_instruction_number(
-                task["instruction"],
-                ["invoice_id", "invoice id"],
-            )
-
-            if task.get("intent") == "support_employee":
-                if customer_id and invoice_id:
-                    task["instruction"] = (
-                        f"Find employee for invoice_id={invoice_id} "
-                        f"and customer_id={customer_id}"
-                    )
-                    task["missing_fields"] = []
-                else:
-                    task["missing_fields"] = [
-                        field
-                        for field, value in {
-                            "customer_id": customer_id,
-                            "invoice_id": invoice_id,
-                        }.items()
-                        if not value
-                    ]
-            elif customer_id:
-                if task.get("intent") == "invoices_by_unit_price":
-                    task["instruction"] = (
-                        f"Show invoices for customer_id={customer_id} "
-                        "sorted by unit price"
-                    )
-                else:
-                    task["instruction"] = f"Get latest invoice for customer_id={customer_id}"
-                task["missing_fields"] = []
-
-        if task["agent"] == "music" and extracted.get("artist"):
-            if task.get("intent") == "albums_by_artist":
-                task["instruction"] = f"Show albums by artist {extracted['artist']}"
-            else:
-                task["instruction"] = f"Find tracks by artist {extracted['artist']}"
-            task["missing_fields"] = []
-
-        if task["agent"] == "music" and extracted.get("genre"):
-            task["instruction"] = f"Recommend songs by genre {extracted['genre']}"
-            task["missing_fields"] = []
-
-        if task["agent"] == "music" and extracted.get("song_title"):
-            task["instruction"] = f"Check for song {extracted['song_title']}"
-            task["missing_fields"] = []
-
-    missing_fields = sorted(
-        {
-            field
-            for task in tasks
-            for field in task.get("missing_fields", [])
-        }
-    )
+    planner_input = _build_hitl_planner_input(state["user_input"], extracted)
+    output = planner.invoke(planner_input)
 
     return {
         **extracted,
-        "planner_output": planner_output,
-        "missing_fields": missing_fields,
+        "planner_output": output.model_dump(),
+        "missing_fields": output.missing_fields,
     }
 
 

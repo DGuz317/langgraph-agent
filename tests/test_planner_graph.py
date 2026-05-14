@@ -1,112 +1,16 @@
 from multi_agent_system.planner_app import nodes
 
 
-def test_missing_info_node_rebuilds_song_title_instruction(monkeypatch) -> None:
-    def fake_interrupt_for_missing_info(missing_fields: list[str]) -> dict:
-        assert missing_fields == ["song_title"]
-        return {"song_title": "Ligia"}
-
-    monkeypatch.setattr(
-        nodes,
-        "interrupt_for_missing_info",
-        fake_interrupt_for_missing_info,
+def test_build_hitl_planner_input_appends_collected_details() -> None:
+    result = nodes._build_hitl_planner_input(
+        "show albums",
+        {"artist": "Queen"},
     )
 
-    state = {
-        "user_input": "check for song",
-        "missing_fields": ["song_title"],
-        "planner_output": {
-            "tasks": [
-                {
-                    "agent": "music",
-                    "instruction": "Check for song",
-                    "missing_fields": ["song_title"],
-                }
-            ]
-        },
-    }
-
-    result = nodes.missing_info_node(state)
-
-    task = result["planner_output"]["tasks"][0]
-
-    assert task["instruction"] == "Check for song Ligia"
-    assert task["missing_fields"] == []
-    assert result["missing_fields"] == []
-    assert result["song_title"] == "Ligia"
-
-
-def test_missing_info_node_rebuilds_customer_id_instruction(monkeypatch) -> None:
-    def fake_interrupt_for_missing_info(missing_fields: list[str]) -> dict:
-        assert missing_fields == ["customer_id"]
-        return {"customer_id": "5"}
-
-    monkeypatch.setattr(
-        nodes,
-        "interrupt_for_missing_info",
-        fake_interrupt_for_missing_info,
+    assert result == (
+        "show albums\n\n"
+        "Additional information collected from the user: artist=Queen"
     )
-
-    state = {
-        "user_input": "what is my latest invoice",
-        "missing_fields": ["customer_id"],
-        "planner_output": {
-            "tasks": [
-                {
-                    "agent": "invoice",
-                    "instruction": "Get latest invoice",
-                    "missing_fields": ["customer_id"],
-                }
-            ]
-        },
-    }
-
-    result = nodes.missing_info_node(state)
-
-    task = result["planner_output"]["tasks"][0]
-
-    assert task["instruction"] == "Get latest invoice for customer_id=5"
-    assert task["missing_fields"] == []
-    assert result["missing_fields"] == []
-    assert result["customer_id"] == "5"
-
-
-def test_missing_info_node_preserves_album_intent_when_artist_is_supplied(
-    monkeypatch,
-) -> None:
-    def fake_interrupt_for_missing_info(missing_fields: list[str]) -> dict:
-        assert missing_fields == ["artist"]
-        return {"artist": "Queen"}
-
-    monkeypatch.setattr(
-        nodes,
-        "interrupt_for_missing_info",
-        fake_interrupt_for_missing_info,
-    )
-
-    state = {
-        "user_input": "show albums",
-        "missing_fields": ["artist"],
-        "planner_output": {
-            "tasks": [
-                {
-                    "agent": "music",
-                    "intent": "albums_by_artist",
-                    "instruction": "Show albums by artist",
-                    "missing_fields": ["artist"],
-                }
-            ]
-        },
-    }
-
-    result = nodes.missing_info_node(state)
-
-    task = result["planner_output"]["tasks"][0]
-
-    assert task["instruction"] == "Show albums by artist Queen"
-    assert task["missing_fields"] == []
-    assert result["missing_fields"] == []
-    assert result["artist"] == "Queen"
 
 
 def test_route_after_missing_info_goes_to_music() -> None:
