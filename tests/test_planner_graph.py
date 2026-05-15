@@ -218,3 +218,18 @@ def test_route_after_missing_info_goes_to_music() -> None:
     }
 
     assert route_after_planner(state) == "music"
+
+def test_final_response_node_returns_capabilities_for_empty_task_output() -> None:
+    result = nodes.final_response_node(
+        {
+            "user_input": "hello, what can you do?",
+            "planner_output": {
+                "tasks": [],
+                "missing_fields": [],
+            },
+        }
+    )
+
+    assert "invoice" in result["final_answer"].lower()
+    assert "music" in result["final_answer"].lower()
+    assert "customer_id" in result["final_answer"]

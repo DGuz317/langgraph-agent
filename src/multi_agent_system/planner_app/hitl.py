@@ -11,7 +11,6 @@ def ask_for_missing_info(missing_fields: list[str]) -> str:
     if "music_search_type" in missing_fields:
         return (
             "Do you want to search by artist or by genre? "
-            "Reply like artist: AC/DC or genre: rock."
         )
 
 

@@ -7,7 +7,7 @@ from multi_agent_system.planner_app.state import PlannerAppState
 from multi_agent_system.planner_app.hitl import interrupt_for_missing_info
 from multi_agent_system.aggregator.agent import AggregatorAgent
 from multi_agent_system.aggregator.schemas import AggregatorInput, AgentResult
-
+from multi_agent_system.planner_app.task_instructions import build_instruction_from_task
 
 planner = PlannerAgent()
 aggregator = AggregatorAgent()
@@ -47,42 +47,30 @@ def missing_info_node(state: PlannerAppState) -> dict:
     for task in tasks:
         if task["agent"] == "invoice" and extracted.get("customer_id"):
             customer_id = extracted["customer_id"]
-            intent = task.get("intent")
+            intent = task.get("intent", "latest_invoice")
 
-            if intent == "invoices_by_unit_price":
-                task["instruction"] = (
-                    f"Get invoices sorted by unit price for customer_id={customer_id}"
-                )
-            else:
-                task["intent"] = "latest_invoice"
-                task["instruction"] = f"Get latest invoice for customer_id={customer_id}"
-
+            task["intent"] = intent
+            task["args"] = {"customer_id": customer_id}
+            task["instruction"] = build_instruction_from_task(task)
             task["missing_fields"] = []
-            _update_task_args(task, {"customer_id": customer_id})
 
         if task["agent"] == "music" and extracted.get("artist"):
-            artist = extracted["artist"]
-
             task["intent"] = "tracks_by_artist"
-            task["instruction"] = f"Find tracks by artist {artist}"
+            task["args"] = {"artist": extracted["artist"]}
+            task["instruction"] = build_instruction_from_task(task)
             task["missing_fields"] = []
-            _update_task_args(task, {"artist": artist})
 
         if task["agent"] == "music" and extracted.get("genre"):
-            genre = extracted["genre"]
-
             task["intent"] = "songs_by_genre"
-            task["instruction"] = f"Recommend songs by genre {genre}"
+            task["args"] = {"genre": extracted["genre"]}
+            task["instruction"] = build_instruction_from_task(task)
             task["missing_fields"] = []
-            _update_task_args(task, {"genre": genre})
 
         if task["agent"] == "music" and extracted.get("song_title"):
-            song_title = extracted["song_title"]
-
             task["intent"] = "check_song"
-            task["instruction"] = f"Check for song {song_title}"
+            task["args"] = {"song_title": extracted["song_title"]}
+            task["instruction"] = build_instruction_from_task(task)
             task["missing_fields"] = []
-            _update_task_args(task, {"song_title": song_title})
 
     return {
         **extracted,
@@ -100,6 +88,7 @@ async def invoice_node(state: PlannerAppState) -> dict:
         if task["agent"] == "invoice"
     )
 
+    instruction = build_instruction_from_task(invoice_task)
     result = await client.ask(invoice_task["instruction"])
 
     return {
@@ -116,6 +105,7 @@ async def music_node(state: PlannerAppState) -> dict:
         if task["agent"] == "music"
     )
 
+    instruction = build_instruction_from_task(music_task)
     result = await client.ask(music_task["instruction"])
 
     return {
@@ -146,6 +136,24 @@ def final_response_node(state: PlannerAppState) -> dict:
         )
 
     if not results:
+        planner_output = state.get("planner_output", {})
+        tasks = planner_output.get("tasks", [])
+
+        if not tasks:
+            return {
+                "final_answer": (
+                    "I can help with invoice and music tasks.\n\n"
+                    "Examples:\n"
+                    "- Get latest invoice for customer_id=5\n"
+                    "- Show invoices sorted by unit price for customer_id=5\n"
+                    "- Find tracks by artist AC/DC\n"
+                    "- Recommend songs by genre rock\n"
+                    "- Check for song Ligia\n\n"
+                    "For vague music requests like 'recommend some songs', "
+                    "I will ask whether you want to search by artist or by genre."
+                )
+            }
+
         return {
             "final_answer": "I could not complete the request."
         }
