@@ -3,8 +3,8 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-from multi_agent_system.common.mcp_tool_agent import MCPToolAgent
 from multi_agent_system.a2a_servers.music_agent.schemas import MusicAgentResponse
+from multi_agent_system.common.mcp_tool_agent import MCPToolAgent
 
 
 MusicIntent = Literal[
@@ -15,22 +15,31 @@ MusicIntent = Literal[
 ]
 
 
+# Keep the longest / most specific genre names before shorter overlapping names.
 KNOWN_GENRES = (
-    "rock",
-    "jazz",
-    "metal",
-    "blues",
-    "latin",
-    "reggae",
-    "pop",
-    "classical",
-    "alternative",
-    "punk",
-    "hip hop",
-    "electronic",
-    "world",
-    "soundtrack",
-    "opera",
+    "Alternative & Punk",
+    "Electronica/Dance",
+    "Hip Hop/Rap",
+    "Easy Listening",
+    "Heavy Metal",
+    "Rock And Roll",
+    "Bossa Nova",
+    "Science Fiction",
+    "Soundtrack",
+    "Classical",
+    "Alternative",
+    "TV Shows",
+    "Reggae",
+    "Comedy",
+    "Metal",
+    "Blues",
+    "Latin",
+    "Opera",
+    "World",
+    "Drama",
+    "Jazz",
+    "Rock",
+    "Pop",
 )
 
 
@@ -58,24 +67,26 @@ class MusicAgent(MCPToolAgent):
         return await handlers[request.intent](request)
 
     def _parse_request(self, query: str) -> MusicRequest:
-        normalized = query.lower()
+        normalized = query.lower().strip()
 
-        if self._is_album_query(normalized):
-            return MusicRequest(
-                intent="albums_by_artist",
-                artist=self._extract_after_keywords(
-                    query,
-                    ["artist", "by", "from"],
-                ),
-            )
-
-        # Important: check song existence before genre.
-        # Example: "Let There Be Rock" contains "rock",
-        # but it is a song title, not a genre query.
+        # Song lookup must be checked before genre routing.
+        # Example: "Check for song Let There Be Rock" should not become genre=Rock.
         if self._is_song_check_query(normalized):
             return MusicRequest(
                 intent="check_song",
                 song_title=self._extract_song_title(query),
+            )
+
+        if self._is_album_query(normalized):
+            return MusicRequest(
+                intent="albums_by_artist",
+                artist=self._extract_artist(query),
+            )
+
+        if self._is_explicit_artist_query(normalized):
+            return MusicRequest(
+                intent="tracks_by_artist",
+                artist=self._extract_artist(query),
             )
 
         if self._is_genre_query(normalized):
@@ -86,28 +97,8 @@ class MusicAgent(MCPToolAgent):
 
         return MusicRequest(
             intent="tracks_by_artist",
-            artist=self._extract_after_keywords(
-                query,
-                ["artist", "by", "from"],
-            ),
+            artist=self._extract_artist(query),
         )
-
-    def _extract_genre(self, text: str) -> str | None:
-        normalized = text.lower()
-
-        for genre in KNOWN_GENRES:
-            if re.search(rf"\b{re.escape(genre)}\b", normalized):
-                return genre
-
-        value = self._extract_after_keywords(
-            text,
-            ["genre", "songs", "tracks", "music", "recommend"],
-        )
-
-        if value:
-            return self._clean_extracted_value(value)
-
-        return None
 
     def _validate_request(
         self,
@@ -202,17 +193,46 @@ class MusicAgent(MCPToolAgent):
         )
 
     def _is_album_query(self, text: str) -> bool:
-        return "album" in text or "albums" in text
+        return bool(re.search(r"\balbums?\b", text))
+
+    def _is_explicit_artist_query(self, text: str) -> bool:
+        return bool(
+            re.search(r"\bartist\b", text)
+            or re.search(r"\btracks?\s+by\b", text)
+            or re.search(r"\bsongs?\s+by\b", text)
+        ) and "genre" not in text
 
     def _is_genre_query(self, text: str) -> bool:
-        return "genre" in text or any(
-            re.search(rf"\b{re.escape(genre)}\b", text)
-            for genre in KNOWN_GENRES
+        if "genre" in text:
+            return True
+
+        recommendation_markers = (
+            "recommend",
+            "suggest",
+            "find",
+            "get",
+            "retrieve",
+            "list",
+            "songs",
+            "tracks",
+            "music",
         )
+
+        has_recommendation_marker = any(marker in text for marker in recommendation_markers)
+        has_known_genre = self._find_known_genre(text) is not None
+
+        return has_recommendation_marker and has_known_genre
 
     def _is_song_check_query(self, text: str) -> bool:
         return (
-            "check" in text
+            bool(
+                re.search(
+                    r"\b(song_title|song title|song name|track_title|track title|title)"
+                    r"\s*(?:=|:|is)\s*",
+                    text,
+                )
+            )
+            or "check" in text
             or "exists" in text
             or "do you have" in text
             or "song called" in text
@@ -222,22 +242,51 @@ class MusicAgent(MCPToolAgent):
             or "check for song" in text
         )
 
-    def _extract_after_keywords(
-        self,
-        text: str,
-        keywords: list[str],
-    ) -> str | None:
-        normalized = text.strip()
+    def _extract_artist(self, text: str) -> str | None:
+        patterns = [
+            r"\bartist\s*(?:=|:|is)?\s*(.+)$",
+            r"\bby\s+artist\s+(.+)$",
+            r"\btracks?\s+by\s+(.+)$",
+            r"\bsongs?\s+by\s+(.+)$",
+            r"\balbums?\s+by\s+(.+)$",
+            r"\bby\s+(.+)$",
+            r"\bfrom\s+(.+)$",
+        ]
 
-        for keyword in keywords:
-            pattern = rf"\b{re.escape(keyword)}\b\s+(.+)$"
-            match = re.search(pattern, normalized, flags=re.IGNORECASE)
-
+        for pattern in patterns:
+            match = re.search(pattern, text, flags=re.IGNORECASE)
             if match:
-                value = match.group(1).strip(" ?.\"'")
-                return self._clean_extracted_value(value)
+                return self._clean_extracted_value(match.group(1))
 
-        return self._fallback_extract_value(normalized)
+        return self._clean_extracted_value(text) or None
+
+    def _extract_genre(self, text: str) -> str | None:
+        explicit_value = self._extract_explicit_genre_value(text)
+        if explicit_value:
+            known_genre = self._find_known_genre(explicit_value)
+            return known_genre or self._clean_extracted_value(explicit_value)
+
+        known_genre = self._find_known_genre(text)
+        if known_genre:
+            return known_genre
+
+        fallback_value = self._clean_extracted_value(text)
+        return fallback_value or None
+
+    def _extract_explicit_genre_value(self, text: str) -> str | None:
+        patterns = [
+            r"\bgenre\s*(?:=|:|is)?\s*(.+)$",
+            r"\bby\s+genre\s+(.+)$",
+            r"\bsongs?\s+by\s+genre\s+(.+)$",
+            r"\btracks?\s+by\s+genre\s+(.+)$",
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, text, flags=re.IGNORECASE)
+            if match:
+                return match.group(1).strip(" ?.\"'")
+
+        return None
 
     def _extract_song_title(self, text: str) -> str | None:
         patterns = [
@@ -257,24 +306,32 @@ class MusicAgent(MCPToolAgent):
 
         for pattern in patterns:
             match = re.search(pattern, text, flags=re.IGNORECASE)
-
             if match:
                 return match.group(1).strip(" ?.\"'")
 
         return None
 
-    def _fallback_extract_value(self, text: str) -> str | None:
-        cleaned = self._clean_extracted_value(text)
-        return cleaned or None
+    def _find_known_genre(self, text: str) -> str | None:
+        normalized = text.lower()
+
+        for genre in KNOWN_GENRES:
+            pattern = rf"(?<!\w){re.escape(genre.lower())}(?!\w)"
+            if re.search(pattern, normalized):
+                return genre
+
+        return None
 
     def _clean_extracted_value(self, value: str) -> str:
         stop_phrases = [
+            "songs by genre",
+            "tracks by genre",
             "songs by",
             "tracks by",
             "albums by",
             "artist",
             "genre",
             "recommend",
+            "suggest",
             "retrieve",
             "list",
             "a list of",

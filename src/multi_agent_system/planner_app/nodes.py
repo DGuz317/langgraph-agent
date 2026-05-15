@@ -1,4 +1,5 @@
 import re
+from typing import Any
 
 from multi_agent_system.a2a_client.invoice_client import InvoiceA2AClient
 from multi_agent_system.a2a_client.music_client import MusicA2AClient
@@ -7,7 +8,10 @@ from multi_agent_system.planner_app.state import PlannerAppState
 from multi_agent_system.planner_app.hitl import interrupt_for_missing_info
 from multi_agent_system.aggregator.agent import AggregatorAgent
 from multi_agent_system.aggregator.schemas import AggregatorInput, AgentResult
-from multi_agent_system.planner_app.task_instructions import build_instruction_from_task
+from multi_agent_system.planner_app.task_instructions import (
+    TaskInstructionError,
+    build_instruction_from_task,
+)
 
 planner = PlannerAgent()
 aggregator = AggregatorAgent()
@@ -80,35 +84,51 @@ def missing_info_node(state: PlannerAppState) -> dict:
 
 
 async def invoice_node(state: PlannerAppState) -> dict:
-    client = InvoiceA2AClient()
-    planner_output = state["planner_output"]
+    planner_output = _copy_planner_output(state)
+    task = _get_next_task_for_agent(planner_output, agent="invoice")
 
-    invoice_task = next(
-        task for task in planner_output["tasks"]
-        if task["agent"] == "invoice"
-    )
+    try:
+        instruction = build_instruction_from_task(task)
+    except TaskInstructionError as exc:
+        task["status"] = "failed"
 
-    instruction = build_instruction_from_task(invoice_task)
-    result = await client.ask(invoice_task["instruction"])
+        return {
+            "planner_output": planner_output,
+            "invoice_result": f"Invoice task failed: {exc}",
+        }
+
+    task["instruction"] = instruction
+
+    result = await InvoiceA2AClient().ask(instruction)
+    task["status"] = "completed"
 
     return {
+        "planner_output": planner_output,
         "invoice_result": result,
     }
 
 
 async def music_node(state: PlannerAppState) -> dict:
-    client = MusicA2AClient()
-    planner_output = state["planner_output"]
+    planner_output = _copy_planner_output(state)
+    task = _get_next_task_for_agent(planner_output, agent="music")
 
-    music_task = next(
-        task for task in planner_output["tasks"]
-        if task["agent"] == "music"
-    )
+    try:
+        instruction = build_instruction_from_task(task)
+    except TaskInstructionError as exc:
+        task["status"] = "failed"
 
-    instruction = build_instruction_from_task(music_task)
-    result = await client.ask(music_task["instruction"])
+        return {
+            "planner_output": planner_output,
+            "music_result": f"Music task failed: {exc}",
+        }
+
+    task["instruction"] = instruction
+
+    result = await MusicA2AClient().ask(instruction)
+    task["status"] = "completed"
 
     return {
+        "planner_output": planner_output,
         "music_result": result,
     }
 
@@ -122,7 +142,7 @@ def final_response_node(state: PlannerAppState) -> dict:
     if invoice_result:
         results.append(
             AgentResult(
-                agent="invoice",
+                agent="invoice_agent",
                 result=invoice_result,
             )
         )
@@ -130,7 +150,7 @@ def final_response_node(state: PlannerAppState) -> dict:
     if music_result:
         results.append(
             AgentResult(
-                agent="music",
+                agent="music_agent",
                 result=music_result,
             )
         )
@@ -168,3 +188,28 @@ def final_response_node(state: PlannerAppState) -> dict:
     return {
         "final_answer": output.final_answer
     }
+
+def _copy_planner_output(state: PlannerAppState) -> dict[str, Any]:
+    planner_output = dict(state.get("planner_output", {}))
+
+    tasks = [
+        dict(task)
+        for task in planner_output.get("tasks", [])
+    ]
+
+    planner_output["tasks"] = tasks
+    return planner_output
+
+
+def _get_next_task_for_agent(
+    planner_output: dict[str, Any],
+    agent: str,
+) -> dict[str, Any]:
+    for task in planner_output.get("tasks", []):
+        if (
+            task.get("agent") == agent
+            and task.get("status", "not_started") == "not_started"
+        ):
+            return task
+
+    raise ValueError(f"No pending task found for agent: {agent}")
