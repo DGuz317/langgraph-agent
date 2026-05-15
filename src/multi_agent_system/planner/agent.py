@@ -85,9 +85,6 @@ class PlannerAgent:
         )
 
     def _validate_llm_output(self, output: PlannerOutput) -> None:
-        if not output.tasks:
-            raise ValueError("LLM planner returned no tasks.")
-
         for task in output.tasks:
             self._validate_intent(task)
             self._validate_agent_intent_pair(task)
