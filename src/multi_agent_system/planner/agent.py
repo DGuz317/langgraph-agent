@@ -136,8 +136,9 @@ class PlannerAgent:
                 SystemMessage(content=PLANNER_SYSTEM_PROMPT),
                 HumanMessage(
                     content=(
-                        "Plan this user request. Return a valid PlannerOutput.\n\n"
-                        f"User request: {user_input}"
+                        "Return a valid PlannerOutput for the following request.\n"
+                        "Do not include explanations outside the structured output.\n\n"
+                        f"{user_input}"
                     )
                 ),
             ]
