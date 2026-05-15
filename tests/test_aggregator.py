@@ -7,8 +7,16 @@ from multi_agent_system.aggregator.schemas import (
 )
 
 
-def aggregate(results: list[AgentResult]) -> str:
-    return AggregatorAgent().invoke(AggregatorInput(results=results)).final_answer
+def aggregate(
+    results: list[AgentResult],
+    user_input: str = "test user input",
+) -> str:
+    data = AggregatorInput(
+        user_input=user_input,
+        results=results,
+    )
+
+    return AggregatorAgent().invoke(data).final_answer
 
 
 def test_aggregator_returns_empty_message_when_no_results() -> None:

@@ -1,9 +1,10 @@
 from pydantic import BaseModel
+from typing import Any
 
 
 class AgentResult(BaseModel):
     agent: str
-    result: str
+    result: Any
 
 
 class AggregatorInput(BaseModel):
