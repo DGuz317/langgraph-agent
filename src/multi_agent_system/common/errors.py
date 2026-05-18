@@ -4,3 +4,7 @@ class MultiAgentSystemError(RuntimeError):
 
 class A2AClientError(MultiAgentSystemError):
     """Raised when an A2A service request fails."""
+
+
+class MCPToolError(MultiAgentSystemError):
+    """Raised when an MCP tool call fails."""
