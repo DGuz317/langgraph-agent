@@ -1,3 +1,4 @@
+from typing import Any
 from uuid import uuid4
 
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -8,57 +9,137 @@ from multi_agent_system.planner.schemas import PlannedTask, PlannerOutput
 
 
 class PlannerAgent:
-    VALID_INVOICE_INTENTS = {
-        "latest_invoice",
-        "invoices_by_unit_price",
-    }
-
-    VALID_MUSIC_INTENTS = {
-        "tracks_by_artist",
-        "albums_by_artist",
-        "songs_by_genre",
-        "check_song",
-        "clarify_music_search",
-    }
-
-    VALID_INTENTS = VALID_INVOICE_INTENTS | VALID_MUSIC_INTENTS
-
     def __init__(self) -> None:
         self.llm = get_llm()
+        self.structured_llm = None
 
-    def invoke(self, user_input: str) -> PlannerOutput:
-        return self._invoke_llm(user_input)
+    async def ainvoke(self, user_input: str) -> PlannerOutput:
+        try:
+            output = await self._invoke_planner_once(user_input)
+            return self._normalize_output(output)
 
-    def _invoke_llm(self, user_input: str) -> PlannerOutput:
-        if self.llm is None:
-            raise RuntimeError("LLM is not initialized.")
+        except Exception as first_error:
+            try:
+                repaired_output = await self._repair_planner_output(
+                    user_input=user_input,
+                    error=first_error,
+                )
+                return self._normalize_output(repaired_output)
 
-        structured_llm = self.llm.with_structured_output(PlannerOutput)
+            except Exception as repair_error:
+                return self._safe_failed_output(
+                    user_input=user_input,
+                    error=repair_error,
+                )
 
-        output = self._invoke_structured_planner(
-            structured_llm=structured_llm,
-            user_input=user_input,
+    async def _invoke_planner_once(self, user_input: str) -> PlannerOutput:
+        structured_llm = self._get_structured_llm()
+
+        result = await structured_llm.ainvoke(
+            [
+                SystemMessage(content=PLANNER_SYSTEM_PROMPT),
+                HumanMessage(
+                    content=(
+                        "Return a valid PlannerOutput for the following request.\n"
+                        "Do not include explanations outside the structured output.\n\n"
+                        f"{user_input}"
+                    )
+                ),
+            ]
         )
 
-        try:
-            normalized_output = self._normalize_output(output)
-            self._validate_llm_output(normalized_output)
-            return normalized_output
-        except ValueError:
-            repaired_output = self._invoke_structured_planner(
-                structured_llm=structured_llm,
-                user_input=(
-                    "The previous planner output was invalid or empty.\n"
-                    "Re-plan the user request and follow the system prompt exactly.\n"
-                    "If the request is a generic music recommendation, return a "
-                    "clarify_music_search task with missing_fields=[\"music_search_type\"].\n\n"
-                    f"User request: {user_input}"
-                ),
+        return self._coerce_planner_output(result)
+
+    async def _repair_planner_output(
+        self,
+        *,
+        user_input: str,
+        error: Exception,
+    ) -> PlannerOutput:
+        structured_llm = self._get_structured_llm()
+        repair_prompt = self._build_repair_prompt(
+            user_input=user_input,
+            error=error,
+        )
+
+        result = await structured_llm.ainvoke(
+            [
+                SystemMessage(content=PLANNER_SYSTEM_PROMPT),
+                HumanMessage(content=repair_prompt),
+            ]
+        )
+
+        return self._coerce_planner_output(result)
+
+    def _get_structured_llm(self):
+        if self.structured_llm is not None:
+            return self.structured_llm
+
+        with_structured_output = getattr(
+            self.llm,
+            "with_structured_output",
+            None,
+        )
+
+        if not callable(with_structured_output):
+            raise TypeError(
+                "Configured LLM does not support with_structured_output()."
             )
 
-            normalized_output = self._normalize_output(repaired_output)
-            self._validate_llm_output(normalized_output)
-            return normalized_output
+        self.structured_llm = with_structured_output(PlannerOutput)
+        return self.structured_llm
+
+    def _coerce_planner_output(self, value: Any) -> PlannerOutput:
+        if isinstance(value, PlannerOutput):
+            return value
+
+        if isinstance(value, dict):
+            return PlannerOutput.model_validate(value)
+
+        model_dump = getattr(value, "model_dump", None)
+        if callable(model_dump):
+            return PlannerOutput.model_validate(model_dump())
+
+        raise TypeError(
+            "Planner LLM returned unsupported output type: "
+            f"{type(value).__name__}."
+        )
+
+    def _build_repair_prompt(
+        self,
+        *,
+        user_input: str,
+        error: Exception,
+    ) -> str:
+        return (
+            "The previous planner output was invalid. "
+            "Return a corrected PlannerOutput that satisfies the schema.\n\n"
+            f"Original user input:\n{user_input}\n\n"
+            f"Validation error:\n{error}\n\n"
+            "Repair rules:\n"
+            "- Use only agent values: invoice, music.\n"
+            "- Use only valid intents for each agent.\n"
+            "- Every executable task must include required args.\n"
+            "- If required args are missing, include them in task.missing_fields.\n"
+            "- For generic music recommendations, use intent=clarify_music_search "
+            "and missing_fields=[\"music_search_type\"].\n"
+            "- For unrelated/help queries, return tasks=[].\n"
+            "- Return only the structured PlannerOutput."
+        )
+
+    def _safe_failed_output(
+        self,
+        *,
+        user_input: str,
+        error: Exception,
+    ) -> PlannerOutput:
+        return PlannerOutput(
+            status="failed",
+            tasks=[],
+            confidence=0.0,
+            requires_aggregation=False,
+            missing_fields=[],
+        )
 
     def _normalize_output(self, output: PlannerOutput) -> PlannerOutput:
         tasks: list[PlannedTask] = []
@@ -77,71 +158,10 @@ class PlannerAgent:
         )
 
         return PlannerOutput(
-            status="completed",
+            status=output.status,
             tasks=tasks,
             confidence=output.confidence,
             requires_aggregation=len(tasks) > 1,
             missing_fields=missing_fields,
         )
-
-    def _validate_llm_output(self, output: PlannerOutput) -> None:
-        for task in output.tasks:
-            self._validate_intent(task)
-            self._validate_agent_intent_pair(task)
-            self._validate_instruction(task)
-
-    def _validate_intent(self, task: PlannedTask) -> None:
-        if task.intent not in self.VALID_INTENTS:
-            raise ValueError(
-                "LLM planner returned invalid intent.\n"
-                f"Task: {task.model_dump_json(indent=2)}"
-            )
-
-    def _validate_agent_intent_pair(self, task: PlannedTask) -> None:
-        if task.agent == "invoice" and task.intent not in self.VALID_INVOICE_INTENTS:
-            raise ValueError(
-                "LLM planner assigned non-invoice intent to invoice agent.\n"
-                f"Task: {task.model_dump_json(indent=2)}"
-            )
-
-        if task.agent == "music" and task.intent not in self.VALID_MUSIC_INTENTS:
-            raise ValueError(
-                "LLM planner assigned non-music intent to music agent.\n"
-                f"Task: {task.model_dump_json(indent=2)}"
-            )
-
-    def _validate_instruction(self, task: PlannedTask) -> None:
-        if not task.instruction.strip():
-            raise ValueError(
-                "LLM planner created task with empty instruction.\n"
-                f"Task: {task.model_dump_json(indent=2)}"
-            )
-
-        if task.agent == "invoice" and "invoice" not in task.instruction.lower():
-            raise ValueError(
-                "LLM planner created invoice task with unclear instruction.\n"
-                f"Task: {task.model_dump_json(indent=2)}"
-            )
-    
-    def _invoke_structured_planner(
-        self,
-        structured_llm,
-        user_input: str,
-    ) -> PlannerOutput:
-        output = structured_llm.invoke(
-            [
-                SystemMessage(content=PLANNER_SYSTEM_PROMPT),
-                HumanMessage(
-                    content=(
-                        "Return a valid PlannerOutput for the following request.\n"
-                        "Do not include explanations outside the structured output.\n\n"
-                        f"{user_input}"
-                    )
-                ),
-            ]
-        )
-
-        if isinstance(output, PlannerOutput):
-            return output
-
-        return PlannerOutput.model_validate(output)
+        
