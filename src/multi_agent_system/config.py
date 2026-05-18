@@ -24,6 +24,8 @@ class Settings(BaseSettings):
 
     # Database
     sqlite_db: str
+    checkpoint_backend: str = "memory"
+    checkpoint_sqlite_path: str = "data/checkpoints.sqlite"
 
     # MCP
     mcp_server_url: str = "http://localhost:10000/mcp"

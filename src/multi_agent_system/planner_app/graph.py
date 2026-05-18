@@ -1,3 +1,5 @@
+from typing import Any
+
 from langgraph.graph import END, START, StateGraph
 from langgraph.checkpoint.memory import InMemorySaver
 
@@ -15,7 +17,7 @@ from multi_agent_system.planner_app.nodes import (
 from multi_agent_system.planner_app.state import PlannerAppState
 
 
-def build_graph():
+def build_graph(checkpointer: Any | None = None):
     graph = StateGraph(PlannerAppState)
 
     graph.add_node("planner", planner_node)
@@ -61,8 +63,9 @@ def build_graph():
     graph.add_edge("final_response", END)
 
 
-    checkpointer = InMemorySaver()
-    return graph.compile(checkpointer=checkpointer)
+    return graph.compile(
+        checkpointer=checkpointer or InMemorySaver()
+    )
 
 
 planner_graph = build_graph()

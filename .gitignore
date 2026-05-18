@@ -195,3 +195,6 @@ graphify-out/cost.json
 .benchmarks/
 AGENTS.md
 .agents/
+data/
+*.sqlite
+*.sqlite3
