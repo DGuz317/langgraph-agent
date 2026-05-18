@@ -83,54 +83,56 @@ def missing_info_node(state: PlannerAppState) -> dict:
     }
 
 
-async def invoice_node(state: PlannerAppState) -> dict:
+async def invoice_node(state):
     planner_output = _copy_planner_output(state)
-    task = _get_next_task_for_agent(planner_output, agent="invoice")
+    task: dict[str, Any] | None = None
 
     try:
+        task = _get_next_task_for_agent(planner_output, agent="invoice")
         instruction = build_instruction_from_task(task)
-    except TaskInstructionError as exc:
-        task["status"] = "failed"
+        task["instruction"] = instruction
+
+        result = await InvoiceA2AClient().ask(instruction)
+        task["status"] = "completed"
 
         return {
             "planner_output": planner_output,
-            "invoice_result": f"Invoice task failed: {exc}",
+            "invoice_result": result,
         }
 
-    task["instruction"] = instruction
-
-    result = await InvoiceA2AClient().ask(instruction)
-    task["status"] = "completed"
-
-    return {
-        "planner_output": planner_output,
-        "invoice_result": result,
-    }
-
-
-async def music_node(state: PlannerAppState) -> dict:
-    planner_output = _copy_planner_output(state)
-    task = _get_next_task_for_agent(planner_output, agent="music")
-
-    try:
-        instruction = build_instruction_from_task(task)
-    except TaskInstructionError as exc:
-        task["status"] = "failed"
+    except (TaskInstructionError, ValueError, TimeoutError, ConnectionError, RuntimeError) as exc:
+        _mark_task_failed(task)
 
         return {
             "planner_output": planner_output,
-            "music_result": f"Music task failed: {exc}",
+            "invoice_result": _failure_result("Invoice", exc),
         }
 
-    task["instruction"] = instruction
 
-    result = await MusicA2AClient().ask(instruction)
-    task["status"] = "completed"
+async def music_node(state):
+    planner_output = _copy_planner_output(state)
+    task: dict[str, Any] | None = None
 
-    return {
-        "planner_output": planner_output,
-        "music_result": result,
-    }
+    try:
+        task = _get_next_task_for_agent(planner_output, agent="music")
+        instruction = build_instruction_from_task(task)
+        task["instruction"] = instruction
+
+        result = await MusicA2AClient().ask(instruction)
+        task["status"] = "completed"
+
+        return {
+            "planner_output": planner_output,
+            "music_result": result,
+        }
+
+    except (TaskInstructionError, ValueError, TimeoutError, ConnectionError, RuntimeError) as exc:
+        _mark_task_failed(task)
+
+        return {
+            "planner_output": planner_output,
+            "music_result": _failure_result("Music", exc),
+        }
 
 
 def final_response_node(state: PlannerAppState) -> dict:
@@ -189,15 +191,12 @@ def final_response_node(state: PlannerAppState) -> dict:
         "final_answer": output.final_answer
     }
 
-def _copy_planner_output(state: PlannerAppState) -> dict[str, Any]:
+def _copy_planner_output(state: dict[str, Any]) -> dict[str, Any]:
     planner_output = dict(state.get("planner_output", {}))
-
-    tasks = [
+    planner_output["tasks"] = [
         dict(task)
         for task in planner_output.get("tasks", [])
     ]
-
-    planner_output["tasks"] = tasks
     return planner_output
 
 
@@ -213,3 +212,11 @@ def _get_next_task_for_agent(
             return task
 
     raise ValueError(f"No pending task found for agent: {agent}")
+
+def _mark_task_failed(task: dict[str, Any] | None) -> None:
+    if task is not None:
+        task["status"] = "failed"
+
+
+def _failure_result(agent_label: str, exc: Exception) -> str:
+    return f"{agent_label} task failed: {exc}"
