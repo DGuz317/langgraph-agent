@@ -81,8 +81,9 @@ multi-agent-system/
 │       │   ├── __init__.py
 │       │   ├── llm.py
 │       │   ├── mcp_tool_agent.py
-│       │   └── types.py
+│       │   └── types.py                                
 │       ├── config.py
+│       ├── data
 │       ├── __init__.py
 │       ├── mcp_server
 │       │   ├── chinook.db
@@ -93,31 +94,41 @@ multi-agent-system/
 │       │   └── tools
 │       │       ├── __init__.py
 │       │       ├── invoice_tools.py
-│       │       └── music_tools.py
+│       │       └── music_tools.py                           
 │       ├── planner
 │       │   ├── agent.py
 │       │   ├── __init__.py
 │       │   ├── prompts.py
 │       │   └── schemas.py
-│       └── planner_app
+│       └── planner_app                                                      
+│           ├── checkpointing.py
 │           ├── edges.py
 │           ├── graph.py
 │           ├── hitl.py
 │           ├── __init__.py
 │           ├── nodes.py
 │           ├── schemas.py
-|           ├── task_instructions.py
-│           └── state.py
+│           ├── state.py
+│           └── task_instructions.py
 ├── tests
+│   ├── test_a2a_client_error_handling.py
+│   ├── test_a2a_client_response_extraction.py
 │   ├── test_a2a_clients.py
-|   ├── test_aggregator.py
+│   ├── test_aggregator.py                                                   
+│   ├── test_checkpointing.py
 │   ├── test_invoice_a2a_client.py
+│   ├── test_invoice_agent_parsing.py                                        
 │   ├── test_llm_planner.py
-│   ├── test_mcp_tools.py
+│   ├── test_mcp_tool_agent_error_handling.py
+│   ├── test_mcp_tools.py                                                    
 │   ├── test_music_a2a_client.py
+│   ├── test_music_agent_parsing.py
+│   ├── test_planner_agent.py
+│   ├── test_planner_e2e_flows.py                                            
+│   ├── test_planner_error_recovery.py
 │   ├── test_planner_graph.py
-|   ├── test_task_instructions.py
-│   └── test_planner_hitl.py
+│   ├── test_planner_hitl.py                                                 
+│   └── test_task_instructions.py                                            
 └── uv.lock
 ```
 
@@ -139,6 +150,8 @@ class Settings(BaseSettings):
     google_api_key: str | None = None
     anthropic_api_key: str | None = None
     sqlite_db: str
+    checkpoint_backend: str = "memory"
+    checkpoint_sqlite_path: str = "data/checkpoints.sqlite"
     mcp_server_url: str = "http://localhost:10000/mcp"
     invoice_a2a_url: str = "http://localhost:11001"
     music_a2a_url: str = "http://localhost:11002"
@@ -155,6 +168,8 @@ LLM_MODEL=gpt-oss
 LLM_TEMPERATURE=0
 OLLAMA_API_URL=http://localhost:11434
 SQLITE_DB=sqlite:////home/your_path/chinook.db
+CHECKPOINT_BACKEND=memory
+CHECKPOINT_SQLITE_PATH=data/checkpoints.sqlite
 MCP_SERVER_URL=http://localhost:10000/mcp
 INVOICE_A2A_URL=http://localhost:11001
 MUSIC_A2A_URL=http://localhost:11002
@@ -284,6 +299,8 @@ class InvoiceA2AClient(BaseA2AClient):
 ## Planner Graph
 The planner graph is composed of nodes and edges that define the sequence of actions:
 ```python
+from typing import Any
+
 from langgraph.graph import END, START, StateGraph
 from langgraph.checkpoint.memory import InMemorySaver
 
@@ -301,7 +318,7 @@ from multi_agent_system.planner_app.nodes import (
 from multi_agent_system.planner_app.state import PlannerAppState
 
 
-def build_graph():
+def build_graph(checkpointer: Any | None = None):
     graph = StateGraph(PlannerAppState)
 
     graph.add_node("planner", planner_node)
@@ -347,8 +364,9 @@ def build_graph():
     graph.add_edge("final_response", END)
 
 
-    checkpointer = InMemorySaver()
-    return graph.compile(checkpointer=checkpointer)
+    return graph.compile(
+        checkpointer=checkpointer or InMemorySaver()
+    )
 
 
 planner_graph = build_graph()
@@ -360,9 +378,9 @@ The **HITL (Human-In-The-Loop)** functionality is implemented using LangGraph’
 The **Aggregator** is responsible for combining results from both agents (Invoice and Music) and presenting a final answer:
 ```python
 import json
+from typing import Any
 
 from multi_agent_system.aggregator.schemas import (
-    AgentResult,
     AggregatorInput,
     AggregatorOutput,
 )
@@ -370,41 +388,50 @@ from multi_agent_system.aggregator.schemas import (
 
 class AggregatorAgent:
     def invoke(self, data: AggregatorInput) -> AggregatorOutput:
+        if not data.results:
+            return AggregatorOutput(
+                final_answer="No agent results were returned."
+            )
+
         sections: list[str] = []
 
         for result in data.results:
-            parsed = self._try_parse_json(result.result)
-
-            if parsed:
-                sections.append(
-                    self._format_structured_result(
-                        agent=result.agent,
-                        data=parsed,
-                    )
+            sections.append(
+                self._format_result(
+                    agent=result.agent,
+                    raw_result=result.result,
                 )
-            else:
-                sections.append(
-                    f"{result.agent.title()} result:\n{result.result}"
-                )
+            )
 
         return AggregatorOutput(
             final_answer="\n\n".join(sections)
         )
 
-    def _try_parse_json(self, text: str) -> dict | None:
-        try:
-            parsed = json.loads(text)
-        except json.JSONDecodeError:
-            return None
+    def _format_result(self, agent: str, raw_result: Any) -> str:
+        title = f"{self._format_agent_name(agent)} result"
+        parsed = self._parse_result(raw_result)
 
-        return parsed if isinstance(parsed, dict) else None
+        if isinstance(parsed, dict):
+            return self._format_dict_result(title, parsed)
 
-    def _format_structured_result(self, agent: str, data: dict) -> str:
+        if isinstance(parsed, list):
+            return self._format_list_result(title, parsed)
+
+        return f"{title}:\n{parsed}"
+
+    def _parse_result(self, raw_result: Any) -> Any:
+        if isinstance(raw_result, str):
+            try:
+                return json.loads(raw_result)
+            except json.JSONDecodeError:
+                return raw_result
+
+        return raw_result
+
+    def _format_dict_result(self, title: str, data: dict[str, Any]) -> str:
         success = data.get("success")
         content = data.get("content")
         payload = data.get("data")
-
-        title = f"{agent.title()} result"
 
         if success is False:
             return f"{title}:\nFailed: {content}"
@@ -419,6 +446,21 @@ class AggregatorAgent:
         )
 
         return f"{title}:\n{content}\n\nData:\n{formatted_payload}"
+
+    def _format_list_result(self, title: str, data: list[Any]) -> str:
+        if not data:
+            return f"{title}:\nNo records found."
+
+        formatted_payload = json.dumps(
+            data,
+            indent=2,
+            ensure_ascii=False,
+        )
+
+        return f"{title}:\nData:\n{formatted_payload}"
+
+    def _format_agent_name(self, agent: str) -> str:
+        return agent.replace("_", " ").title()
 ```
 
 ## Future Improvements
@@ -441,38 +483,38 @@ uv run python scripts/run_invoice_a2a.py --host localhost --port 11001
 ```bash
 uv run python scripts/run_music_a2a.py --host localhost --port 11002
 ```
-**4. Run Planner graph test:**
+**5. Run all test:**
 ```bash
-uv run python tests/test_planner_graph.py
+uv run pytest tests -q
 ```
-**5. Run LLM Planner test:**
+**6. Run Planner graph test:**
 ```bash
-uv run python tests/test_llm_planner.py
+uv run python tests/test_planner_graph.py -q
 ```
-**6. Run the planner CLI:**
+**7. Run LLM Planner test:**
+```bash
+uv run python tests/test_llm_planner.py -q
+```
+**8. Run the planner CLI:**
 ```bash
 uv run python scripts/run_planner.py
 ```
 This markdown summarizes the entire project flow, from setup and architecture to agent-specific configurations and the final LLM-based improvements.
 
-## Current Checkpoint: Persistent Planner Checkpointing
+## Current Checkpoint: Async Planner Runtime Fix
 
 Completed:
-- Planner graph supports configurable checkpoint backend.
-- Default backend remains memory for local tests.
-- SQLite backend can persist graph state across CLI/runtime sessions.
-- run_planner.py keeps the SQLite checkpointer context alive during graph usage.
+- PlannerAgent now exposes async `ainvoke()`.
+- planner_node now awaits `planner.ainvoke()`.
+- E2E fake planner was updated to match the production async interface.
 - Full local tests pass.
-- Planner CLI works with memory and SQLite checkpoint backends.
+- run_planner.py works with memory and SQLite checkpoint backends.
 
-Current backend options:
-- CHECKPOINT_BACKEND=memory
-- CHECKPOINT_BACKEND=sqlite
-- CHECKPOINT_SQLITE_PATH=data/checkpoints.sqlite
-
-Notes:
-- data/ and SQLite checkpoint files are ignored by Git.
-- SQLite checkpointing is for graph runtime state, not business data.
+Current planner flow:
+planner_node
+→ await PlannerAgent.ainvoke()
+→ PlannerOutput
+→ graph routing
 
 
 

@@ -1,4 +1,5 @@
 import json
+import asyncio
 from uuid import uuid4
 
 import pytest
@@ -32,7 +33,7 @@ class FakePlanner:
     def __init__(self, output: FakePlannerOutput) -> None:
         self.output = output
 
-    def invoke(self, user_input: str) -> FakePlannerOutput:
+    async def ainvoke(self, user_input: str) -> FakePlannerOutput:
         return self.output
 
 

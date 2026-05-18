@@ -1,24 +1,24 @@
-import re
 from typing import Any
 
 from multi_agent_system.a2a_client.invoice_client import InvoiceA2AClient
 from multi_agent_system.a2a_client.music_client import MusicA2AClient
-from multi_agent_system.planner.agent import PlannerAgent
-from multi_agent_system.planner_app.state import PlannerAppState
-from multi_agent_system.planner_app.hitl import interrupt_for_missing_info
 from multi_agent_system.aggregator.agent import AggregatorAgent
 from multi_agent_system.aggregator.schemas import AggregatorInput, AgentResult
+from multi_agent_system.planner.agent import PlannerAgent
+from multi_agent_system.planner_app.hitl import interrupt_for_missing_info
+from multi_agent_system.planner_app.state import PlannerAppState
 from multi_agent_system.planner_app.task_instructions import (
     TaskInstructionError,
     build_instruction_from_task,
 )
 
+
 planner = PlannerAgent()
 aggregator = AggregatorAgent()
 
 
-def planner_node(state: PlannerAppState) -> dict:
-    output = planner.invoke(state["user_input"])
+async def planner_node(state: PlannerAppState) -> dict:
+    output = await planner.ainvoke(state["user_input"])
 
     return {
         "planner_output": output.model_dump(),
@@ -30,36 +30,36 @@ def missing_info_node(state: PlannerAppState) -> dict:
     missing_fields = state.get("missing_fields", [])
     extracted = interrupt_for_missing_info(missing_fields)
 
-    planner_output = state["planner_output"]
-    tasks = planner_output["tasks"]
+    planner_output = _copy_planner_output(state)
+    tasks = planner_output.get("tasks", [])
 
     for task in tasks:
         if task["agent"] == "invoice" and extracted.get("customer_id"):
-            customer_id = extracted["customer_id"]
-            intent = task.get("intent", "latest_invoice")
-
-            task["intent"] = intent
-            task["args"] = {"customer_id": customer_id}
+            task["args"] = {"customer_id": extracted["customer_id"]}
             task["instruction"] = build_instruction_from_task(task)
             task["missing_fields"] = []
+            continue
 
         if task["agent"] == "music" and extracted.get("artist"):
             task["intent"] = "tracks_by_artist"
             task["args"] = {"artist": extracted["artist"]}
             task["instruction"] = build_instruction_from_task(task)
             task["missing_fields"] = []
+            continue
 
         if task["agent"] == "music" and extracted.get("genre"):
             task["intent"] = "songs_by_genre"
             task["args"] = {"genre": extracted["genre"]}
             task["instruction"] = build_instruction_from_task(task)
             task["missing_fields"] = []
+            continue
 
         if task["agent"] == "music" and extracted.get("song_title"):
             task["intent"] = "check_song"
             task["args"] = {"song_title": extracted["song_title"]}
             task["instruction"] = build_instruction_from_task(task)
             task["missing_fields"] = []
+            continue
 
     return {
         **extracted,
@@ -68,12 +68,13 @@ def missing_info_node(state: PlannerAppState) -> dict:
     }
 
 
-async def invoice_node(state):
+async def invoice_node(state: PlannerAppState) -> dict:
     planner_output = _copy_planner_output(state)
     task: dict[str, Any] | None = None
 
     try:
         task = _get_next_task_for_agent(planner_output, agent="invoice")
+
         instruction = build_instruction_from_task(task)
         task["instruction"] = instruction
 
@@ -86,10 +87,10 @@ async def invoice_node(state):
         }
 
     except (
-        TaskInstructionError, 
-        ValueError, 
-        TimeoutError, 
-        ConnectionError, 
+        TaskInstructionError,
+        ValueError,
+        TimeoutError,
+        ConnectionError,
         RuntimeError,
     ) as exc:
         _mark_task_failed(task)
@@ -100,12 +101,13 @@ async def invoice_node(state):
         }
 
 
-async def music_node(state):
+async def music_node(state: PlannerAppState) -> dict:
     planner_output = _copy_planner_output(state)
     task: dict[str, Any] | None = None
 
     try:
         task = _get_next_task_for_agent(planner_output, agent="music")
+
         instruction = build_instruction_from_task(task)
         task["instruction"] = instruction
 
@@ -118,10 +120,10 @@ async def music_node(state):
         }
 
     except (
-        TaskInstructionError, 
-        ValueError, 
-        TimeoutError, 
-        ConnectionError, 
+        TaskInstructionError,
+        ValueError,
+        TimeoutError,
+        ConnectionError,
         RuntimeError,
     ) as exc:
         _mark_task_failed(task)
@@ -189,12 +191,14 @@ def final_response_node(state: PlannerAppState) -> dict:
     }
 
 
-def _copy_planner_output(state: dict[str, Any]) -> dict[str, Any]:
+def _copy_planner_output(state: PlannerAppState) -> dict[str, Any]:
     planner_output = dict(state.get("planner_output", {}))
+
     planner_output["tasks"] = [
         dict(task)
         for task in planner_output.get("tasks", [])
     ]
+
     return planner_output
 
 
