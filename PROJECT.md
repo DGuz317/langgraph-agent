@@ -455,7 +455,20 @@ uv run python scripts/run_planner.py
 ```
 This markdown summarizes the entire project flow, from setup and architecture to agent-specific configurations and the final LLM-based improvements.
 
+## Current Checkpoint: Planner E2E Stabilization
 
+Completed:
+- Aggregator handles empty, JSON, dict, list, and plain-text results.
+- InvoiceAgent parser is simplified and safer.
+- MusicAgent parser handles artist, genre, album, and song-title flows.
+- Planner graph uses args-first execution.
+- Planner E2E tests cover direct, HITL, ambiguous music, and multi-agent flows.
+
+Next:
+- Add stronger graph-node error recovery.
+- Add persistent checkpointer.
+- Add structured A2A payload support.
+- Add parallel execution after sequential graph is stable.
 
 
 
