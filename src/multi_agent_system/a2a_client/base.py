@@ -66,24 +66,66 @@ class BaseA2AClient:
 
         return body
 
-    def extract_text(self, response: dict[str, Any]) -> str:
-        result = response.get("result", {})
-
-        # Common message-only result shape.
-        parts = result.get("parts", [])
-        for part in parts:
-            if "text" in part:
-                return part["text"]
-
-        # Some SDK responses wrap message under "message".
-        message = result.get("message", {})
-        parts = message.get("parts", [])
-        for part in parts:
-            if "text" in part:
-                return part["text"]
-
-        return json.dumps(response, indent=2)
-
     async def ask(self, text: str) -> str:
-        response = await self.send_message(text)
-        return self.extract_text(response)
+        body = await self.send_message(text)
+        return self._extract_text_response(body)
+
+    def _extract_text_response(self, body: dict[str, Any]) -> str:
+        result = body.get("result")
+
+        if not isinstance(result, dict):
+            raise A2AClientError("A2A response missing result object.")
+
+        parts = self._extract_parts(result)
+
+        text_parts: list[str] = []
+
+        for part in parts:
+            if not isinstance(part, dict):
+                continue
+
+            text = part.get("text")
+
+            if text is None:
+                continue
+
+            if not isinstance(text, str):
+                raise A2AClientError("A2A response text content must be a string.")
+
+            cleaned = text.strip()
+
+            if cleaned:
+                text_parts.append(cleaned)
+
+        if not text_parts:
+            has_text_key = any(
+                isinstance(part, dict) and "text" in part
+                for part in parts
+            )
+
+            if has_text_key:
+                raise A2AClientError("A2A response contained empty text response.")
+
+            raise A2AClientError("A2A response missing text content.")
+
+        return "\n".join(text_parts)
+
+    def _extract_parts(self, result: dict[str, Any]) -> list[Any]:
+        # Shape 1:
+        # {"result": {"message": {"parts": [{"text": "..."}]}}}
+        message = result.get("message")
+
+        if isinstance(message, dict):
+            parts = message.get("parts")
+
+            if isinstance(parts, list):
+                return parts
+
+        # Shape 2:
+        # {"result": {"parts": [{"text": "..."}]}}
+        direct_parts = result.get("parts")
+
+        if isinstance(direct_parts, list):
+            return direct_parts
+
+        raise A2AClientError("A2A response missing message parts.")
