@@ -17,17 +17,6 @@ planner = PlannerAgent()
 aggregator = AggregatorAgent()
 
 
-def _extract_instruction_number(instruction: str, field_names: list[str]) -> str | None:
-    for field_name in field_names:
-        pattern = rf"\b{re.escape(field_name)}\s*(?:=|:|is)?\s*(\d+)"
-        match = re.search(pattern, instruction, flags=re.IGNORECASE)
-
-        if match:
-            return match.group(1)
-
-    return None
-
-
 def planner_node(state: PlannerAppState) -> dict:
     output = planner.invoke(state["user_input"])
 
@@ -36,10 +25,6 @@ def planner_node(state: PlannerAppState) -> dict:
         "missing_fields": output.missing_fields,
     }
 
-def _update_task_args(task: dict, values: dict[str, str]) -> None:
-    args = task.get("args") or {}
-    args.update(values)
-    task["args"] = args
 
 def missing_info_node(state: PlannerAppState) -> dict:
     missing_fields = state.get("missing_fields", [])
@@ -100,7 +85,13 @@ async def invoice_node(state):
             "invoice_result": result,
         }
 
-    except (TaskInstructionError, ValueError, TimeoutError, ConnectionError, RuntimeError) as exc:
+    except (
+        TaskInstructionError, 
+        ValueError, 
+        TimeoutError, 
+        ConnectionError, 
+        RuntimeError,
+    ) as exc:
         _mark_task_failed(task)
 
         return {
@@ -126,7 +117,13 @@ async def music_node(state):
             "music_result": result,
         }
 
-    except (TaskInstructionError, ValueError, TimeoutError, ConnectionError, RuntimeError) as exc:
+    except (
+        TaskInstructionError, 
+        ValueError, 
+        TimeoutError, 
+        ConnectionError, 
+        RuntimeError,
+    ) as exc:
         _mark_task_failed(task)
 
         return {
@@ -191,6 +188,7 @@ def final_response_node(state: PlannerAppState) -> dict:
         "final_answer": output.final_answer
     }
 
+
 def _copy_planner_output(state: dict[str, Any]) -> dict[str, Any]:
     planner_output = dict(state.get("planner_output", {}))
     planner_output["tasks"] = [
@@ -212,6 +210,7 @@ def _get_next_task_for_agent(
             return task
 
     raise ValueError(f"No pending task found for agent: {agent}")
+
 
 def _mark_task_failed(task: dict[str, Any] | None) -> None:
     if task is not None:
