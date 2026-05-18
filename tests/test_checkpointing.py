@@ -1,35 +1,51 @@
 from pathlib import Path
-from typing import Any
 
 import pytest
 from langgraph.checkpoint.memory import InMemorySaver
 
-from multi_agent_system.planner_app.checkpointing import build_checkpointer
+from multi_agent_system.planner_app.checkpointing import (
+    build_async_checkpointer_context,
+    build_memory_checkpointer,
+)
 
 
-def test_build_memory_checkpointer(monkeypatch: pytest.MonkeyPatch) -> None:
-    from multi_agent_system import config
+@pytest.fixture
+def anyio_backend() -> str:
+    return "asyncio"
 
-    monkeypatch.setattr(config.settings, "checkpoint_backend", "memory")
 
-    checkpointer = build_checkpointer()
+def test_build_memory_checkpointer() -> None:
+    checkpointer = build_memory_checkpointer()
 
     assert isinstance(checkpointer, InMemorySaver)
 
 
-def test_build_memory_checkpointer_is_case_insensitive(
+@pytest.mark.anyio
+async def test_async_checkpointer_context_uses_memory_backend(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from multi_agent_system import config
+
+    monkeypatch.setattr(config.settings, "checkpoint_backend", "memory")
+
+    async with build_async_checkpointer_context() as checkpointer:
+        assert isinstance(checkpointer, InMemorySaver)
+
+
+@pytest.mark.anyio
+async def test_async_checkpointer_context_is_case_insensitive(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from multi_agent_system import config
 
     monkeypatch.setattr(config.settings, "checkpoint_backend", "MEMORY")
 
-    checkpointer = build_checkpointer()
+    async with build_async_checkpointer_context() as checkpointer:
+        assert isinstance(checkpointer, InMemorySaver)
 
-    assert isinstance(checkpointer, InMemorySaver)
 
-
-def test_unsupported_checkpoint_backend_raises_error(
+@pytest.mark.anyio
+async def test_unsupported_checkpoint_backend_raises_error(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from multi_agent_system import config
@@ -37,14 +53,16 @@ def test_unsupported_checkpoint_backend_raises_error(
     monkeypatch.setattr(config.settings, "checkpoint_backend", "redis")
 
     with pytest.raises(ValueError, match="Unsupported checkpoint backend"):
-        build_checkpointer()
+        async with build_async_checkpointer_context():
+            pass
 
 
-def test_sqlite_checkpointer_creates_parent_directory(
+@pytest.mark.anyio
+async def test_sqlite_checkpointer_creates_parent_directory(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    pytest.importorskip("langgraph.checkpoint.sqlite")
+    pytest.importorskip("langgraph.checkpoint.sqlite.aio")
 
     from multi_agent_system import config
 
@@ -57,21 +75,17 @@ def test_sqlite_checkpointer_creates_parent_directory(
         str(checkpoint_path),
     )
 
-    checkpointer: Any = build_checkpointer()
-
-    assert checkpoint_path.parent.exists()
-    assert checkpointer is not None
-
-    close = getattr(checkpointer, "close", None)
-    if callable(close):
-        close()
+    async with build_async_checkpointer_context() as checkpointer:
+        assert checkpoint_path.parent.exists()
+        assert checkpointer is not None
 
 
-def test_sqlite_checkpointer_can_be_used_as_context_manager(
+@pytest.mark.anyio
+async def test_sqlite_checkpointer_context_can_be_opened(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    pytest.importorskip("langgraph.checkpoint.sqlite")
+    pytest.importorskip("langgraph.checkpoint.sqlite.aio")
 
     from multi_agent_system import config
 
@@ -84,10 +98,5 @@ def test_sqlite_checkpointer_can_be_used_as_context_manager(
         str(checkpoint_path),
     )
 
-    checkpointer = build_checkpointer()
-
-    assert checkpointer is not None
-
-    close = getattr(checkpointer, "close", None)
-    if callable(close):
-        close()
+    async with build_async_checkpointer_context() as checkpointer:
+        assert checkpointer is not None

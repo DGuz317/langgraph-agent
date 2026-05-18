@@ -455,20 +455,24 @@ uv run python scripts/run_planner.py
 ```
 This markdown summarizes the entire project flow, from setup and architecture to agent-specific configurations and the final LLM-based improvements.
 
-## Current Checkpoint: Planner E2E Stabilization
+## Current Checkpoint: Persistent Planner Checkpointing
 
 Completed:
-- Aggregator handles empty, JSON, dict, list, and plain-text results.
-- InvoiceAgent parser is simplified and safer.
-- MusicAgent parser handles artist, genre, album, and song-title flows.
-- Planner graph uses args-first execution.
-- Planner E2E tests cover direct, HITL, ambiguous music, and multi-agent flows.
+- Planner graph supports configurable checkpoint backend.
+- Default backend remains memory for local tests.
+- SQLite backend can persist graph state across CLI/runtime sessions.
+- run_planner.py keeps the SQLite checkpointer context alive during graph usage.
+- Full local tests pass.
+- Planner CLI works with memory and SQLite checkpoint backends.
 
-Next:
-- Add stronger graph-node error recovery.
-- Add persistent checkpointer.
-- Add structured A2A payload support.
-- Add parallel execution after sequential graph is stable.
+Current backend options:
+- CHECKPOINT_BACKEND=memory
+- CHECKPOINT_BACKEND=sqlite
+- CHECKPOINT_SQLITE_PATH=data/checkpoints.sqlite
+
+Notes:
+- data/ and SQLite checkpoint files are ignored by Git.
+- SQLite checkpointing is for graph runtime state, not business data.
 
 
 
