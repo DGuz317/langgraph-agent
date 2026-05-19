@@ -220,6 +220,26 @@ uv run python scripts/run_music_a2a.py --host localhost --port 11002
 uv run python scripts/run_planner.py
 ```
 
+### 5. Or run Planner API
+
+```bash
+uv run python scripts/run_orchestrator_api.py --host localhost --port 12000
+```
+
+Invoke the API:
+
+```http
+POST http://localhost:12000/planner/invoke
+```
+
+```json
+{
+  "user_input": "Get latest invoice for customer_id=5",
+  "thread_id": null,
+  "resume": false
+}
+```
+
 ## Example Prompts
 
 Direct invoice queries:
@@ -301,6 +321,12 @@ Run A2A integration tests after starting the MCP server and both A2A services:
 
 ```bash
 RUN_A2A_INTEGRATION_TESTS=1 uv run pytest tests/test_invoice_a2a_client.py tests/test_music_a2a_client.py -q
+```
+
+Run real planner API integration tests after configuring `.env` and starting MCP plus both A2A services:
+
+```bash
+RUN_ORCHESTRATOR_API_INTEGRATION_TESTS=1 uv run pytest tests/test_orchestrator_api_integration.py -q
 ```
 
 ## Development Workflow
