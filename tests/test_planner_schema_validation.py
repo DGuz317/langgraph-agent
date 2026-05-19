@@ -17,6 +17,32 @@ def test_planned_task_accepts_complete_invoice_task() -> None:
     assert task.args == {"customer_id": "5"}
 
 
+def test_planned_task_accepts_latest_invoice_support_employee_task() -> None:
+    task = PlannedTask(
+        id="task-1",
+        agent="invoice",
+        intent="latest_invoice_support_employee",
+        instruction="Get support employee for latest invoice for customer_id=5",
+        args={"customer_id": "5"},
+        missing_fields=[],
+    )
+
+    assert task.args == {"customer_id": "5"}
+
+
+def test_planned_task_accepts_all_invoices_task() -> None:
+    task = PlannedTask(
+        id="task-1",
+        agent="invoice",
+        intent="all_invoices",
+        instruction="Get all invoices for customer_id=5",
+        args={"customer_id": "5"},
+        missing_fields=[],
+    )
+
+    assert task.args == {"customer_id": "5"}
+
+
 def test_planned_task_normalizes_arg_values_to_strings() -> None:
     task = PlannedTask(
         id="task-1",

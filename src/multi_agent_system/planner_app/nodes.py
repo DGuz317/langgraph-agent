@@ -9,7 +9,7 @@ from multi_agent_system.planner_app.hitl import interrupt_for_missing_info
 from multi_agent_system.planner_app.state import PlannerAppState
 from multi_agent_system.planner_app.task_instructions import (
     TaskInstructionError,
-    build_instruction_from_task,
+    build_a2a_payload_from_task,
 )
 
 
@@ -36,28 +36,28 @@ def missing_info_node(state: PlannerAppState) -> dict:
     for task in tasks:
         if task["agent"] == "invoice" and extracted.get("customer_id"):
             task["args"] = {"customer_id": extracted["customer_id"]}
-            task["instruction"] = build_instruction_from_task(task)
+            _attach_a2a_payload(task)
             task["missing_fields"] = []
             continue
 
         if task["agent"] == "music" and extracted.get("artist"):
             task["intent"] = "tracks_by_artist"
             task["args"] = {"artist": extracted["artist"]}
-            task["instruction"] = build_instruction_from_task(task)
+            _attach_a2a_payload(task)
             task["missing_fields"] = []
             continue
 
         if task["agent"] == "music" and extracted.get("genre"):
             task["intent"] = "songs_by_genre"
             task["args"] = {"genre": extracted["genre"]}
-            task["instruction"] = build_instruction_from_task(task)
+            _attach_a2a_payload(task)
             task["missing_fields"] = []
             continue
 
         if task["agent"] == "music" and extracted.get("song_title"):
             task["intent"] = "check_song"
             task["args"] = {"song_title": extracted["song_title"]}
-            task["instruction"] = build_instruction_from_task(task)
+            _attach_a2a_payload(task)
             task["missing_fields"] = []
             continue
 
@@ -75,10 +75,9 @@ async def invoice_node(state: PlannerAppState) -> dict:
     try:
         task = _get_next_task_for_agent(planner_output, agent="invoice")
 
-        instruction = build_instruction_from_task(task)
-        task["instruction"] = instruction
+        payload = _attach_a2a_payload(task)
 
-        result = await InvoiceA2AClient().ask(instruction)
+        result = await InvoiceA2AClient().ask(payload["instruction"])
         task["status"] = "completed"
 
         return {
@@ -108,10 +107,9 @@ async def music_node(state: PlannerAppState) -> dict:
     try:
         task = _get_next_task_for_agent(planner_output, agent="music")
 
-        instruction = build_instruction_from_task(task)
-        task["instruction"] = instruction
+        payload = _attach_a2a_payload(task)
 
-        result = await MusicA2AClient().ask(instruction)
+        result = await MusicA2AClient().ask(payload["instruction"])
         task["status"] = "completed"
 
         return {
@@ -214,6 +212,13 @@ def _get_next_task_for_agent(
             return task
 
     raise ValueError(f"No pending task found for agent: {agent}")
+
+
+def _attach_a2a_payload(task: dict[str, Any]) -> dict[str, Any]:
+    payload = build_a2a_payload_from_task(task)
+    task["a2a_payload"] = payload
+    task["instruction"] = payload["instruction"]
+    return payload
 
 
 def _mark_task_failed(task: dict[str, Any] | None) -> None:

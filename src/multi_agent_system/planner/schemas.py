@@ -9,6 +9,8 @@ AgentName = Literal["invoice", "music"]
 TaskStatus = Literal["not_started", "completed", "failed"]
 TaskIntent = Literal[
     "latest_invoice",
+    "all_invoices",
+    "latest_invoice_support_employee",
     "invoices_by_unit_price",
     "tracks_by_artist",
     "albums_by_artist",
@@ -20,6 +22,8 @@ TaskIntent = Literal[
 
 INVOICE_INTENTS = {
     "latest_invoice",
+    "all_invoices",
+    "latest_invoice_support_employee",
     "invoices_by_unit_price",
 }
 
@@ -33,6 +37,8 @@ MUSIC_INTENTS = {
 
 REQUIRED_ARGS_BY_INTENT = {
     "latest_invoice": "customer_id",
+    "all_invoices": "customer_id",
+    "latest_invoice_support_employee": "customer_id",
     "invoices_by_unit_price": "customer_id",
     "tracks_by_artist": "artist",
     "albums_by_artist": "artist",

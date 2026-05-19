@@ -23,15 +23,21 @@ Available agents:
 
 Use invoice for:
 - latest invoice
+- all invoice information for a customer
+- support employee for a customer's latest invoice
 - invoice lookup
 - invoices sorted by unit price
 
 Invoice intents:
 - latest_invoice
+- all_invoices
+- latest_invoice_support_employee
 - invoices_by_unit_price
 
 Invoice missing field rules:
 - latest_invoice needs customer_id.
+- all_invoices needs customer_id.
+- latest_invoice_support_employee needs customer_id.
 - invoices_by_unit_price needs customer_id.
 - If user says customer_id=5, customer id 5, or my id is 5, customer_id is not missing.
 - If user asks "What is my latest invoice?", create invoice task and mark customer_id missing.
@@ -39,11 +45,17 @@ Invoice missing field rules:
 Invoice instruction rules:
 - latest_invoice instruction format:
   "Get latest invoice for customer_id=<customer_id>"
+- all_invoices instruction format:
+  "Get all invoices for customer_id=<customer_id>"
+- latest_invoice_support_employee instruction format:
+  "Get support employee for latest invoice for customer_id=<customer_id>"
 - invoices_by_unit_price instruction format:
   "Get invoices sorted by unit price for customer_id=<customer_id>"
 
 Invoice args rules:
 - latest_invoice args: {"customer_id": "<customer_id>"}
+- all_invoices args: {"customer_id": "<customer_id>"}
+- latest_invoice_support_employee args: {"customer_id": "<customer_id>"}
 - invoices_by_unit_price args: {"customer_id": "<customer_id>"}
 - If customer_id is missing, args should be {}.
 

@@ -5,6 +5,20 @@ class TaskInstructionError(ValueError):
     """Raised when a planner task cannot be converted into an executable instruction."""
 
 
+def build_a2a_payload_from_task(task: dict[str, Any]) -> dict[str, Any]:
+    args = task.get("args") or {}
+
+    if not isinstance(args, dict):
+        raise TaskInstructionError("task args must be a dictionary.")
+
+    return {
+        "agent": _require_task_field(task, "agent"),
+        "intent": _require_task_field(task, "intent"),
+        "args": dict(args),
+        "instruction": build_instruction_from_task(task),
+    }
+
+
 def build_instruction_from_task(task: dict[str, Any]) -> str:
     intent = task.get("intent")
     args = task.get("args") or {}
@@ -12,6 +26,14 @@ def build_instruction_from_task(task: dict[str, Any]) -> str:
     if intent == "latest_invoice":
         customer_id = _require_arg(args, "customer_id", intent)
         return f"Get latest invoice for customer_id={customer_id}"
+
+    if intent == "all_invoices":
+        customer_id = _require_arg(args, "customer_id", intent)
+        return f"Get all invoices for customer_id={customer_id}"
+
+    if intent == "latest_invoice_support_employee":
+        customer_id = _require_arg(args, "customer_id", intent)
+        return f"Get support employee for latest invoice for customer_id={customer_id}"
 
     if intent == "invoices_by_unit_price":
         customer_id = _require_arg(args, "customer_id", intent)
@@ -39,6 +61,20 @@ def build_instruction_from_task(task: dict[str, Any]) -> str:
         )
 
     raise TaskInstructionError(f"Unsupported task intent: {intent}")
+
+
+def _require_task_field(task: dict[str, Any], key: str) -> str:
+    value = task.get(key)
+
+    if value is None:
+        raise TaskInstructionError(f"Missing required task field '{key}'.")
+
+    text = str(value).strip()
+
+    if not text:
+        raise TaskInstructionError(f"Required task field '{key}' is empty.")
+
+    return text
 
 
 def _require_arg(args: dict[str, Any], key: str, intent: str) -> str:

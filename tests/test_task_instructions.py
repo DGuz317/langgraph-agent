@@ -2,6 +2,7 @@ import pytest
 
 from multi_agent_system.planner_app.task_instructions import (
     TaskInstructionError,
+    build_a2a_payload_from_task,
     build_instruction_from_task,
 )
 
@@ -13,6 +14,101 @@ def test_build_latest_invoice_instruction() -> None:
     }
 
     assert build_instruction_from_task(task) == "Get latest invoice for customer_id=5"
+
+
+def test_build_a2a_payload_from_invoice_task() -> None:
+    task = {
+        "agent": "invoice",
+        "intent": "latest_invoice",
+        "args": {"customer_id": "5"},
+    }
+
+    assert build_a2a_payload_from_task(task) == {
+        "agent": "invoice",
+        "intent": "latest_invoice",
+        "args": {"customer_id": "5"},
+        "instruction": "Get latest invoice for customer_id=5",
+    }
+
+
+def test_build_all_invoices_instruction() -> None:
+    task = {
+        "intent": "all_invoices",
+        "args": {"customer_id": "5"},
+    }
+
+    assert build_instruction_from_task(task) == "Get all invoices for customer_id=5"
+
+
+def test_build_a2a_payload_from_all_invoices_task() -> None:
+    task = {
+        "agent": "invoice",
+        "intent": "all_invoices",
+        "args": {"customer_id": "5"},
+    }
+
+    assert build_a2a_payload_from_task(task) == {
+        "agent": "invoice",
+        "intent": "all_invoices",
+        "args": {"customer_id": "5"},
+        "instruction": "Get all invoices for customer_id=5",
+    }
+
+
+def test_build_support_employee_instruction() -> None:
+    task = {
+        "intent": "latest_invoice_support_employee",
+        "args": {"customer_id": "5"},
+    }
+
+    assert (
+        build_instruction_from_task(task)
+        == "Get support employee for latest invoice for customer_id=5"
+    )
+
+
+def test_build_a2a_payload_from_support_employee_task() -> None:
+    task = {
+        "agent": "invoice",
+        "intent": "latest_invoice_support_employee",
+        "args": {"customer_id": "5"},
+    }
+
+    assert build_a2a_payload_from_task(task) == {
+        "agent": "invoice",
+        "intent": "latest_invoice_support_employee",
+        "args": {"customer_id": "5"},
+        "instruction": "Get support employee for latest invoice for customer_id=5",
+    }
+
+
+def test_build_a2a_payload_from_music_task() -> None:
+    task = {
+        "agent": "music",
+        "intent": "tracks_by_artist",
+        "args": {"artist": "AC/DC"},
+    }
+
+    assert build_a2a_payload_from_task(task) == {
+        "agent": "music",
+        "intent": "tracks_by_artist",
+        "args": {"artist": "AC/DC"},
+        "instruction": "Find tracks by artist AC/DC",
+    }
+
+
+def test_build_a2a_payload_copies_args() -> None:
+    args = {"genre": "Jazz"}
+    task = {
+        "agent": "music",
+        "intent": "songs_by_genre",
+        "args": args,
+    }
+
+    payload = build_a2a_payload_from_task(task)
+
+    assert payload["args"] == args
+    assert payload["args"] is not args
 
 
 def test_build_invoices_by_unit_price_instruction() -> None:
@@ -81,3 +177,24 @@ def test_missing_required_arg_raises_error() -> None:
 
     with pytest.raises(TaskInstructionError):
         build_instruction_from_task(task)
+
+
+def test_build_a2a_payload_requires_agent() -> None:
+    task = {
+        "intent": "songs_by_genre",
+        "args": {"genre": "rock"},
+    }
+
+    with pytest.raises(TaskInstructionError):
+        build_a2a_payload_from_task(task)
+
+
+def test_build_a2a_payload_requires_dict_args() -> None:
+    task = {
+        "agent": "music",
+        "intent": "songs_by_genre",
+        "args": ["rock"],
+    }
+
+    with pytest.raises(TaskInstructionError):
+        build_a2a_payload_from_task(task)

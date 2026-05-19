@@ -169,6 +169,56 @@ async def test_planner_e2e_direct_invoice_query_uses_args_first_instruction(
 
 
 @pytest.mark.anyio
+async def test_planner_e2e_support_employee_query_uses_args_first_instruction(
+    monkeypatch: pytest.MonkeyPatch,
+    fake_a2a_clients: dict[str, list[str]],
+) -> None:
+    _set_planner_output(
+        monkeypatch,
+        tasks=[
+            _task(
+                agent="invoice",
+                intent="latest_invoice_support_employee",
+                args={"customer_id": "5"},
+            )
+        ],
+    )
+
+    result = await _invoke_graph(
+        "Who is the support employee for latest invoice of customer id 5?"
+    )
+
+    assert fake_a2a_clients["invoice"] == [
+        "Get support employee for latest invoice for customer_id=5"
+    ]
+    assert "Found latest invoice." in result["final_answer"]
+
+
+@pytest.mark.anyio
+async def test_planner_e2e_all_invoices_query_uses_args_first_instruction(
+    monkeypatch: pytest.MonkeyPatch,
+    fake_a2a_clients: dict[str, list[str]],
+) -> None:
+    _set_planner_output(
+        monkeypatch,
+        tasks=[
+            _task(
+                agent="invoice",
+                intent="all_invoices",
+                args={"customer_id": "5"},
+            )
+        ],
+    )
+
+    result = await _invoke_graph("All my invoice information of customer id 5")
+
+    assert fake_a2a_clients["invoice"] == [
+        "Get all invoices for customer_id=5"
+    ]
+    assert "Found latest invoice." in result["final_answer"]
+
+
+@pytest.mark.anyio
 async def test_planner_e2e_direct_music_query_uses_args_first_instruction(
     monkeypatch: pytest.MonkeyPatch,
     fake_a2a_clients: dict[str, list[str]],

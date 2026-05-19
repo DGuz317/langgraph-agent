@@ -55,6 +55,12 @@ async def test_invoice_node_rebuilds_instruction_from_args(
         result["planner_output"]["tasks"][0]["instruction"]
         == "Get latest invoice for customer_id=5"
     )
+    assert result["planner_output"]["tasks"][0]["a2a_payload"] == {
+        "agent": "invoice",
+        "intent": "latest_invoice",
+        "args": {"customer_id": "5"},
+        "instruction": "Get latest invoice for customer_id=5",
+    }
     assert result["planner_output"]["tasks"][0]["status"] == "completed"
 
 
@@ -108,6 +114,105 @@ async def test_invoice_node_rebuilds_unit_price_instruction_from_args(
 
 
 @pytest.mark.anyio
+async def test_invoice_node_rebuilds_all_invoices_instruction_from_args(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, str] = {}
+
+    class FakeInvoiceClient:
+        async def ask(self, instruction: str) -> str:
+            captured["instruction"] = instruction
+            return '{"success": true, "content": "ok", "data": []}'
+
+    monkeypatch.setattr(
+        "multi_agent_system.planner_app.nodes.InvoiceA2AClient",
+        FakeInvoiceClient,
+    )
+
+    state = {
+        "user_input": "All my invoice information of customer id 5",
+        "planner_output": {
+            "status": "completed",
+            "confidence": 1.0,
+            "requires_aggregation": False,
+            "missing_fields": [],
+            "tasks": [
+                {
+                    "id": "task-1",
+                    "agent": "invoice",
+                    "intent": "all_invoices",
+                    "instruction": "stale instruction should not be used",
+                    "args": {"customer_id": "5"},
+                    "missing_fields": [],
+                    "status": "not_started",
+                }
+            ],
+        },
+    }
+
+    result = await invoice_node(state)
+
+    assert captured["instruction"] == "Get all invoices for customer_id=5"
+    assert result["planner_output"]["tasks"][0]["a2a_payload"] == {
+        "agent": "invoice",
+        "intent": "all_invoices",
+        "args": {"customer_id": "5"},
+        "instruction": "Get all invoices for customer_id=5",
+    }
+
+
+@pytest.mark.anyio
+async def test_invoice_node_rebuilds_support_employee_instruction_from_args(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, str] = {}
+
+    class FakeInvoiceClient:
+        async def ask(self, instruction: str) -> str:
+            captured["instruction"] = instruction
+            return '{"success": true, "content": "ok", "data": {}}'
+
+    monkeypatch.setattr(
+        "multi_agent_system.planner_app.nodes.InvoiceA2AClient",
+        FakeInvoiceClient,
+    )
+
+    state = {
+        "user_input": "Who supports latest invoice for customer_id=5?",
+        "planner_output": {
+            "status": "completed",
+            "confidence": 1.0,
+            "requires_aggregation": False,
+            "missing_fields": [],
+            "tasks": [
+                {
+                    "id": "task-1",
+                    "agent": "invoice",
+                    "intent": "latest_invoice_support_employee",
+                    "instruction": "stale instruction should not be used",
+                    "args": {"customer_id": "5"},
+                    "missing_fields": [],
+                    "status": "not_started",
+                }
+            ],
+        },
+    }
+
+    result = await invoice_node(state)
+
+    assert (
+        captured["instruction"]
+        == "Get support employee for latest invoice for customer_id=5"
+    )
+    assert result["planner_output"]["tasks"][0]["a2a_payload"] == {
+        "agent": "invoice",
+        "intent": "latest_invoice_support_employee",
+        "args": {"customer_id": "5"},
+        "instruction": "Get support employee for latest invoice for customer_id=5",
+    }
+
+
+@pytest.mark.anyio
 async def test_music_node_rebuilds_genre_instruction_from_args(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -151,6 +256,12 @@ async def test_music_node_rebuilds_genre_instruction_from_args(
         result["planner_output"]["tasks"][0]["instruction"]
         == "Recommend songs by genre Jazz"
     )
+    assert result["planner_output"]["tasks"][0]["a2a_payload"] == {
+        "agent": "music",
+        "intent": "songs_by_genre",
+        "args": {"genre": "Jazz"},
+        "instruction": "Recommend songs by genre Jazz",
+    }
     assert result["planner_output"]["tasks"][0]["status"] == "completed"
 
 

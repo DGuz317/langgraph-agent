@@ -1,528 +1,230 @@
 # Multi-Agent System Using LangGraph
 
 ## Overview
-The goal of the project is to build a **multi-agent system** that consists of different agents communicating with each other. The system uses **LangGraph**, **A2A protocol**, and **MCP tools** to handle user queries related to invoices and music. The system provides a flexible architecture that can be expanded to other domains and agents in the future.
 
-## Key Components:
-### Agents:
-#### Invoice Agent
-- Retrieves and processes invoice information using MCP tools.
-- Exposed via A2A service.
-#### Music Agent
-- Retrieves music-related information (tracks, albums, genres) via MCP tools.
-- Exposed via A2A service.
-#### Planner Agent
-- Receives user input and generates tasks for specialized agents (Invoice and Music).
-- Includes **Human-in-the-Loop (HITL)** to handle missing information.
-- Orchestrates the flow between invoice and music agents.
-#### Aggregator Agent
-- Combines the results of multiple agents (Invoice + Music) into a final response.
+This project is a Python multi-agent system for invoice and music queries. It uses LangGraph for orchestration, A2A services for domain agents, FastMCP tools for database access, and the Chinook SQLite database as the sample data source.
 
-## Architecture Overview
-The system is designed with **separation of concerns** and modularity in mind:
-- **MCP server**: Handles database queries for invoices and music data.
-- **A2A services**: Exposes the Invoice and Music agents via A2A endpoints.
-- **Planner**: The core decision-making engine that decides which agent to call based on the user's input.
-- **Aggregator**: Aggregates the results from multiple agents into a single response.
-- **LLM**: The Planner agent uses LLM to understand and process user queries.
+The current implementation is past the initial demo stage. It has a tested planner runtime, CLI and API entrypoints, structured internal task payloads, text-compatible A2A execution, and invoice result enrichment with support employee data.
 
-## File Structure
+## Current Architecture
+
+```text
+User input
+-> Planner CLI or POST /planner/invoke
+-> PlannerService
+-> PlannerAgent structured PlannerOutput
+-> LangGraph planner_app
+-> optional HITL interrupt/resume
+-> task intent + args
+-> build_a2a_payload_from_task()
+-> text-compatible A2A instruction
+-> Invoice/Music A2A service
+-> MCP tools
+-> Aggregator
+-> final answer
+```
+
+## Core Boundaries
+
+- `planner/` owns LLM planning, prompts, and structured task schemas.
+- `planner_app/` owns LangGraph nodes, edges, HITL, task execution, and final response flow.
+- `orchestrator/` owns the reusable `PlannerService` and FastAPI planner endpoint.
+- `a2a_client/` owns reusable JSON-RPC clients for A2A services.
+- `a2a_servers/invoice_agent/` owns invoice domain parsing and invoice MCP tool orchestration.
+- `a2a_servers/music_agent/` owns music domain parsing and music MCP tool orchestration.
+- `mcp_server/` owns database access and tool registration.
+- `aggregator/` owns final user-facing formatting.
+
+## Current Checkpoint
+
+Completed:
+
+- Planner schema validates agent/intent compatibility, required args or missing fields, confidence range, blank instructions, and aggregation consistency.
+- Planner retries invalid structured LLM output once before returning a safe failed output.
+- Planner structured LLM initialization is lazy for easier unit testing.
+- `PlannerService` wraps graph invocation, thread ids, HITL resume, interrupt extraction, and final-answer extraction.
+- `scripts/run_planner.py` uses `PlannerService` and configurable memory or SQLite checkpointing.
+- `src/multi_agent_system/orchestrator/server.py` exposes `POST /planner/invoke`.
+- Graph nodes rebuild execution instructions from structured `task["args"]`, not stale planner instruction text.
+- `build_a2a_payload_from_task()` creates `{agent, intent, args, instruction}` for every executable task.
+- Current A2A compatibility still sends `payload["instruction"]` as text.
+- A2A client handles HTTP errors, timeouts, JSON-RPC errors, invalid JSON, missing result objects, and malformed response parts.
+- MCP tool agent handles tool loading, missing tools, invocation errors, invalid JSON payloads, and unsupported MCP result shapes.
+- Invoice agent supports `latest_invoice`, `all_invoices`, `latest_invoice_support_employee`, and `invoices_by_unit_price`.
+- Music agent supports tracks by artist, albums by artist, songs by genre, and song existence checks.
+
+## Current Invoice Rule
+
+Any invoice information returned for a customer must include the support employee for the corresponding invoice.
+
+Current invoice response shapes:
+
+```text
+latest_invoice -> {latest_invoice, support_employee}
+all_invoices -> [{invoice, support_employee}, ...]
+invoices_by_unit_price -> [{invoice, support_employee}, ...]
+latest_invoice_support_employee -> {latest_invoice, support_employee}
+```
+
+This means a prompt such as `All my invoice information of customer id 5` should return all invoice rows for customer 5 and attach `support_employee` data to each row.
+
+## Runtime Commands
+
+Install dependencies:
+
 ```bash
-multi-agent-system/
-├── graphify-out
-│   ├── graph.html
-│   ├── graph.json
-│   └── GRAPH_REPORT.md
-├── langgraph.json
-├── PROJECT.md
-├── pyproject.toml
-├── README.md
-├── scripts
-│   ├── run_invoice_a2a.py
-│   ├── run_mcp_server.py
-│   ├── run_music_a2a.py
-│   └── run_planner.py
-├── src
-│   └── multi_agent_system
-│       ├── a2a_client
-│       │   ├── base.py
-│       │   ├── __init__.py
-│       │   ├── invoice_client.py
-│       │   ├── music_client.py
-│       │   └── schemas.py
-│       ├── a2a_servers
-│       │   ├── __init__.py
-│       │   ├── invoice_agent
-│       │   │   ├── agent.py
-│       │   │   ├── executor.py
-│       │   │   ├── __init__.py
-│       │   │   ├── prompts.py
-│       │   │   ├── schemas.py
-│       │   │   └── server.py
-│       │   └── music_agent
-│       │       ├── agent.py
-│       │       ├── executor.py
-│       │       ├── __init__.py
-│       │       ├── prompts.py
-│       │       ├── schemas.py
-│       │       └── server.py
-│       ├── agent_cards
-│       │   ├── invoice_agent.json
-│       │   └── music_agent.json
-│       ├── aggregator
-│       │   ├── agent.py
-│       │   ├── __init__.py
-│       │   ├── prompts.py
-│       │   └── schemas.py
-│       ├── common
-│       │   ├── agent_card_loader.py
-│       │   ├── constants.py
-│       │   ├── errors.py
-│       │   ├── __init__.py
-│       │   ├── llm.py
-│       │   ├── mcp_tool_agent.py
-│       │   └── types.py                                
-│       ├── config.py
-│       ├── data
-│       ├── __init__.py
-│       ├── mcp_server
-│       │   ├── chinook.db
-│       │   ├── db.py
-│       │   ├── __init__.py
-│       │   ├── schemas.py
-│       │   ├── server.py
-│       │   └── tools
-│       │       ├── __init__.py
-│       │       ├── invoice_tools.py
-│       │       └── music_tools.py                           
-│       ├── planner
-│       │   ├── agent.py
-│       │   ├── __init__.py
-│       │   ├── prompts.py
-│       │   └── schemas.py
-│       └── planner_app                                                      
-│           ├── checkpointing.py
-│           ├── edges.py
-│           ├── graph.py
-│           ├── hitl.py
-│           ├── __init__.py
-│           ├── nodes.py
-│           ├── schemas.py
-│           ├── state.py
-│           └── task_instructions.py
-├── tests
-│   ├── test_a2a_client_error_handling.py
-│   ├── test_a2a_client_response_extraction.py
-│   ├── test_a2a_clients.py
-│   ├── test_aggregator.py                                                   
-│   ├── test_checkpointing.py
-│   ├── test_invoice_a2a_client.py
-│   ├── test_invoice_agent_parsing.py                                        
-│   ├── test_llm_planner.py
-│   ├── test_mcp_tool_agent_error_handling.py
-│   ├── test_mcp_tools.py                                                    
-│   ├── test_music_a2a_client.py
-│   ├── test_music_agent_parsing.py
-│   ├── test_planner_agent.py
-│   ├── test_planner_e2e_flows.py                                            
-│   ├── test_planner_error_recovery.py
-│   ├── test_planner_graph.py
-│   ├── test_planner_hitl.py                                                 
-│   └── test_task_instructions.py                                            
-└── uv.lock
+uv sync
 ```
 
-## Configuration
-### config.py
+Start services in separate terminals:
 
-The `config.py` file loads configuration settings from `.env`and provides access to the configuration in a structured way using **Pydantic**.
-
-```python
-from pydantic_settings import BaseSettings
-from typing import Literal
-
-class Settings(BaseSettings):
-    model_provider: Literal["ollama", "openai", "google", "anthropic"] = "ollama"
-    llm_model: str = "gpt-oss"
-    llm_temperature: float = 0.0
-    ollama_api_url: str = "http://localhost:11434"
-    openai_api_key: str | None = None
-    google_api_key: str | None = None
-    anthropic_api_key: str | None = None
-    sqlite_db: str
-    checkpoint_backend: str = "memory"
-    checkpoint_sqlite_path: str = "data/checkpoints.sqlite"
-    mcp_server_url: str = "http://localhost:10000/mcp"
-    invoice_a2a_url: str = "http://localhost:11001"
-    music_a2a_url: str = "http://localhost:11002"
-    a2a_timeout_seconds: int = 30
-    langsmith_api_key: str = "lsv2_your_key_here"
-    langsmith_endpoint: str = "https://api.smith.langchain.com"
-    langsmith_tracing: bool = False
-    langsmith_project: str = "multi-agent-system"
-```
-The `.env` file contains:
-```python
-MODEL_PROVIDER=ollama
-LLM_MODEL=gpt-oss
-LLM_TEMPERATURE=0
-OLLAMA_API_URL=http://localhost:11434
-SQLITE_DB=sqlite:////home/your_path/chinook.db
-CHECKPOINT_BACKEND=memory
-CHECKPOINT_SQLITE_PATH=data/checkpoints.sqlite
-MCP_SERVER_URL=http://localhost:10000/mcp
-INVOICE_A2A_URL=http://localhost:11001
-MUSIC_A2A_URL=http://localhost:11002
-A2A_TIMEOUT_SECONDS=30
-```
-The configuration is structured to support **Ollama**, **OpenAI**, **Google**, and **Anthropic** providers.
-## MCP Server
-The MCP server uses **SQLAlchemy** and **SQLDatabase** to query and return data related to invoices and music:
-```python
-from langchain_community.utilities import SQLDatabase
-from multi_agent_system.config import settings
-
-def get_db() -> SQLDatabase:
-    return SQLDatabase.from_uri(settings.sqlite_db)
-```
-The server is launched using:
 ```bash
 uv run python scripts/run_mcp_server.py --host localhost --port 10000 --transport streamable-http
-```
-## A2A Services
-Each agent is exposed via A2A:
-
-- **Invoice Agent**: Handles invoice-related tasks.
-- **Music Agent**: Handles music-related tasks.
-
-The A2A server for each agent is created using **FastAPI** and **A2A SDK v1**.
-
-Example for Invoice Agent:
-```python
-import click
-import uvicorn
-from fastapi import FastAPI
-
-from a2a.server.request_handlers import DefaultRequestHandler
-from a2a.server.routes import create_agent_card_routes, create_jsonrpc_routes
-from a2a.server.tasks import InMemoryTaskStore
-
-from multi_agent_system.common.agent_card_loader import load_agent_card
-from multi_agent_system.a2a_servers.invoice_agent.executor import (
-    InvoiceAgentExecutor,
-)
-
-
-def create_app() -> FastAPI:
-    app = FastAPI(
-        title="Invoice A2A Service",
-        version="1.0.0",
-    )
-
-    agent_card = load_agent_card("invoice_agent.json")
-
-    request_handler = DefaultRequestHandler(
-        agent_executor=InvoiceAgentExecutor(),
-        task_store=InMemoryTaskStore(),
-        agent_card=agent_card,
-    )
-
-    for route in create_agent_card_routes(agent_card):
-        app.router.routes.append(route)
-
-    for route in create_jsonrpc_routes(
-        request_handler,
-        rpc_url="/a2a/jsonrpc/",
-    ):
-        app.router.routes.append(route)
-
-    return app
-
-
-@click.command()
-@click.option("--host", default="localhost")
-@click.option("--port", default=11001)
-def main(host: str, port: int) -> None:
-    app = create_app()
-    uvicorn.run(app, host=host, port=port)
-
-
-if __name__ == "__main__":
-    main()
-```
-## Agent Cards
-Agent cards are static JSON files stored in `src/multi_agent_system/agent_cards/`:
-
-- **invoice_agent.json**
-- **music_agent.json**
-
-The agent card defines the supported interfaces, capabilities, and tasks that the agent can perform.
-
-Example for **Invoice Agent**:
-```json
-{
-  "name": "Invoice Agent",
-  "supportedInterfaces": [
-    {
-      "protocolBinding": "JSONRPC",
-      "url": "http://localhost:11001/a2a/jsonrpc/"
-    }
-  ],
-  "capabilities": {
-    "streaming": false,
-    "pushNotifications": false
-  },
-  "skills": [
-    {
-      "id": "invoice_retrieval",
-      "name": "Invoice information retrieval",
-      "description": "Retrieve invoices by customer ID",
-      "tags": ["invoice", "customer"]
-    }
-  ]
-}
-```
-## A2A Clients
-Reusable A2A clients are created for Invoice and Music agents:
-```python
-class InvoiceA2AClient(BaseA2AClient):
-    def __init__(self) -> None:
-        super().__init__(
-            url=f"{settings.invoice_a2a_url.rstrip('/')}/a2a/jsonrpc/",
-            timeout_seconds=settings.a2a_timeout_seconds,
-        )
-
-    async def get_latest_invoice(self, customer_id: str) -> str:
-        return await self.ask(f"Get latest invoice for customer_id={customer_id}")
-```
-
-## Planner Graph
-The planner graph is composed of nodes and edges that define the sequence of actions:
-```python
-from typing import Any
-
-from langgraph.graph import END, START, StateGraph
-from langgraph.checkpoint.memory import InMemorySaver
-
-from multi_agent_system.planner_app.edges import (
-    route_after_invoice,
-    route_after_planner,
-)
-from multi_agent_system.planner_app.nodes import (
-    final_response_node,
-    invoice_node,
-    missing_info_node,
-    music_node,
-    planner_node,
-)
-from multi_agent_system.planner_app.state import PlannerAppState
-
-
-def build_graph(checkpointer: Any | None = None):
-    graph = StateGraph(PlannerAppState)
-
-    graph.add_node("planner", planner_node)
-    graph.add_node("missing_info", missing_info_node)
-    graph.add_node("invoice", invoice_node)
-    graph.add_node("music", music_node)
-    graph.add_node("final_response", final_response_node)
-
-    graph.add_edge(START, "planner")
-
-    graph.add_conditional_edges(
-        "planner",
-        route_after_planner,
-        {
-            "missing_info": "missing_info",
-            "invoice": "invoice",
-            "music": "music",
-            "final_response": "final_response",
-        },
-    )
-
-    graph.add_conditional_edges(
-        "missing_info",
-        route_after_planner,
-        {
-            "missing_info": "missing_info",
-            "invoice": "invoice",
-            "music": "music",
-            "final_response": "final_response",
-        },
-    )
-
-    graph.add_conditional_edges(
-        "invoice",
-        route_after_invoice,
-        {
-            "music": "music",
-            "final_response": "final_response",
-        },
-    )
-
-    graph.add_edge("music", "final_response")
-    graph.add_edge("final_response", END)
-
-
-    return graph.compile(
-        checkpointer=checkpointer or InMemorySaver()
-    )
-
-
-planner_graph = build_graph()
-```
-
-## HITL and Aggregator
-The **HITL (Human-In-The-Loop)** functionality is implemented using LangGraph’s interrupt method. If information is missing, the graph interrupts and asks the user for more details before proceeding.
-
-The **Aggregator** is responsible for combining results from both agents (Invoice and Music) and presenting a final answer:
-```python
-import json
-from typing import Any
-
-from multi_agent_system.aggregator.schemas import (
-    AggregatorInput,
-    AggregatorOutput,
-)
-
-
-class AggregatorAgent:
-    def invoke(self, data: AggregatorInput) -> AggregatorOutput:
-        if not data.results:
-            return AggregatorOutput(
-                final_answer="No agent results were returned."
-            )
-
-        sections: list[str] = []
-
-        for result in data.results:
-            sections.append(
-                self._format_result(
-                    agent=result.agent,
-                    raw_result=result.result,
-                )
-            )
-
-        return AggregatorOutput(
-            final_answer="\n\n".join(sections)
-        )
-
-    def _format_result(self, agent: str, raw_result: Any) -> str:
-        title = f"{self._format_agent_name(agent)} result"
-        parsed = self._parse_result(raw_result)
-
-        if isinstance(parsed, dict):
-            return self._format_dict_result(title, parsed)
-
-        if isinstance(parsed, list):
-            return self._format_list_result(title, parsed)
-
-        return f"{title}:\n{parsed}"
-
-    def _parse_result(self, raw_result: Any) -> Any:
-        if isinstance(raw_result, str):
-            try:
-                return json.loads(raw_result)
-            except json.JSONDecodeError:
-                return raw_result
-
-        return raw_result
-
-    def _format_dict_result(self, title: str, data: dict[str, Any]) -> str:
-        success = data.get("success")
-        content = data.get("content")
-        payload = data.get("data")
-
-        if success is False:
-            return f"{title}:\nFailed: {content}"
-
-        if payload is None:
-            return f"{title}:\n{content}"
-
-        formatted_payload = json.dumps(
-            payload,
-            indent=2,
-            ensure_ascii=False,
-        )
-
-        return f"{title}:\n{content}\n\nData:\n{formatted_payload}"
-
-    def _format_list_result(self, title: str, data: list[Any]) -> str:
-        if not data:
-            return f"{title}:\nNo records found."
-
-        formatted_payload = json.dumps(
-            data,
-            indent=2,
-            ensure_ascii=False,
-        )
-
-        return f"{title}:\nData:\n{formatted_payload}"
-
-    def _format_agent_name(self, agent: str) -> str:
-        return agent.replace("_", " ").title()
-```
-
-## Future Improvements
-- Replace **deterministic planner** with **LLM-powered planner** that can handle more complex user queries.
-- Expand **Aggregator** to support more flexible result composition (e.g., file generation, advanced data formatting).
-- Add **multi-agent parallel execution** for better performance in complex workflows.
-
-## Run Commands
-To run the system, use the following commands:
-
-**1. Start MCP server:**
-```bash
-uv run python scripts/run_mcp_server.py --host localhost --port 10000 --transport streamable-http
-```
-**2. Start Invoice A2A service:**
-```bash
 uv run python scripts/run_invoice_a2a.py --host localhost --port 11001
-```
-**3. Start Music A2A service:**
-```bash
 uv run python scripts/run_music_a2a.py --host localhost --port 11002
 ```
-**5. Run all test:**
-```bash
-uv run pytest tests -q
-```
-**6. Run Planner graph test:**
-```bash
-uv run python tests/test_planner_graph.py -q
-```
-**7. Run LLM Planner test:**
-```bash
-uv run python tests/test_llm_planner.py -q
-```
-**8. Run the planner CLI:**
+
+Run the planner CLI:
+
 ```bash
 uv run python scripts/run_planner.py
 ```
-This markdown summarizes the entire project flow, from setup and architecture to agent-specific configurations and the final LLM-based improvements.
 
-## Current Checkpoint: Async Planner Runtime Fix
+Run the planner API:
 
-Completed:
-- PlannerAgent now exposes async `ainvoke()`.
-- planner_node now awaits `planner.ainvoke()`.
-- E2E fake planner was updated to match the production async interface.
-- Full local tests pass.
-- run_planner.py works with memory and SQLite checkpoint backends.
+```bash
+uv run python scripts/run_orchestrator_api.py --host localhost --port 12000
+```
 
-Current planner flow:
-planner_node
-→ await PlannerAgent.ainvoke()
-→ PlannerOutput
-→ graph routing
+Invoke the planner API:
 
+```http
+POST http://localhost:12000/planner/invoke
+```
 
+```json
+{
+  "user_input": "All my invoice information of customer id 5",
+  "thread_id": null,
+  "resume": false
+}
+```
 
+## Test Commands
 
+Run all local tests:
 
+```bash
+uv run pytest tests -q
+```
 
+Run focused invoice enrichment checks:
 
+```bash
+uv run pytest tests/test_invoice_agent_parsing.py tests/test_invoice_support_employee_integration.py tests/test_planner_e2e_flows.py -q
+```
 
+Run opt-in real-service tests after configuring `.env` and starting MCP plus A2A services:
 
+```bash
+RUN_INVOICE_SUPPORT_INTEGRATION_TESTS=1 uv run pytest tests/test_invoice_support_employee_integration.py -q
+RUN_A2A_PAYLOAD_INTEGRATION_TESTS=1 uv run pytest tests/test_a2a_payload_integration.py -q
+RUN_ORCHESTRATOR_API_INTEGRATION_TESTS=1 uv run pytest tests/test_orchestrator_api_integration.py -q
+RUN_A2A_INTEGRATION_TESTS=1 uv run pytest tests/test_invoice_a2a_client.py tests/test_music_a2a_client.py -q
+RUN_MCP_INTEGRATION_TESTS=1 uv run pytest tests/test_mcp_tools.py -q
+RUN_LLM_TESTS=1 uv run pytest tests/test_llm_planner.py -q
+```
 
+## Configuration Notes
 
+- Runtime config loads from `.env` through `src/multi_agent_system/config.py`.
+- `SQLITE_DB` has no default and must point at the Chinook SQLite database.
+- Default LLM provider is Ollama: `MODEL_PROVIDER=ollama`, `LLM_MODEL=gpt-oss`.
+- OpenAI, Google, and Anthropic require their matching API key.
+- `langgraph.json` is empty; use the scripts above instead of assuming LangGraph dev-server config.
+
+## Roadmap
+
+### Phase 1: Stabilize Current Invoice Behavior
+
+Priority: high.
+
+- Run real-service smoke prompts through `scripts/run_planner.py` and `/planner/invoke`.
+- Confirm all invoice prompts return support employee data for each returned invoice row.
+- Add regression tests for prompt wording that the LLM planner routes incorrectly.
+- Keep `task["args"]` and `a2a_payload` as the compatibility contract.
+
+### Phase 2: Replace Domain Text Parsing With Structured Inputs
+
+Priority: high.
+
+Current services still parse text instructions such as:
+
+```text
+Get all invoices for customer_id=5
+```
+
+Target internal service contract:
+
+```json
+{
+  "agent": "invoice",
+  "intent": "all_invoices",
+  "args": {"customer_id": "5"}
+}
+```
+
+Implementation notes:
+
+- Add structured request models for invoice and music A2A executors.
+- Accept structured payloads first and fall back to text parsing.
+- Keep existing text tests until structured transport is fully proven.
+
+### Phase 3: Add Focused Domain Capabilities
+
+Priority: medium.
+
+Invoice candidates:
+
+- invoice detail by `invoice_id`
+- customer invoice summary totals
+- employee/support lookup by customer without returning invoice rows
+
+Music candidates:
+
+- tracks by album
+- top tracks by genre
+- playlist-style recommendations with limits
+
+Add each capability through the full stack: schema, prompt, task instruction or payload, agent path, MCP tool, unit tests, and opt-in real-service tests.
+
+### Phase 4: Parallel Multi-Agent Execution
+
+Priority: medium/low.
+
+Current multi-agent flow is sequential:
+
+```text
+invoice -> music -> final_response
+```
+
+Future flow:
+
+```text
+invoice -\
+          -> aggregator
+music   -/
+```
+
+Do this only after structured task payloads replace most domain text parsing, because parallel state merging is harder to debug.
+
+### Phase 5: Deployment Readiness
+
+Priority: later.
+
+- Add `Dockerfile` and `docker-compose.yml`.
+- Clean `.env.example` for local and deployed runs.
+- Add health-check endpoints.
+- Add logging configuration.
+- Add LangSmith tracing toggle guidance.
+- Add CI that runs `uv run pytest tests -q`.

@@ -7,6 +7,7 @@ A Python multi-agent system that routes user requests to specialized agents for 
 The system can:
 
 - Get the latest invoice for a customer.
+- Get the support employee for a customer's latest invoice.
 - Get a customer's invoices sorted by invoice line unit price.
 - Find tracks by artist.
 - Find albums by artist.
@@ -246,8 +247,11 @@ Direct invoice queries:
 
 ```text
 Get latest invoice for customer_id=5
+Who is the support employee for latest invoice of customer id 5?
 Show invoices for customer_id=5 sorted by unit price
 ```
+
+Invoice responses include support employee information for each returned invoice.
 
 Direct music queries:
 
@@ -327,6 +331,18 @@ Run real planner API integration tests after configuring `.env` and starting MCP
 
 ```bash
 RUN_ORCHESTRATOR_API_INTEGRATION_TESTS=1 uv run pytest tests/test_orchestrator_api_integration.py -q
+```
+
+Run structured A2A payload compatibility tests after configuring `.env` and starting MCP plus both A2A services:
+
+```bash
+RUN_A2A_PAYLOAD_INTEGRATION_TESTS=1 uv run pytest tests/test_a2a_payload_integration.py -q
+```
+
+Run latest-invoice support employee integration tests after configuring `.env` and starting MCP plus A2A services:
+
+```bash
+RUN_INVOICE_SUPPORT_INTEGRATION_TESTS=1 uv run pytest tests/test_invoice_support_employee_integration.py -q
 ```
 
 ## Development Workflow

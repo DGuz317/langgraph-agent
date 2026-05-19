@@ -418,16 +418,79 @@
       "label": "test_build_latest_invoice_instruction()",
       "file_type": "code",
       "source_file": "tests/test_task_instructions.py",
-      "source_location": "L9",
+      "source_location": "L10",
       "id": "tests_test_task_instructions_test_build_latest_invoice_instruction",
       "community": 51,
       "norm_label": "test_build_latest_invoice_instruction()"
     },
     {
+      "label": "test_build_a2a_payload_from_invoice_task()",
+      "file_type": "code",
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L19",
+      "id": "tests_test_task_instructions_test_build_a2a_payload_from_invoice_task",
+      "community": 51,
+      "norm_label": "test_build_a2a_payload_from_invoice_task()"
+    },
+    {
+      "label": "test_build_all_invoices_instruction()",
+      "file_type": "code",
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L34",
+      "id": "tests_test_task_instructions_test_build_all_invoices_instruction",
+      "community": 51,
+      "norm_label": "test_build_all_invoices_instruction()"
+    },
+    {
+      "label": "test_build_a2a_payload_from_all_invoices_task()",
+      "file_type": "code",
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L43",
+      "id": "tests_test_task_instructions_test_build_a2a_payload_from_all_invoices_task",
+      "community": 51,
+      "norm_label": "test_build_a2a_payload_from_all_invoices_task()"
+    },
+    {
+      "label": "test_build_support_employee_instruction()",
+      "file_type": "code",
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L58",
+      "id": "tests_test_task_instructions_test_build_support_employee_instruction",
+      "community": 51,
+      "norm_label": "test_build_support_employee_instruction()"
+    },
+    {
+      "label": "test_build_a2a_payload_from_support_employee_task()",
+      "file_type": "code",
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L70",
+      "id": "tests_test_task_instructions_test_build_a2a_payload_from_support_employee_task",
+      "community": 51,
+      "norm_label": "test_build_a2a_payload_from_support_employee_task()"
+    },
+    {
+      "label": "test_build_a2a_payload_from_music_task()",
+      "file_type": "code",
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L85",
+      "id": "tests_test_task_instructions_test_build_a2a_payload_from_music_task",
+      "community": 51,
+      "norm_label": "test_build_a2a_payload_from_music_task()"
+    },
+    {
+      "label": "test_build_a2a_payload_copies_args()",
+      "file_type": "code",
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L100",
+      "id": "tests_test_task_instructions_test_build_a2a_payload_copies_args",
+      "community": 51,
+      "norm_label": "test_build_a2a_payload_copies_args()"
+    },
+    {
       "label": "test_build_invoices_by_unit_price_instruction()",
       "file_type": "code",
       "source_file": "tests/test_task_instructions.py",
-      "source_location": "L18",
+      "source_location": "L114",
       "id": "tests_test_task_instructions_test_build_invoices_by_unit_price_instruction",
       "community": 51,
       "norm_label": "test_build_invoices_by_unit_price_instruction()"
@@ -436,7 +499,7 @@
       "label": "test_build_tracks_by_artist_instruction()",
       "file_type": "code",
       "source_file": "tests/test_task_instructions.py",
-      "source_location": "L30",
+      "source_location": "L126",
       "id": "tests_test_task_instructions_test_build_tracks_by_artist_instruction",
       "community": 51,
       "norm_label": "test_build_tracks_by_artist_instruction()"
@@ -445,7 +508,7 @@
       "label": "test_build_albums_by_artist_instruction()",
       "file_type": "code",
       "source_file": "tests/test_task_instructions.py",
-      "source_location": "L39",
+      "source_location": "L135",
       "id": "tests_test_task_instructions_test_build_albums_by_artist_instruction",
       "community": 51,
       "norm_label": "test_build_albums_by_artist_instruction()"
@@ -454,7 +517,7 @@
       "label": "test_build_songs_by_genre_instruction()",
       "file_type": "code",
       "source_file": "tests/test_task_instructions.py",
-      "source_location": "L48",
+      "source_location": "L144",
       "id": "tests_test_task_instructions_test_build_songs_by_genre_instruction",
       "community": 51,
       "norm_label": "test_build_songs_by_genre_instruction()"
@@ -463,7 +526,7 @@
       "label": "test_build_check_song_instruction()",
       "file_type": "code",
       "source_file": "tests/test_task_instructions.py",
-      "source_location": "L57",
+      "source_location": "L153",
       "id": "tests_test_task_instructions_test_build_check_song_instruction",
       "community": 51,
       "norm_label": "test_build_check_song_instruction()"
@@ -472,7 +535,7 @@
       "label": "test_clarify_music_search_is_not_executable()",
       "file_type": "code",
       "source_file": "tests/test_task_instructions.py",
-      "source_location": "L66",
+      "source_location": "L162",
       "id": "tests_test_task_instructions_test_clarify_music_search_is_not_executable",
       "community": 51,
       "norm_label": "test_clarify_music_search_is_not_executable()"
@@ -481,10 +544,28 @@
       "label": "test_missing_required_arg_raises_error()",
       "file_type": "code",
       "source_file": "tests/test_task_instructions.py",
-      "source_location": "L76",
+      "source_location": "L172",
       "id": "tests_test_task_instructions_test_missing_required_arg_raises_error",
       "community": 51,
       "norm_label": "test_missing_required_arg_raises_error()"
+    },
+    {
+      "label": "test_build_a2a_payload_requires_agent()",
+      "file_type": "code",
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L182",
+      "id": "tests_test_task_instructions_test_build_a2a_payload_requires_agent",
+      "community": 51,
+      "norm_label": "test_build_a2a_payload_requires_agent()"
+    },
+    {
+      "label": "test_build_a2a_payload_requires_dict_args()",
+      "file_type": "code",
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L192",
+      "id": "tests_test_task_instructions_test_build_a2a_payload_requires_dict_args",
+      "community": 51,
+      "norm_label": "test_build_a2a_payload_requires_dict_args()"
     },
     {
       "label": "test_mcp_tools.py",
@@ -1000,6 +1081,69 @@
       "norm_label": "test_aggregator_combines_multiple_agent_results_in_order()"
     },
     {
+      "label": "test_invoice_support_employee_integration.py",
+      "file_type": "code",
+      "source_file": "tests/test_invoice_support_employee_integration.py",
+      "source_location": "L1",
+      "id": "tests_test_invoice_support_employee_integration_py",
+      "community": 6,
+      "norm_label": "test_invoice_support_employee_integration.py"
+    },
+    {
+      "label": "anyio_backend()",
+      "file_type": "code",
+      "source_file": "tests/test_invoice_support_employee_integration.py",
+      "source_location": "L17",
+      "id": "tests_test_invoice_support_employee_integration_anyio_backend",
+      "community": 6,
+      "norm_label": "anyio_backend()"
+    },
+    {
+      "label": "test_invoice_a2a_all_invoices_include_support_employee()",
+      "file_type": "code",
+      "source_file": "tests/test_invoice_support_employee_integration.py",
+      "source_location": "L22",
+      "id": "tests_test_invoice_support_employee_integration_test_invoice_a2a_all_invoices_include_support_employee",
+      "community": 6,
+      "norm_label": "test_invoice_a2a_all_invoices_include_support_employee()"
+    },
+    {
+      "label": "test_invoice_a2a_unit_price_invoices_include_support_employee()",
+      "file_type": "code",
+      "source_file": "tests/test_invoice_support_employee_integration.py",
+      "source_location": "L38",
+      "id": "tests_test_invoice_support_employee_integration_test_invoice_a2a_unit_price_invoices_include_support_employee",
+      "community": 6,
+      "norm_label": "test_invoice_a2a_unit_price_invoices_include_support_employee()"
+    },
+    {
+      "label": "test_invoice_a2a_latest_invoice_includes_support_employee()",
+      "file_type": "code",
+      "source_file": "tests/test_invoice_support_employee_integration.py",
+      "source_location": "L54",
+      "id": "tests_test_invoice_support_employee_integration_test_invoice_a2a_latest_invoice_includes_support_employee",
+      "community": 6,
+      "norm_label": "test_invoice_a2a_latest_invoice_includes_support_employee()"
+    },
+    {
+      "label": "test_invoice_a2a_returns_support_employee_for_latest_invoice()",
+      "file_type": "code",
+      "source_file": "tests/test_invoice_support_employee_integration.py",
+      "source_location": "L71",
+      "id": "tests_test_invoice_support_employee_integration_test_invoice_a2a_returns_support_employee_for_latest_invoice",
+      "community": 6,
+      "norm_label": "test_invoice_a2a_returns_support_employee_for_latest_invoice()"
+    },
+    {
+      "label": "test_real_planner_api_returns_support_employee_for_latest_invoice()",
+      "file_type": "code",
+      "source_file": "tests/test_invoice_support_employee_integration.py",
+      "source_location": "L84",
+      "id": "tests_test_invoice_support_employee_integration_test_real_planner_api_returns_support_employee_for_latest_invoice",
+      "community": 6,
+      "norm_label": "test_real_planner_api_returns_support_employee_for_latest_invoice()"
+    },
+    {
       "label": "test_planner_hitl.py",
       "file_type": "code",
       "source_file": "tests/test_planner_hitl.py",
@@ -1279,6 +1423,33 @@
       "norm_label": "test_call_tool_raises_when_result_type_is_unsupported()"
     },
     {
+      "label": "test_a2a_payload_integration.py",
+      "file_type": "code",
+      "source_file": "tests/test_a2a_payload_integration.py",
+      "source_location": "L1",
+      "id": "tests_test_a2a_payload_integration_py",
+      "community": 68,
+      "norm_label": "test_a2a_payload_integration.py"
+    },
+    {
+      "label": "test_real_planner_api_records_invoice_a2a_payload()",
+      "file_type": "code",
+      "source_file": "tests/test_a2a_payload_integration.py",
+      "source_location": "L15",
+      "id": "tests_test_a2a_payload_integration_test_real_planner_api_records_invoice_a2a_payload",
+      "community": 68,
+      "norm_label": "test_real_planner_api_records_invoice_a2a_payload()"
+    },
+    {
+      "label": "test_real_planner_api_records_music_a2a_payload()",
+      "file_type": "code",
+      "source_file": "tests/test_a2a_payload_integration.py",
+      "source_location": "L47",
+      "id": "tests_test_a2a_payload_integration_test_real_planner_api_records_music_a2a_payload",
+      "community": 68,
+      "norm_label": "test_real_planner_api_records_music_a2a_payload()"
+    },
+    {
       "label": "test_llm_planner.py",
       "file_type": "code",
       "source_file": "tests/test_llm_planner.py",
@@ -1480,16 +1651,34 @@
       "label": "test_invoice_node_rebuilds_unit_price_instruction_from_args()",
       "file_type": "code",
       "source_file": "tests/test_node_instruction_rebuild.py",
-      "source_location": "L62",
+      "source_location": "L68",
       "id": "tests_test_node_instruction_rebuild_test_invoice_node_rebuilds_unit_price_instruction_from_args",
       "community": 3,
       "norm_label": "test_invoice_node_rebuilds_unit_price_instruction_from_args()"
     },
     {
+      "label": "test_invoice_node_rebuilds_all_invoices_instruction_from_args()",
+      "file_type": "code",
+      "source_file": "tests/test_node_instruction_rebuild.py",
+      "source_location": "L117",
+      "id": "tests_test_node_instruction_rebuild_test_invoice_node_rebuilds_all_invoices_instruction_from_args",
+      "community": 3,
+      "norm_label": "test_invoice_node_rebuilds_all_invoices_instruction_from_args()"
+    },
+    {
+      "label": "test_invoice_node_rebuilds_support_employee_instruction_from_args()",
+      "file_type": "code",
+      "source_file": "tests/test_node_instruction_rebuild.py",
+      "source_location": "L165",
+      "id": "tests_test_node_instruction_rebuild_test_invoice_node_rebuilds_support_employee_instruction_from_args",
+      "community": 3,
+      "norm_label": "test_invoice_node_rebuilds_support_employee_instruction_from_args()"
+    },
+    {
       "label": "test_music_node_rebuilds_genre_instruction_from_args()",
       "file_type": "code",
       "source_file": "tests/test_node_instruction_rebuild.py",
-      "source_location": "L111",
+      "source_location": "L216",
       "id": "tests_test_node_instruction_rebuild_test_music_node_rebuilds_genre_instruction_from_args",
       "community": 3,
       "norm_label": "test_music_node_rebuilds_genre_instruction_from_args()"
@@ -1498,7 +1687,7 @@
       "label": "test_music_node_rebuilds_artist_instruction_from_args()",
       "file_type": "code",
       "source_file": "tests/test_node_instruction_rebuild.py",
-      "source_location": "L158",
+      "source_location": "L269",
       "id": "tests_test_node_instruction_rebuild_test_music_node_rebuilds_artist_instruction_from_args",
       "community": 3,
       "norm_label": "test_music_node_rebuilds_artist_instruction_from_args()"
@@ -1507,7 +1696,7 @@
       "label": "test_music_node_rebuilds_song_check_instruction_from_args()",
       "file_type": "code",
       "source_file": "tests/test_node_instruction_rebuild.py",
-      "source_location": "L204",
+      "source_location": "L315",
       "id": "tests_test_node_instruction_rebuild_test_music_node_rebuilds_song_check_instruction_from_args",
       "community": 3,
       "norm_label": "test_music_node_rebuilds_song_check_instruction_from_args()"
@@ -1516,7 +1705,7 @@
       "label": "test_node_instruction_rebuild_does_not_mutate_original_state()",
       "file_type": "code",
       "source_file": "tests/test_node_instruction_rebuild.py",
-      "source_location": "L250",
+      "source_location": "L361",
       "id": "tests_test_node_instruction_rebuild_test_node_instruction_rebuild_does_not_mutate_original_state",
       "community": 3,
       "norm_label": "test_node_instruction_rebuild_does_not_mutate_original_state()"
@@ -1684,10 +1873,28 @@
       "norm_label": "test_planned_task_accepts_complete_invoice_task()"
     },
     {
-      "label": "test_planned_task_normalizes_arg_values_to_strings()",
+      "label": "test_planned_task_accepts_latest_invoice_support_employee_task()",
       "file_type": "code",
       "source_file": "tests/test_planner_schema_validation.py",
       "source_location": "L20",
+      "id": "tests_test_planner_schema_validation_test_planned_task_accepts_latest_invoice_support_employee_task",
+      "community": 49,
+      "norm_label": "test_planned_task_accepts_latest_invoice_support_employee_task()"
+    },
+    {
+      "label": "test_planned_task_accepts_all_invoices_task()",
+      "file_type": "code",
+      "source_file": "tests/test_planner_schema_validation.py",
+      "source_location": "L33",
+      "id": "tests_test_planner_schema_validation_test_planned_task_accepts_all_invoices_task",
+      "community": 49,
+      "norm_label": "test_planned_task_accepts_all_invoices_task()"
+    },
+    {
+      "label": "test_planned_task_normalizes_arg_values_to_strings()",
+      "file_type": "code",
+      "source_file": "tests/test_planner_schema_validation.py",
+      "source_location": "L46",
       "id": "tests_test_planner_schema_validation_test_planned_task_normalizes_arg_values_to_strings",
       "community": 49,
       "norm_label": "test_planned_task_normalizes_arg_values_to_strings()"
@@ -1696,7 +1903,7 @@
       "label": "test_planned_task_allows_missing_required_arg_when_missing_field_is_declared()",
       "file_type": "code",
       "source_file": "tests/test_planner_schema_validation.py",
-      "source_location": "L33",
+      "source_location": "L59",
       "id": "tests_test_planner_schema_validation_test_planned_task_allows_missing_required_arg_when_missing_field_is_declared",
       "community": 49,
       "norm_label": "test_planned_task_allows_missing_required_arg_when_missing_field_is_declared()"
@@ -1705,7 +1912,7 @@
       "label": "test_planned_task_rejects_missing_required_arg_without_missing_field()",
       "file_type": "code",
       "source_file": "tests/test_planner_schema_validation.py",
-      "source_location": "L46",
+      "source_location": "L72",
       "id": "tests_test_planner_schema_validation_test_planned_task_rejects_missing_required_arg_without_missing_field",
       "community": 49,
       "norm_label": "test_planned_task_rejects_missing_required_arg_without_missing_field()"
@@ -1714,7 +1921,7 @@
       "label": "test_planned_task_rejects_invalid_agent_intent_pair()",
       "file_type": "code",
       "source_file": "tests/test_planner_schema_validation.py",
-      "source_location": "L58",
+      "source_location": "L84",
       "id": "tests_test_planner_schema_validation_test_planned_task_rejects_invalid_agent_intent_pair",
       "community": 49,
       "norm_label": "test_planned_task_rejects_invalid_agent_intent_pair()"
@@ -1723,7 +1930,7 @@
       "label": "test_planned_task_accepts_clarify_music_search_with_missing_search_type()",
       "file_type": "code",
       "source_file": "tests/test_planner_schema_validation.py",
-      "source_location": "L70",
+      "source_location": "L96",
       "id": "tests_test_planner_schema_validation_test_planned_task_accepts_clarify_music_search_with_missing_search_type",
       "community": 49,
       "norm_label": "test_planned_task_accepts_clarify_music_search_with_missing_search_type()"
@@ -1732,7 +1939,7 @@
       "label": "test_planned_task_rejects_clarify_music_search_without_missing_search_type()",
       "file_type": "code",
       "source_file": "tests/test_planner_schema_validation.py",
-      "source_location": "L83",
+      "source_location": "L109",
       "id": "tests_test_planner_schema_validation_test_planned_task_rejects_clarify_music_search_without_missing_search_type",
       "community": 49,
       "norm_label": "test_planned_task_rejects_clarify_music_search_without_missing_search_type()"
@@ -1741,7 +1948,7 @@
       "label": "test_planned_task_rejects_blank_instruction()",
       "file_type": "code",
       "source_file": "tests/test_planner_schema_validation.py",
-      "source_location": "L95",
+      "source_location": "L121",
       "id": "tests_test_planner_schema_validation_test_planned_task_rejects_blank_instruction",
       "community": 49,
       "norm_label": "test_planned_task_rejects_blank_instruction()"
@@ -1750,7 +1957,7 @@
       "label": "test_planner_output_accepts_unrelated_query_with_no_tasks()",
       "file_type": "code",
       "source_file": "tests/test_planner_schema_validation.py",
-      "source_location": "L107",
+      "source_location": "L133",
       "id": "tests_test_planner_schema_validation_test_planner_output_accepts_unrelated_query_with_no_tasks",
       "community": 49,
       "norm_label": "test_planner_output_accepts_unrelated_query_with_no_tasks()"
@@ -1759,7 +1966,7 @@
       "label": "test_planner_output_rejects_confidence_out_of_range()",
       "file_type": "code",
       "source_file": "tests/test_planner_schema_validation.py",
-      "source_location": "L119",
+      "source_location": "L145",
       "id": "tests_test_planner_schema_validation_test_planner_output_rejects_confidence_out_of_range",
       "community": 49,
       "norm_label": "test_planner_output_rejects_confidence_out_of_range()"
@@ -1768,7 +1975,7 @@
       "label": "test_planner_output_rejects_multiple_tasks_without_aggregation()",
       "file_type": "code",
       "source_file": "tests/test_planner_schema_validation.py",
-      "source_location": "L130",
+      "source_location": "L156",
       "id": "tests_test_planner_schema_validation_test_planner_output_rejects_multiple_tasks_without_aggregation",
       "community": 49,
       "norm_label": "test_planner_output_rejects_multiple_tasks_without_aggregation()"
@@ -1777,7 +1984,7 @@
       "label": "test_planner_output_allows_task_missing_fields_before_normalization()",
       "file_type": "code",
       "source_file": "tests/test_planner_schema_validation.py",
-      "source_location": "L158",
+      "source_location": "L184",
       "id": "tests_test_planner_schema_validation_test_planner_output_allows_task_missing_fields_before_normalization",
       "community": 49,
       "norm_label": "test_planner_output_allows_task_missing_fields_before_normalization()"
@@ -1786,7 +1993,7 @@
       "label": "test_planner_output_accepts_task_missing_fields_when_propagated_top_level()",
       "file_type": "code",
       "source_file": "tests/test_planner_schema_validation.py",
-      "source_location": "L180",
+      "source_location": "L206",
       "id": "tests_test_planner_schema_validation_test_planner_output_accepts_task_missing_fields_when_propagated_top_level",
       "community": 49,
       "norm_label": "test_planner_output_accepts_task_missing_fields_when_propagated_top_level()"
@@ -1918,10 +2125,28 @@
       "norm_label": "test_planner_e2e_direct_invoice_query_uses_args_first_instruction()"
     },
     {
-      "label": "test_planner_e2e_direct_music_query_uses_args_first_instruction()",
+      "label": "test_planner_e2e_support_employee_query_uses_args_first_instruction()",
       "file_type": "code",
       "source_file": "tests/test_planner_e2e_flows.py",
       "source_location": "L172",
+      "id": "tests_test_planner_e2e_flows_test_planner_e2e_support_employee_query_uses_args_first_instruction",
+      "community": 48,
+      "norm_label": "test_planner_e2e_support_employee_query_uses_args_first_instruction()"
+    },
+    {
+      "label": "test_planner_e2e_all_invoices_query_uses_args_first_instruction()",
+      "file_type": "code",
+      "source_file": "tests/test_planner_e2e_flows.py",
+      "source_location": "L198",
+      "id": "tests_test_planner_e2e_flows_test_planner_e2e_all_invoices_query_uses_args_first_instruction",
+      "community": 48,
+      "norm_label": "test_planner_e2e_all_invoices_query_uses_args_first_instruction()"
+    },
+    {
+      "label": "test_planner_e2e_direct_music_query_uses_args_first_instruction()",
+      "file_type": "code",
+      "source_file": "tests/test_planner_e2e_flows.py",
+      "source_location": "L222",
       "id": "tests_test_planner_e2e_flows_test_planner_e2e_direct_music_query_uses_args_first_instruction",
       "community": 48,
       "norm_label": "test_planner_e2e_direct_music_query_uses_args_first_instruction()"
@@ -1930,7 +2155,7 @@
       "label": "test_planner_e2e_missing_invoice_customer_id_continues_after_hitl()",
       "file_type": "code",
       "source_file": "tests/test_planner_e2e_flows.py",
-      "source_location": "L195",
+      "source_location": "L245",
       "id": "tests_test_planner_e2e_flows_test_planner_e2e_missing_invoice_customer_id_continues_after_hitl",
       "community": 48,
       "norm_label": "test_planner_e2e_missing_invoice_customer_id_continues_after_hitl()"
@@ -1939,7 +2164,7 @@
       "label": "test_planner_e2e_missing_song_title_continues_after_hitl()",
       "file_type": "code",
       "source_file": "tests/test_planner_e2e_flows.py",
-      "source_location": "L231",
+      "source_location": "L281",
       "id": "tests_test_planner_e2e_flows_test_planner_e2e_missing_song_title_continues_after_hitl",
       "community": 48,
       "norm_label": "test_planner_e2e_missing_song_title_continues_after_hitl()"
@@ -1948,7 +2173,7 @@
       "label": "test_planner_e2e_ambiguous_music_defaults_to_genre_after_hitl()",
       "file_type": "code",
       "source_file": "tests/test_planner_e2e_flows.py",
-      "source_location": "L265",
+      "source_location": "L315",
       "id": "tests_test_planner_e2e_flows_test_planner_e2e_ambiguous_music_defaults_to_genre_after_hitl",
       "community": 48,
       "norm_label": "test_planner_e2e_ambiguous_music_defaults_to_genre_after_hitl()"
@@ -1957,7 +2182,7 @@
       "label": "test_planner_e2e_ambiguous_music_can_choose_artist_after_hitl()",
       "file_type": "code",
       "source_file": "tests/test_planner_e2e_flows.py",
-      "source_location": "L302",
+      "source_location": "L352",
       "id": "tests_test_planner_e2e_flows_test_planner_e2e_ambiguous_music_can_choose_artist_after_hitl",
       "community": 48,
       "norm_label": "test_planner_e2e_ambiguous_music_can_choose_artist_after_hitl()"
@@ -1966,7 +2191,7 @@
       "label": "test_planner_e2e_multi_agent_query_runs_invoice_then_music()",
       "file_type": "code",
       "source_file": "tests/test_planner_e2e_flows.py",
-      "source_location": "L339",
+      "source_location": "L389",
       "id": "tests_test_planner_e2e_flows_test_planner_e2e_multi_agent_query_runs_invoice_then_music",
       "community": 48,
       "norm_label": "test_planner_e2e_multi_agent_query_runs_invoice_then_music()"
@@ -2038,7 +2263,7 @@
       "label": "test_invoice_agent_parse_request()",
       "file_type": "code",
       "source_file": "tests/test_invoice_agent_parsing.py",
-      "source_location": "L26",
+      "source_location": "L46",
       "id": "tests_test_invoice_agent_parsing_test_invoice_agent_parse_request",
       "community": 4,
       "norm_label": "test_invoice_agent_parse_request()"
@@ -2047,7 +2272,7 @@
       "label": "test_invoice_agent_does_not_treat_invoice_id_as_customer_id()",
       "file_type": "code",
       "source_file": "tests/test_invoice_agent_parsing.py",
-      "source_location": "L39",
+      "source_location": "L59",
       "id": "tests_test_invoice_agent_parsing_test_invoice_agent_does_not_treat_invoice_id_as_customer_id",
       "community": 4,
       "norm_label": "test_invoice_agent_does_not_treat_invoice_id_as_customer_id()"
@@ -2056,10 +2281,64 @@
       "label": "test_invoice_agent_missing_customer_id_fails_validation()",
       "file_type": "code",
       "source_file": "tests/test_invoice_agent_parsing.py",
-      "source_location": "L47",
+      "source_location": "L67",
       "id": "tests_test_invoice_agent_parsing_test_invoice_agent_missing_customer_id_fails_validation",
       "community": 4,
       "norm_label": "test_invoice_agent_missing_customer_id_fails_validation()"
+    },
+    {
+      "label": "anyio_backend()",
+      "file_type": "code",
+      "source_file": "tests/test_invoice_agent_parsing.py",
+      "source_location": "L80",
+      "id": "tests_test_invoice_agent_parsing_anyio_backend",
+      "community": 4,
+      "norm_label": "anyio_backend()"
+    },
+    {
+      "label": "test_invoice_agent_returns_unit_price_invoices_with_support_employee()",
+      "file_type": "code",
+      "source_file": "tests/test_invoice_agent_parsing.py",
+      "source_location": "L85",
+      "id": "tests_test_invoice_agent_parsing_test_invoice_agent_returns_unit_price_invoices_with_support_employee",
+      "community": 4,
+      "norm_label": "test_invoice_agent_returns_unit_price_invoices_with_support_employee()"
+    },
+    {
+      "label": "test_invoice_agent_returns_all_invoices_with_support_employee()",
+      "file_type": "code",
+      "source_file": "tests/test_invoice_agent_parsing.py",
+      "source_location": "L177",
+      "id": "tests_test_invoice_agent_parsing_test_invoice_agent_returns_all_invoices_with_support_employee",
+      "community": 4,
+      "norm_label": "test_invoice_agent_returns_all_invoices_with_support_employee()"
+    },
+    {
+      "label": "test_invoice_agent_returns_latest_invoice_with_support_employee()",
+      "file_type": "code",
+      "source_file": "tests/test_invoice_agent_parsing.py",
+      "source_location": "L262",
+      "id": "tests_test_invoice_agent_parsing_test_invoice_agent_returns_latest_invoice_with_support_employee",
+      "community": 4,
+      "norm_label": "test_invoice_agent_returns_latest_invoice_with_support_employee()"
+    },
+    {
+      "label": "test_invoice_agent_returns_support_employee_for_latest_invoice()",
+      "file_type": "code",
+      "source_file": "tests/test_invoice_agent_parsing.py",
+      "source_location": "L324",
+      "id": "tests_test_invoice_agent_parsing_test_invoice_agent_returns_support_employee_for_latest_invoice",
+      "community": 4,
+      "norm_label": "test_invoice_agent_returns_support_employee_for_latest_invoice()"
+    },
+    {
+      "label": "test_invoice_agent_returns_no_invoice_for_support_employee_request()",
+      "file_type": "code",
+      "source_file": "tests/test_invoice_agent_parsing.py",
+      "source_location": "L387",
+      "id": "tests_test_invoice_agent_parsing_test_invoice_agent_returns_no_invoice_for_support_employee_request",
+      "community": 4,
+      "norm_label": "test_invoice_agent_returns_no_invoice_for_support_employee_request()"
     },
     {
       "label": "test_planner_service.py",
@@ -2407,7 +2686,7 @@
       "label": "music_node()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L104",
+      "source_location": "L103",
       "id": "planner_app_nodes_music_node",
       "community": 3,
       "norm_label": "music_node()"
@@ -2416,7 +2695,7 @@
       "label": "final_response_node()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L137",
+      "source_location": "L135",
       "id": "planner_app_nodes_final_response_node",
       "community": 3,
       "norm_label": "final_response_node()"
@@ -2425,7 +2704,7 @@
       "label": "_copy_planner_output()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L194",
+      "source_location": "L192",
       "id": "planner_app_nodes_copy_planner_output",
       "community": 3,
       "norm_label": "_copy_planner_output()"
@@ -2434,16 +2713,25 @@
       "label": "_get_next_task_for_agent()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L205",
+      "source_location": "L203",
       "id": "planner_app_nodes_get_next_task_for_agent",
       "community": 28,
       "norm_label": "_get_next_task_for_agent()"
     },
     {
+      "label": "_attach_a2a_payload()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L217",
+      "id": "planner_app_nodes_attach_a2a_payload",
+      "community": 3,
+      "norm_label": "_attach_a2a_payload()"
+    },
+    {
       "label": "_mark_task_failed()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L219",
+      "source_location": "L224",
       "id": "planner_app_nodes_mark_task_failed",
       "community": 3,
       "norm_label": "_mark_task_failed()"
@@ -2452,7 +2740,7 @@
       "label": "_failure_result()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L224",
+      "source_location": "L229",
       "id": "planner_app_nodes_failure_result",
       "community": 3,
       "norm_label": "_failure_result()"
@@ -2548,19 +2836,37 @@
       "norm_label": "valueerror"
     },
     {
-      "label": "build_instruction_from_task()",
+      "label": "build_a2a_payload_from_task()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner_app/task_instructions.py",
       "source_location": "L8",
+      "id": "planner_app_task_instructions_build_a2a_payload_from_task",
+      "community": 51,
+      "norm_label": "build_a2a_payload_from_task()"
+    },
+    {
+      "label": "build_instruction_from_task()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/planner_app/task_instructions.py",
+      "source_location": "L22",
       "id": "planner_app_task_instructions_build_instruction_from_task",
       "community": 51,
       "norm_label": "build_instruction_from_task()"
     },
     {
+      "label": "_require_task_field()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/planner_app/task_instructions.py",
+      "source_location": "L66",
+      "id": "planner_app_task_instructions_require_task_field",
+      "community": 51,
+      "norm_label": "_require_task_field()"
+    },
+    {
       "label": "_require_arg()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner_app/task_instructions.py",
-      "source_location": "L44",
+      "source_location": "L80",
       "id": "planner_app_task_instructions_require_arg",
       "community": 51,
       "norm_label": "_require_arg()"
@@ -3129,7 +3435,7 @@
       "source_file": "src/multi_agent_system/common/agent_card_loader.py",
       "source_location": "L1",
       "id": "src_multi_agent_system_common_agent_card_loader_py",
-      "community": 4,
+      "community": 8,
       "norm_label": "agent_card_loader.py"
     },
     {
@@ -3138,7 +3444,7 @@
       "source_file": "src/multi_agent_system/common/agent_card_loader.py",
       "source_location": "L11",
       "id": "common_agent_card_loader_load_agent_card",
-      "community": 4,
+      "community": 8,
       "norm_label": "load_agent_card()"
     },
     {
@@ -3739,7 +4045,7 @@
       "label": "InvoiceRequest",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L18",
+      "source_location": "L20",
       "id": "invoice_agent_agent_invoicerequest",
       "community": 4,
       "norm_label": "invoicerequest"
@@ -3748,7 +4054,7 @@
       "label": "InvoiceAgent",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L23",
+      "source_location": "L25",
       "id": "invoice_agent_agent_invoiceagent",
       "community": 4,
       "norm_label": "invoiceagent"
@@ -3766,7 +4072,7 @@
       "label": ".ainvoke()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L24",
+      "source_location": "L26",
       "id": "invoice_agent_agent_invoiceagent_ainvoke",
       "community": 4,
       "norm_label": ".ainvoke()"
@@ -3775,7 +4081,7 @@
       "label": "._parse_request()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L37",
+      "source_location": "L41",
       "id": "invoice_agent_agent_invoiceagent_parse_request",
       "community": 4,
       "norm_label": "._parse_request()"
@@ -3784,7 +4090,7 @@
       "label": "._validate_request()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L55",
+      "source_location": "L63",
       "id": "invoice_agent_agent_invoiceagent_validate_request",
       "community": 4,
       "norm_label": "._validate_request()"
@@ -3793,7 +4099,7 @@
       "label": "._get_latest_invoice()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L67",
+      "source_location": "L75",
       "id": "invoice_agent_agent_invoiceagent_get_latest_invoice",
       "community": 4,
       "norm_label": "._get_latest_invoice()"
@@ -3802,16 +4108,88 @@
       "label": "._get_invoices_by_unit_price()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L89",
+      "source_location": "L84",
       "id": "invoice_agent_agent_invoiceagent_get_invoices_by_unit_price",
       "community": 4,
       "norm_label": "._get_invoices_by_unit_price()"
     },
     {
-      "label": "._extract_number()",
+      "label": "._get_all_invoices()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
       "source_location": "L114",
+      "id": "invoice_agent_agent_invoiceagent_get_all_invoices",
+      "community": 4,
+      "norm_label": "._get_all_invoices()"
+    },
+    {
+      "label": "._get_latest_invoice_support_employee()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L144",
+      "id": "invoice_agent_agent_invoiceagent_get_latest_invoice_support_employee",
+      "community": 4,
+      "norm_label": "._get_latest_invoice_support_employee()"
+    },
+    {
+      "label": "._get_latest_invoice_with_support_employee()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L153",
+      "id": "invoice_agent_agent_invoiceagent_get_latest_invoice_with_support_employee",
+      "community": 4,
+      "norm_label": "._get_latest_invoice_with_support_employee()"
+    },
+    {
+      "label": "._is_support_employee_request()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L215",
+      "id": "invoice_agent_agent_invoiceagent_is_support_employee_request",
+      "community": 4,
+      "norm_label": "._is_support_employee_request()"
+    },
+    {
+      "label": "._is_all_invoices_request()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L224",
+      "id": "invoice_agent_agent_invoiceagent_is_all_invoices_request",
+      "community": 4,
+      "norm_label": "._is_all_invoices_request()"
+    },
+    {
+      "label": "._get_support_employee_for_invoice()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L234",
+      "id": "invoice_agent_agent_invoiceagent_get_support_employee_for_invoice",
+      "community": 4,
+      "norm_label": "._get_support_employee_for_invoice()"
+    },
+    {
+      "label": "._enrich_invoices_with_support_employee()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L263",
+      "id": "invoice_agent_agent_invoiceagent_enrich_invoices_with_support_employee",
+      "community": 4,
+      "norm_label": "._enrich_invoices_with_support_employee()"
+    },
+    {
+      "label": "._extract_invoice_id()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L285",
+      "id": "invoice_agent_agent_invoiceagent_extract_invoice_id",
+      "community": 4,
+      "norm_label": "._extract_invoice_id()"
+    },
+    {
+      "label": "._extract_number()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L288",
       "id": "invoice_agent_agent_invoiceagent_extract_number",
       "community": 4,
       "norm_label": "._extract_number()"
@@ -3822,7 +4200,7 @@
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/server.py",
       "source_location": "L1",
       "id": "src_multi_agent_system_a2a_servers_invoice_agent_server_py",
-      "community": 4,
+      "community": 8,
       "norm_label": "server.py"
     },
     {
@@ -3831,7 +4209,7 @@
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/server.py",
       "source_location": "L15",
       "id": "invoice_agent_server_create_app",
-      "community": 4,
+      "community": 8,
       "norm_label": "create_app()"
     },
     {
@@ -3840,7 +4218,7 @@
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/server.py",
       "source_location": "L44",
       "id": "invoice_agent_server_main",
-      "community": 4,
+      "community": 8,
       "norm_label": "main()"
     },
     {
@@ -4119,7 +4497,7 @@
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/server.py",
       "source_location": "L1",
       "id": "src_multi_agent_system_a2a_servers_music_agent_server_py",
-      "community": 4,
+      "community": 8,
       "norm_label": "server.py"
     },
     {
@@ -4128,7 +4506,7 @@
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/server.py",
       "source_location": "L13",
       "id": "music_agent_server_create_app",
-      "community": 4,
+      "community": 8,
       "norm_label": "create_app()"
     },
     {
@@ -4137,7 +4515,7 @@
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/server.py",
       "source_location": "L42",
       "id": "music_agent_server_main",
-      "community": 4,
+      "community": 8,
       "norm_label": "main()"
     },
     {
@@ -4324,7 +4702,7 @@
       "label": "PlannedTask",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner/schemas.py",
-      "source_location": "L46",
+      "source_location": "L52",
       "id": "planner_schemas_plannedtask",
       "community": 49,
       "norm_label": "plannedtask"
@@ -4333,7 +4711,7 @@
       "label": "_instruction_must_not_be_blank()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner/schemas.py",
-      "source_location": "L75",
+      "source_location": "L81",
       "id": "planner_schemas_instruction_must_not_be_blank",
       "community": 28,
       "norm_label": "_instruction_must_not_be_blank()"
@@ -4342,7 +4720,7 @@
       "label": "_normalize_args()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner/schemas.py",
-      "source_location": "L85",
+      "source_location": "L91",
       "id": "planner_schemas_normalize_args",
       "community": 28,
       "norm_label": "_normalize_args()"
@@ -4351,7 +4729,7 @@
       "label": "_normalize_missing_fields()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner/schemas.py",
-      "source_location": "L104",
+      "source_location": "L110",
       "id": "planner_schemas_normalize_missing_fields",
       "community": 28,
       "norm_label": "_normalize_missing_fields()"
@@ -4360,7 +4738,7 @@
       "label": "_validate_agent_intent_and_required_fields()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner/schemas.py",
-      "source_location": "L118",
+      "source_location": "L124",
       "id": "planner_schemas_validate_agent_intent_and_required_fields",
       "community": 28,
       "norm_label": "_validate_agent_intent_and_required_fields()"
@@ -4369,7 +4747,7 @@
       "label": "PlannerOutput",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner/schemas.py",
-      "source_location": "L155",
+      "source_location": "L161",
       "id": "planner_schemas_planneroutput",
       "community": 49,
       "norm_label": "planneroutput"
@@ -4378,7 +4756,7 @@
       "label": "_validate_output_consistency()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner/schemas.py",
-      "source_location": "L194",
+      "source_location": "L200",
       "id": "planner_schemas_validate_output_consistency",
       "community": 28,
       "norm_label": "_validate_output_consistency()"
@@ -4387,7 +4765,7 @@
       "label": "_has_arg_value()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner/schemas.py",
-      "source_location": "L203",
+      "source_location": "L209",
       "id": "planner_schemas_has_arg_value",
       "community": 28,
       "norm_label": "_has_arg_value()"
@@ -4537,526 +4915,256 @@
       "norm_label": "overview"
     },
     {
-      "label": "Key Components:",
+      "label": "Current Architecture",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L6",
-      "id": "langgraph_agent_project_key_components",
-      "community": 58,
-      "norm_label": "key components:"
-    },
-    {
-      "label": "Agents:",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L7",
-      "id": "langgraph_agent_project_agents",
-      "community": 58,
-      "norm_label": "agents:"
-    },
-    {
-      "label": "Invoice Agent",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L8",
-      "id": "langgraph_agent_project_invoice_agent",
-      "community": 58,
-      "norm_label": "invoice agent"
-    },
-    {
-      "label": "Music Agent",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L11",
-      "id": "langgraph_agent_project_music_agent",
-      "community": 58,
-      "norm_label": "music agent"
-    },
-    {
-      "label": "Planner Agent",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L14",
-      "id": "langgraph_agent_project_planner_agent",
-      "community": 58,
-      "norm_label": "planner agent"
-    },
-    {
-      "label": "Aggregator Agent",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L18",
-      "id": "langgraph_agent_project_aggregator_agent",
-      "community": 58,
-      "norm_label": "aggregator agent"
-    },
-    {
-      "label": "Architecture Overview",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L21",
-      "id": "langgraph_agent_project_architecture_overview",
+      "source_location": "L9",
+      "id": "langgraph_agent_project_current_architecture",
       "community": 2,
-      "norm_label": "architecture overview"
-    },
-    {
-      "label": "File Structure",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L29",
-      "id": "langgraph_agent_project_file_structure",
-      "community": 2,
-      "norm_label": "file structure"
-    },
-    {
-      "label": "code:bash (multi-agent-system/)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L30",
-      "id": "langgraph_agent_project_codeblock_1",
-      "community": 2,
-      "norm_label": "code:bash (multi-agent-system/)"
-    },
-    {
-      "label": "Configuration",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L143",
-      "id": "langgraph_agent_project_configuration",
-      "community": 61,
-      "norm_label": "configuration"
-    },
-    {
-      "label": "config.py",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L144",
-      "id": "langgraph_agent_project_config_py",
-      "community": 61,
-      "norm_label": "config.py"
-    },
-    {
-      "label": "code:python (from pydantic_settings import BaseSettings)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L148",
-      "id": "langgraph_agent_project_codeblock_2",
-      "community": 61,
-      "norm_label": "code:python (from pydantic_settings import basesettings)"
-    },
-    {
-      "label": "code:python (MODEL_PROVIDER=ollama)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L171",
-      "id": "langgraph_agent_project_codeblock_3",
-      "community": 61,
-      "norm_label": "code:python (model_provider=ollama)"
-    },
-    {
-      "label": "MCP Server",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L183",
-      "id": "langgraph_agent_project_mcp_server",
-      "community": 63,
-      "norm_label": "mcp server"
-    },
-    {
-      "label": "code:python (from langchain_community.utilities import SQLDatabase)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L185",
-      "id": "langgraph_agent_project_codeblock_4",
-      "community": 63,
-      "norm_label": "code:python (from langchain_community.utilities import sqldatabase)"
-    },
-    {
-      "label": "code:bash (uv run python scripts/run_mcp_server.py --host localhost --p)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L193",
-      "id": "langgraph_agent_project_codeblock_5",
-      "community": 63,
-      "norm_label": "code:bash (uv run python scripts/run_mcp_server.py --host localhost --p)"
-    },
-    {
-      "label": "A2A Services",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L196",
-      "id": "langgraph_agent_project_a2a_services",
-      "community": 2,
-      "norm_label": "a2a services"
-    },
-    {
-      "label": "code:python (import click)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L205",
-      "id": "langgraph_agent_project_codeblock_6",
-      "community": 2,
-      "norm_label": "code:python (import click)"
-    },
-    {
-      "label": "Agent Cards",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L257",
-      "id": "langgraph_agent_project_agent_cards",
-      "community": 2,
-      "norm_label": "agent cards"
-    },
-    {
-      "label": "code:json ({)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L266",
-      "id": "langgraph_agent_project_codeblock_7",
-      "community": 2,
-      "norm_label": "code:json ({)"
-    },
-    {
-      "label": "A2A Clients",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L289",
-      "id": "langgraph_agent_project_a2a_clients",
-      "community": 2,
-      "norm_label": "a2a clients"
-    },
-    {
-      "label": "code:python (class InvoiceA2AClient(BaseA2AClient):)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L291",
-      "id": "langgraph_agent_project_codeblock_8",
-      "community": 2,
-      "norm_label": "code:python (class invoicea2aclient(basea2aclient):)"
-    },
-    {
-      "label": "Planner Graph",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L303",
-      "id": "langgraph_agent_project_planner_graph",
-      "community": 2,
-      "norm_label": "planner graph"
-    },
-    {
-      "label": "code:python (from langgraph.graph import END, START, StateGraph)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L305",
-      "id": "langgraph_agent_project_codeblock_9",
-      "community": 2,
-      "norm_label": "code:python (from langgraph.graph import end, start, stategraph)"
-    },
-    {
-      "label": "HITL and Aggregator",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L376",
-      "id": "langgraph_agent_project_hitl_and_aggregator",
-      "community": 2,
-      "norm_label": "hitl and aggregator"
-    },
-    {
-      "label": "code:python (import json)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L380",
-      "id": "langgraph_agent_project_codeblock_10",
-      "community": 2,
-      "norm_label": "code:python (import json)"
-    },
-    {
-      "label": "Current Reliability Improvements",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L443",
-      "id": "langgraph_agent_project_current_reliability_improvements",
-      "community": 60,
-      "norm_label": "current reliability improvements"
-    },
-    {
-      "label": "Completed Reliability Work",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L447",
-      "id": "langgraph_agent_project_completed_reliability_work",
-      "community": 60,
-      "norm_label": "completed reliability work"
-    },
-    {
-      "label": "Current Execution Flow",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L463",
-      "id": "langgraph_agent_project_current_execution_flow",
-      "community": 60,
-      "norm_label": "current execution flow"
+      "norm_label": "current architecture"
     },
     {
       "label": "code:text (User input)",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L465",
-      "id": "langgraph_agent_project_codeblock_11",
-      "community": 60,
+      "source_location": "L11",
+      "id": "langgraph_agent_project_codeblock_1",
+      "community": 2,
       "norm_label": "code:text (user input)"
     },
     {
-      "label": "Future Roadmap",
+      "label": "Core Boundaries",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L481",
-      "id": "langgraph_agent_project_future_roadmap",
-      "community": 50,
-      "norm_label": "future roadmap"
+      "source_location": "L27",
+      "id": "langgraph_agent_project_core_boundaries",
+      "community": 2,
+      "norm_label": "core boundaries"
     },
     {
-      "label": "Phase 1 \u2014 Finish Runtime Cleanup",
+      "label": "Current Checkpoint",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L483",
-      "id": "langgraph_agent_project_phase_1_finish_runtime_cleanup",
-      "community": 50,
-      "norm_label": "phase 1 \u2014 finish runtime cleanup"
+      "source_location": "L38",
+      "id": "langgraph_agent_project_current_checkpoint",
+      "community": 2,
+      "norm_label": "current checkpoint"
     },
     {
-      "label": "Phase 2 \u2014 Add API / Server Entrypoint",
+      "label": "Current Invoice Rule",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L491",
-      "id": "langgraph_agent_project_phase_2_add_api_server_entrypoint",
-      "community": 53,
-      "norm_label": "phase 2 \u2014 add api / server entrypoint"
+      "source_location": "L56",
+      "id": "langgraph_agent_project_current_invoice_rule",
+      "community": 61,
+      "norm_label": "current invoice rule"
     },
     {
-      "label": "code:text (src/multi_agent_system/orchestrator/server.py)",
+      "label": "code:text (latest_invoice -> {latest_invoice, support_employee})",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L497",
-      "id": "langgraph_agent_project_codeblock_12",
-      "community": 53,
-      "norm_label": "code:text (src/multi_agent_system/orchestrator/server.py)"
+      "source_location": "L62",
+      "id": "langgraph_agent_project_codeblock_2",
+      "community": 61,
+      "norm_label": "code:text (latest_invoice -> {latest_invoice, support_employee})"
     },
     {
-      "label": "code:http (POST /planner/invoke)",
+      "label": "Runtime Commands",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L503",
-      "id": "langgraph_agent_project_codeblock_13",
-      "community": 53,
-      "norm_label": "code:http (post /planner/invoke)"
+      "source_location": "L71",
+      "id": "langgraph_agent_project_runtime_commands",
+      "community": 63,
+      "norm_label": "runtime commands"
     },
     {
-      "label": "code:json ({)",
+      "label": "code:bash (uv sync)",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L509",
-      "id": "langgraph_agent_project_codeblock_14",
-      "community": 53,
-      "norm_label": "code:json ({)"
-    },
-    {
-      "label": "code:json ({)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L519",
-      "id": "langgraph_agent_project_codeblock_15",
-      "community": 53,
-      "norm_label": "code:json ({)"
-    },
-    {
-      "label": "Phase 3 \u2014 Structured A2A Payload Preparation",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L530",
-      "id": "langgraph_agent_project_phase_3_structured_a2a_payload_preparation",
-      "community": 50,
-      "norm_label": "phase 3 \u2014 structured a2a payload preparation"
-    },
-    {
-      "label": "code:python (def build_a2a_payload_from_task(task: dict) -> dict:)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L536",
-      "id": "langgraph_agent_project_codeblock_16",
-      "community": 50,
-      "norm_label": "code:python (def build_a2a_payload_from_task(task: dict) -> dict:)"
-    },
-    {
-      "label": "code:text (A2A receives instruction text)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L548",
-      "id": "langgraph_agent_project_codeblock_17",
-      "community": 50,
-      "norm_label": "code:text (a2a receives instruction text)"
-    },
-    {
-      "label": "code:text (A2A receives intent + args as structured payload)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L554",
-      "id": "langgraph_agent_project_codeblock_18",
-      "community": 50,
-      "norm_label": "code:text (a2a receives intent + args as structured payload)"
-    },
-    {
-      "label": "Phase 4 \u2014 Add More Domain Capabilities",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L558",
-      "id": "langgraph_agent_project_phase_4_add_more_domain_capabilities",
-      "community": 50,
-      "norm_label": "phase 4 \u2014 add more domain capabilities"
-    },
-    {
-      "label": "Phase 5 \u2014 Replace Domain Text Parsing With Structured Inputs",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L581",
-      "id": "langgraph_agent_project_phase_5_replace_domain_text_parsing_with_structured_inputs",
-      "community": 50,
-      "norm_label": "phase 5 \u2014 replace domain text parsing with structured inputs"
-    },
-    {
-      "label": "code:text (Recommend songs by genre Jazz)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L587",
-      "id": "langgraph_agent_project_codeblock_19",
-      "community": 50,
-      "norm_label": "code:text (recommend songs by genre jazz)"
-    },
-    {
-      "label": "code:json ({)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L593",
-      "id": "langgraph_agent_project_codeblock_20",
-      "community": 50,
-      "norm_label": "code:json ({)"
-    },
-    {
-      "label": "Phase 6 \u2014 Parallel Multi-Agent Execution",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L602",
-      "id": "langgraph_agent_project_phase_6_parallel_multi_agent_execution",
-      "community": 50,
-      "norm_label": "phase 6 \u2014 parallel multi-agent execution"
-    },
-    {
-      "label": "code:text (invoice \u2192 music \u2192 final_response)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L608",
-      "id": "langgraph_agent_project_codeblock_21",
-      "community": 50,
-      "norm_label": "code:text (invoice \u2192 music \u2192 final_response)"
-    },
-    {
-      "label": "code:text (invoice \u2510)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L614",
-      "id": "langgraph_agent_project_codeblock_22",
-      "community": 50,
-      "norm_label": "code:text (invoice \u2510)"
-    },
-    {
-      "label": "Phase 7 \u2014 Deployment Readiness",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L622",
-      "id": "langgraph_agent_project_phase_7_deployment_readiness",
-      "community": 50,
-      "norm_label": "phase 7 \u2014 deployment readiness"
-    },
-    {
-      "label": "Run Commands",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L637",
-      "id": "langgraph_agent_project_run_commands",
-      "community": 53,
-      "norm_label": "run commands"
+      "source_location": "L75",
+      "id": "langgraph_agent_project_codeblock_3",
+      "community": 61,
+      "norm_label": "code:bash (uv sync)"
     },
     {
       "label": "code:bash (uv run python scripts/run_mcp_server.py --host localhost --p)",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L641",
-      "id": "langgraph_agent_project_codeblock_23",
-      "community": 53,
+      "source_location": "L81",
+      "id": "langgraph_agent_project_codeblock_4",
+      "community": 63,
       "norm_label": "code:bash (uv run python scripts/run_mcp_server.py --host localhost --p)"
-    },
-    {
-      "label": "code:bash (uv run python scripts/run_invoice_a2a.py --host localhost --)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L645",
-      "id": "langgraph_agent_project_codeblock_24",
-      "community": 53,
-      "norm_label": "code:bash (uv run python scripts/run_invoice_a2a.py --host localhost --)"
-    },
-    {
-      "label": "code:bash (uv run python scripts/run_music_a2a.py --host localhost --po)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L649",
-      "id": "langgraph_agent_project_codeblock_25",
-      "community": 53,
-      "norm_label": "code:bash (uv run python scripts/run_music_a2a.py --host localhost --po)"
-    },
-    {
-      "label": "code:bash (uv run python tests/test_planner_graph.py)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L653",
-      "id": "langgraph_agent_project_codeblock_26",
-      "community": 53,
-      "norm_label": "code:bash (uv run python tests/test_planner_graph.py)"
-    },
-    {
-      "label": "code:bash (uv run python tests/test_llm_planner.py)",
-      "file_type": "document",
-      "source_file": "PROJECT.md",
-      "source_location": "L657",
-      "id": "langgraph_agent_project_codeblock_27",
-      "community": 53,
-      "norm_label": "code:bash (uv run python tests/test_llm_planner.py)"
     },
     {
       "label": "code:bash (uv run python scripts/run_planner.py)",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L661",
-      "id": "langgraph_agent_project_codeblock_28",
-      "community": 53,
+      "source_location": "L89",
+      "id": "langgraph_agent_project_codeblock_5",
+      "community": 63,
       "norm_label": "code:bash (uv run python scripts/run_planner.py)"
     },
     {
-      "label": "Current Checkpoint: Planner Reliability Hardening",
+      "label": "code:bash (uv run python scripts/run_orchestrator_api.py --host localho)",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L680",
-      "id": "langgraph_agent_project_current_checkpoint_planner_reliability_hardening",
-      "community": 2,
-      "norm_label": "current checkpoint: planner reliability hardening"
+      "source_location": "L95",
+      "id": "langgraph_agent_project_codeblock_6",
+      "community": 63,
+      "norm_label": "code:bash (uv run python scripts/run_orchestrator_api.py --host localho)"
     },
     {
-      "label": "Immediate Next Steps",
+      "label": "code:http (POST http://localhost:12000/planner/invoke)",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L700",
-      "id": "langgraph_agent_project_immediate_next_steps",
+      "source_location": "L101",
+      "id": "langgraph_agent_project_codeblock_7",
+      "community": 63,
+      "norm_label": "code:http (post http://localhost:12000/planner/invoke)"
+    },
+    {
+      "label": "code:json ({)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L105",
+      "id": "langgraph_agent_project_codeblock_8",
+      "community": 63,
+      "norm_label": "code:json ({)"
+    },
+    {
+      "label": "Test Commands",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L113",
+      "id": "langgraph_agent_project_test_commands",
+      "community": 60,
+      "norm_label": "test commands"
+    },
+    {
+      "label": "code:bash (uv run pytest tests -q)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L117",
+      "id": "langgraph_agent_project_codeblock_9",
+      "community": 60,
+      "norm_label": "code:bash (uv run pytest tests -q)"
+    },
+    {
+      "label": "code:bash (uv run pytest tests/test_invoice_agent_parsing.py tests/test)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L123",
+      "id": "langgraph_agent_project_codeblock_10",
+      "community": 60,
+      "norm_label": "code:bash (uv run pytest tests/test_invoice_agent_parsing.py tests/test)"
+    },
+    {
+      "label": "code:bash (RUN_INVOICE_SUPPORT_INTEGRATION_TESTS=1 uv run pytest tests/)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L129",
+      "id": "langgraph_agent_project_codeblock_11",
+      "community": 60,
+      "norm_label": "code:bash (run_invoice_support_integration_tests=1 uv run pytest tests/)"
+    },
+    {
+      "label": "Configuration Notes",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L138",
+      "id": "langgraph_agent_project_configuration_notes",
       "community": 2,
-      "norm_label": "immediate next steps"
+      "norm_label": "configuration notes"
+    },
+    {
+      "label": "Roadmap",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L146",
+      "id": "langgraph_agent_project_roadmap",
+      "community": 53,
+      "norm_label": "roadmap"
+    },
+    {
+      "label": "Phase 1: Stabilize Current Invoice Behavior",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L148",
+      "id": "langgraph_agent_project_phase_1_stabilize_current_invoice_behavior",
+      "community": 53,
+      "norm_label": "phase 1: stabilize current invoice behavior"
+    },
+    {
+      "label": "Phase 2: Replace Domain Text Parsing With Structured Inputs",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L157",
+      "id": "langgraph_agent_project_phase_2_replace_domain_text_parsing_with_structured_inputs",
+      "community": 53,
+      "norm_label": "phase 2: replace domain text parsing with structured inputs"
+    },
+    {
+      "label": "code:text (Get all invoices for customer_id=5)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L163",
+      "id": "langgraph_agent_project_codeblock_12",
+      "community": 53,
+      "norm_label": "code:text (get all invoices for customer_id=5)"
+    },
+    {
+      "label": "code:json ({)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L169",
+      "id": "langgraph_agent_project_codeblock_13",
+      "community": 53,
+      "norm_label": "code:json ({)"
+    },
+    {
+      "label": "Phase 3: Add Focused Domain Capabilities",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L183",
+      "id": "langgraph_agent_project_phase_3_add_focused_domain_capabilities",
+      "community": 53,
+      "norm_label": "phase 3: add focused domain capabilities"
+    },
+    {
+      "label": "Phase 4: Parallel Multi-Agent Execution",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L201",
+      "id": "langgraph_agent_project_phase_4_parallel_multi_agent_execution",
+      "community": 53,
+      "norm_label": "phase 4: parallel multi-agent execution"
+    },
+    {
+      "label": "code:text (invoice -> music -> final_response)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L207",
+      "id": "langgraph_agent_project_codeblock_14",
+      "community": 53,
+      "norm_label": "code:text (invoice -> music -> final_response)"
+    },
+    {
+      "label": "code:text (invoice -\\)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L213",
+      "id": "langgraph_agent_project_codeblock_15",
+      "community": 53,
+      "norm_label": "code:text (invoice -\\)"
+    },
+    {
+      "label": "Phase 5: Deployment Readiness",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L221",
+      "id": "langgraph_agent_project_phase_5_deployment_readiness",
+      "community": 53,
+      "norm_label": "phase 5: deployment readiness"
     },
     {
       "label": "README.md",
@@ -5089,7 +5197,7 @@
       "label": "Architecture",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L18",
+      "source_location": "L19",
       "id": "langgraph_agent_readme_architecture",
       "community": 13,
       "norm_label": "architecture"
@@ -5098,7 +5206,7 @@
       "label": "code:text (User query)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L20",
+      "source_location": "L21",
       "id": "langgraph_agent_readme_codeblock_1",
       "community": 13,
       "norm_label": "code:text (user query)"
@@ -5107,7 +5215,7 @@
       "label": "Design Principles",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L40",
+      "source_location": "L41",
       "id": "langgraph_agent_readme_design_principles",
       "community": 13,
       "norm_label": "design principles"
@@ -5116,7 +5224,7 @@
       "label": "Core Components",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L50",
+      "source_location": "L51",
       "id": "langgraph_agent_readme_core_components",
       "community": 13,
       "norm_label": "core components"
@@ -5125,7 +5233,7 @@
       "label": "Project Structure",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L65",
+      "source_location": "L66",
       "id": "langgraph_agent_readme_project_structure",
       "community": 13,
       "norm_label": "project structure"
@@ -5134,7 +5242,7 @@
       "label": "code:text (multi-agent-system/)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L67",
+      "source_location": "L68",
       "id": "langgraph_agent_readme_codeblock_2",
       "community": 13,
       "norm_label": "code:text (multi-agent-system/)"
@@ -5143,7 +5251,7 @@
       "label": "Requirements",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L149",
+      "source_location": "L150",
       "id": "langgraph_agent_readme_requirements",
       "community": 13,
       "norm_label": "requirements"
@@ -5152,7 +5260,7 @@
       "label": "Setup",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L156",
+      "source_location": "L157",
       "id": "langgraph_agent_readme_setup",
       "community": 13,
       "norm_label": "setup"
@@ -5161,7 +5269,7 @@
       "label": "code:bash (uv sync)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L160",
+      "source_location": "L161",
       "id": "langgraph_agent_readme_codeblock_3",
       "community": 13,
       "norm_label": "code:bash (uv sync)"
@@ -5170,7 +5278,7 @@
       "label": "code:env (MODEL_PROVIDER=ollama)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L166",
+      "source_location": "L167",
       "id": "langgraph_agent_readme_codeblock_4",
       "community": 13,
       "norm_label": "code:env (model_provider=ollama)"
@@ -5179,7 +5287,7 @@
       "label": "Running the System",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L195",
+      "source_location": "L196",
       "id": "langgraph_agent_readme_running_the_system",
       "community": 13,
       "norm_label": "running the system"
@@ -5188,7 +5296,7 @@
       "label": "1. Start MCP server",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L199",
+      "source_location": "L200",
       "id": "langgraph_agent_readme_1_start_mcp_server",
       "community": 13,
       "norm_label": "1. start mcp server"
@@ -5197,7 +5305,7 @@
       "label": "code:bash (uv run python scripts/run_mcp_server.py --host localhost --p)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L201",
+      "source_location": "L202",
       "id": "langgraph_agent_readme_codeblock_5",
       "community": 13,
       "norm_label": "code:bash (uv run python scripts/run_mcp_server.py --host localhost --p)"
@@ -5206,7 +5314,7 @@
       "label": "2. Start Invoice A2A service",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L205",
+      "source_location": "L206",
       "id": "langgraph_agent_readme_2_start_invoice_a2a_service",
       "community": 13,
       "norm_label": "2. start invoice a2a service"
@@ -5215,7 +5323,7 @@
       "label": "code:bash (uv run python scripts/run_invoice_a2a.py --host localhost --)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L207",
+      "source_location": "L208",
       "id": "langgraph_agent_readme_codeblock_6",
       "community": 13,
       "norm_label": "code:bash (uv run python scripts/run_invoice_a2a.py --host localhost --)"
@@ -5224,7 +5332,7 @@
       "label": "3. Start Music A2A service",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L211",
+      "source_location": "L212",
       "id": "langgraph_agent_readme_3_start_music_a2a_service",
       "community": 13,
       "norm_label": "3. start music a2a service"
@@ -5233,7 +5341,7 @@
       "label": "code:bash (uv run python scripts/run_music_a2a.py --host localhost --po)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L213",
+      "source_location": "L214",
       "id": "langgraph_agent_readme_codeblock_7",
       "community": 13,
       "norm_label": "code:bash (uv run python scripts/run_music_a2a.py --host localhost --po)"
@@ -5242,7 +5350,7 @@
       "label": "4. Run Planner CLI",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L217",
+      "source_location": "L218",
       "id": "langgraph_agent_readme_4_run_planner_cli",
       "community": 13,
       "norm_label": "4. run planner cli"
@@ -5251,7 +5359,7 @@
       "label": "code:bash (uv run python scripts/run_planner.py)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L219",
+      "source_location": "L220",
       "id": "langgraph_agent_readme_codeblock_8",
       "community": 13,
       "norm_label": "code:bash (uv run python scripts/run_planner.py)"
@@ -5260,7 +5368,7 @@
       "label": "5. Or run Planner API",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L223",
+      "source_location": "L224",
       "id": "langgraph_agent_readme_5_or_run_planner_api",
       "community": 13,
       "norm_label": "5. or run planner api"
@@ -5269,7 +5377,7 @@
       "label": "code:bash (uv run python scripts/run_orchestrator_api.py --host localho)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L225",
+      "source_location": "L226",
       "id": "langgraph_agent_readme_codeblock_9",
       "community": 13,
       "norm_label": "code:bash (uv run python scripts/run_orchestrator_api.py --host localho)"
@@ -5278,7 +5386,7 @@
       "label": "code:http (POST http://localhost:12000/planner/invoke)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L231",
+      "source_location": "L232",
       "id": "langgraph_agent_readme_codeblock_10",
       "community": 13,
       "norm_label": "code:http (post http://localhost:12000/planner/invoke)"
@@ -5287,7 +5395,7 @@
       "label": "code:json ({)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L235",
+      "source_location": "L236",
       "id": "langgraph_agent_readme_codeblock_11",
       "community": 13,
       "norm_label": "code:json ({)"
@@ -5296,7 +5404,7 @@
       "label": "Example Prompts",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L243",
+      "source_location": "L244",
       "id": "langgraph_agent_readme_example_prompts",
       "community": 13,
       "norm_label": "example prompts"
@@ -5305,7 +5413,7 @@
       "label": "code:text (Get latest invoice for customer_id=5)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L247",
+      "source_location": "L248",
       "id": "langgraph_agent_readme_codeblock_12",
       "community": 13,
       "norm_label": "code:text (get latest invoice for customer_id=5)"
@@ -5314,7 +5422,7 @@
       "label": "code:text (Find tracks by artist AC/DC)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L254",
+      "source_location": "L258",
       "id": "langgraph_agent_readme_codeblock_13",
       "community": 13,
       "norm_label": "code:text (find tracks by artist ac/dc)"
@@ -5323,7 +5431,7 @@
       "label": "code:text (User: What is my latest invoice?)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L265",
+      "source_location": "L269",
       "id": "langgraph_agent_readme_codeblock_14",
       "community": 13,
       "norm_label": "code:text (user: what is my latest invoice?)"
@@ -5332,7 +5440,7 @@
       "label": "code:text (User: Recommend some songs)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L271",
+      "source_location": "L275",
       "id": "langgraph_agent_readme_codeblock_15",
       "community": 13,
       "norm_label": "code:text (user: recommend some songs)"
@@ -5341,7 +5449,7 @@
       "label": "code:text (User: Recommend some songs)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L277",
+      "source_location": "L281",
       "id": "langgraph_agent_readme_codeblock_16",
       "community": 13,
       "norm_label": "code:text (user: recommend some songs)"
@@ -5350,7 +5458,7 @@
       "label": "code:text (Get latest invoice for customer_id=5 and find tracks by arti)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L285",
+      "source_location": "L289",
       "id": "langgraph_agent_readme_codeblock_17",
       "community": 13,
       "norm_label": "code:text (get latest invoice for customer_id=5 and find tracks by arti)"
@@ -5359,7 +5467,7 @@
       "label": "Testing",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L289",
+      "source_location": "L293",
       "id": "langgraph_agent_readme_testing",
       "community": 13,
       "norm_label": "testing"
@@ -5368,7 +5476,7 @@
       "label": "code:bash (uv run pytest tests -q)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L293",
+      "source_location": "L297",
       "id": "langgraph_agent_readme_codeblock_18",
       "community": 13,
       "norm_label": "code:bash (uv run pytest tests -q)"
@@ -5377,7 +5485,7 @@
       "label": "code:bash (uv run pytest tests/test_aggregator.py -q)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L299",
+      "source_location": "L303",
       "id": "langgraph_agent_readme_codeblock_19",
       "community": 13,
       "norm_label": "code:bash (uv run pytest tests/test_aggregator.py -q)"
@@ -5386,7 +5494,7 @@
       "label": "code:bash (RUN_LLM_TESTS=1 uv run pytest tests/test_llm_planner.py -q)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L310",
+      "source_location": "L314",
       "id": "langgraph_agent_readme_codeblock_20",
       "community": 13,
       "norm_label": "code:bash (run_llm_tests=1 uv run pytest tests/test_llm_planner.py -q)"
@@ -5395,7 +5503,7 @@
       "label": "code:bash (RUN_MCP_INTEGRATION_TESTS=1 uv run pytest tests/test_mcp_too)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L316",
+      "source_location": "L320",
       "id": "langgraph_agent_readme_codeblock_21",
       "community": 13,
       "norm_label": "code:bash (run_mcp_integration_tests=1 uv run pytest tests/test_mcp_too)"
@@ -5404,7 +5512,7 @@
       "label": "code:bash (RUN_A2A_INTEGRATION_TESTS=1 uv run pytest tests/test_invoice)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L322",
+      "source_location": "L326",
       "id": "langgraph_agent_readme_codeblock_22",
       "community": 13,
       "norm_label": "code:bash (run_a2a_integration_tests=1 uv run pytest tests/test_invoice)"
@@ -5413,16 +5521,34 @@
       "label": "code:bash (RUN_ORCHESTRATOR_API_INTEGRATION_TESTS=1 uv run pytest tests)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L328",
+      "source_location": "L332",
       "id": "langgraph_agent_readme_codeblock_23",
       "community": 13,
       "norm_label": "code:bash (run_orchestrator_api_integration_tests=1 uv run pytest tests)"
     },
     {
+      "label": "code:bash (RUN_A2A_PAYLOAD_INTEGRATION_TESTS=1 uv run pytest tests/test)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L338",
+      "id": "langgraph_agent_readme_codeblock_24",
+      "community": 13,
+      "norm_label": "code:bash (run_a2a_payload_integration_tests=1 uv run pytest tests/test)"
+    },
+    {
+      "label": "code:bash (RUN_INVOICE_SUPPORT_INTEGRATION_TESTS=1 uv run pytest tests/)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L344",
+      "id": "langgraph_agent_readme_codeblock_25",
+      "community": 13,
+      "norm_label": "code:bash (run_invoice_support_integration_tests=1 uv run pytest tests/)"
+    },
+    {
       "label": "Development Workflow",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L332",
+      "source_location": "L348",
       "id": "langgraph_agent_readme_development_workflow",
       "community": 13,
       "norm_label": "development workflow"
@@ -5431,8 +5557,8 @@
       "label": "code:bash (uv run pytest tests -q)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L336",
-      "id": "langgraph_agent_readme_codeblock_24",
+      "source_location": "L352",
+      "id": "langgraph_agent_readme_codeblock_26",
       "community": 13,
       "norm_label": "code:bash (uv run pytest tests -q)"
     },
@@ -5440,8 +5566,8 @@
       "label": "code:text (1. Add or update schema.)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L344",
-      "id": "langgraph_agent_readme_codeblock_25",
+      "source_location": "L360",
+      "id": "langgraph_agent_readme_codeblock_27",
       "community": 13,
       "norm_label": "code:text (1. add or update schema.)"
     },
@@ -5449,7 +5575,7 @@
       "label": "A2A integration test fails with connection error",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L354",
+      "source_location": "L370",
       "id": "langgraph_agent_readme_a2a_integration_test_fails_with_connection_error",
       "community": 13,
       "norm_label": "a2a integration test fails with connection error"
@@ -5458,8 +5584,8 @@
       "label": "code:bash (uv run python scripts/run_mcp_server.py --host localhost --p)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L358",
-      "id": "langgraph_agent_readme_codeblock_26",
+      "source_location": "L374",
+      "id": "langgraph_agent_readme_codeblock_28",
       "community": 13,
       "norm_label": "code:bash (uv run python scripts/run_mcp_server.py --host localhost --p)"
     },
@@ -5467,7 +5593,7 @@
       "label": "Knowledge Graph",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L364",
+      "source_location": "L380",
       "id": "langgraph_agent_readme_knowledge_graph",
       "community": 13,
       "norm_label": "knowledge graph"
@@ -5476,8 +5602,8 @@
       "label": "code:text (graphify-out/)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L368",
-      "id": "langgraph_agent_readme_codeblock_27",
+      "source_location": "L384",
+      "id": "langgraph_agent_readme_codeblock_29",
       "community": 13,
       "norm_label": "code:text (graphify-out/)"
     },
@@ -5485,8 +5611,8 @@
       "label": "code:bash (graphify update .)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L377",
-      "id": "langgraph_agent_readme_codeblock_28",
+      "source_location": "L393",
+      "id": "langgraph_agent_readme_codeblock_30",
       "community": 13,
       "norm_label": "code:bash (graphify update .)"
     },
@@ -5494,7 +5620,7 @@
       "label": "Roadmap",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L381",
+      "source_location": "L397",
       "id": "langgraph_agent_readme_roadmap",
       "community": 13,
       "norm_label": "roadmap"
@@ -5503,7 +5629,7 @@
       "label": "Current Status",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L393",
+      "source_location": "L409",
       "id": "langgraph_agent_readme_current_status",
       "community": 13,
       "norm_label": "current status"
@@ -5512,8 +5638,8 @@
       "label": "code:text (Planner \u2192 optional HITL \u2192 invoice/music task execution \u2192 agg)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L397",
-      "id": "langgraph_agent_readme_codeblock_29",
+      "source_location": "L413",
+      "id": "langgraph_agent_readme_codeblock_31",
       "community": 13,
       "norm_label": "code:text (planner \u2192 optional hitl \u2192 invoice/music task execution \u2192 agg)"
     },
@@ -5588,6 +5714,393 @@
       "id": "langgraph_agent_agents_workflow",
       "community": 21,
       "norm_label": "workflow"
+    },
+    {
+      "label": "Key Components:",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L6",
+      "community": 58,
+      "norm_label": "key components:",
+      "id": "langgraph_agent_project_key_components"
+    },
+    {
+      "label": "Agents:",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L7",
+      "community": 58,
+      "norm_label": "agents:",
+      "id": "langgraph_agent_project_agents"
+    },
+    {
+      "label": "Invoice Agent",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L8",
+      "community": 58,
+      "norm_label": "invoice agent",
+      "id": "langgraph_agent_project_invoice_agent"
+    },
+    {
+      "label": "Music Agent",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L11",
+      "community": 58,
+      "norm_label": "music agent",
+      "id": "langgraph_agent_project_music_agent"
+    },
+    {
+      "label": "Planner Agent",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L14",
+      "community": 58,
+      "norm_label": "planner agent",
+      "id": "langgraph_agent_project_planner_agent"
+    },
+    {
+      "label": "Aggregator Agent",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L18",
+      "community": 58,
+      "norm_label": "aggregator agent",
+      "id": "langgraph_agent_project_aggregator_agent"
+    },
+    {
+      "label": "Architecture Overview",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L21",
+      "community": 2,
+      "norm_label": "architecture overview",
+      "id": "langgraph_agent_project_architecture_overview"
+    },
+    {
+      "label": "File Structure",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L29",
+      "community": 2,
+      "norm_label": "file structure",
+      "id": "langgraph_agent_project_file_structure"
+    },
+    {
+      "label": "Configuration",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L143",
+      "community": 61,
+      "norm_label": "configuration",
+      "id": "langgraph_agent_project_configuration"
+    },
+    {
+      "label": "config.py",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L144",
+      "community": 61,
+      "norm_label": "config.py",
+      "id": "langgraph_agent_project_config_py"
+    },
+    {
+      "label": "MCP Server",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L183",
+      "community": 63,
+      "norm_label": "mcp server",
+      "id": "langgraph_agent_project_mcp_server"
+    },
+    {
+      "label": "A2A Services",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L196",
+      "community": 63,
+      "norm_label": "a2a services",
+      "id": "langgraph_agent_project_a2a_services"
+    },
+    {
+      "label": "Agent Cards",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L257",
+      "community": 63,
+      "norm_label": "agent cards",
+      "id": "langgraph_agent_project_agent_cards"
+    },
+    {
+      "label": "A2A Clients",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L289",
+      "community": 63,
+      "norm_label": "a2a clients",
+      "id": "langgraph_agent_project_a2a_clients"
+    },
+    {
+      "label": "Planner Graph",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L303",
+      "community": 60,
+      "norm_label": "planner graph",
+      "id": "langgraph_agent_project_planner_graph"
+    },
+    {
+      "label": "HITL and Aggregator",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L376",
+      "community": 60,
+      "norm_label": "hitl and aggregator",
+      "id": "langgraph_agent_project_hitl_and_aggregator"
+    },
+    {
+      "label": "Current Reliability Improvements",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L443",
+      "community": 60,
+      "norm_label": "current reliability improvements",
+      "id": "langgraph_agent_project_current_reliability_improvements"
+    },
+    {
+      "label": "Completed Reliability Work",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L447",
+      "community": 60,
+      "norm_label": "completed reliability work",
+      "id": "langgraph_agent_project_completed_reliability_work"
+    },
+    {
+      "label": "Current Execution Flow",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L463",
+      "community": 60,
+      "norm_label": "current execution flow",
+      "id": "langgraph_agent_project_current_execution_flow"
+    },
+    {
+      "label": "Future Roadmap",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L481",
+      "community": 50,
+      "norm_label": "future roadmap",
+      "id": "langgraph_agent_project_future_roadmap"
+    },
+    {
+      "label": "Phase 1 \u2014 Finish Runtime Cleanup",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L483",
+      "community": 50,
+      "norm_label": "phase 1 \u2014 finish runtime cleanup",
+      "id": "langgraph_agent_project_phase_1_finish_runtime_cleanup"
+    },
+    {
+      "label": "Phase 2 \u2014 Add API / Server Entrypoint",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L491",
+      "community": 53,
+      "norm_label": "phase 2 \u2014 add api / server entrypoint",
+      "id": "langgraph_agent_project_phase_2_add_api_server_entrypoint"
+    },
+    {
+      "label": "Phase 3 \u2014 Structured A2A Payload Preparation",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L530",
+      "community": 50,
+      "norm_label": "phase 3 \u2014 structured a2a payload preparation",
+      "id": "langgraph_agent_project_phase_3_structured_a2a_payload_preparation"
+    },
+    {
+      "label": "code:python (def build_a2a_payload_from_task(task: dict) -> dict:)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L536",
+      "community": 50,
+      "norm_label": "code:python (def build_a2a_payload_from_task(task: dict) -> dict:)",
+      "id": "langgraph_agent_project_codeblock_16"
+    },
+    {
+      "label": "code:text (A2A receives instruction text)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L548",
+      "community": 50,
+      "norm_label": "code:text (a2a receives instruction text)",
+      "id": "langgraph_agent_project_codeblock_17"
+    },
+    {
+      "label": "code:text (A2A receives intent + args as structured payload)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L554",
+      "community": 50,
+      "norm_label": "code:text (a2a receives intent + args as structured payload)",
+      "id": "langgraph_agent_project_codeblock_18"
+    },
+    {
+      "label": "Phase 4 \u2014 Add More Domain Capabilities",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L558",
+      "community": 50,
+      "norm_label": "phase 4 \u2014 add more domain capabilities",
+      "id": "langgraph_agent_project_phase_4_add_more_domain_capabilities"
+    },
+    {
+      "label": "Phase 5 \u2014 Replace Domain Text Parsing With Structured Inputs",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L581",
+      "community": 50,
+      "norm_label": "phase 5 \u2014 replace domain text parsing with structured inputs",
+      "id": "langgraph_agent_project_phase_5_replace_domain_text_parsing_with_structured_inputs"
+    },
+    {
+      "label": "code:text (Recommend songs by genre Jazz)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L587",
+      "community": 50,
+      "norm_label": "code:text (recommend songs by genre jazz)",
+      "id": "langgraph_agent_project_codeblock_19"
+    },
+    {
+      "label": "code:json ({)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L593",
+      "community": 50,
+      "norm_label": "code:json ({)",
+      "id": "langgraph_agent_project_codeblock_20"
+    },
+    {
+      "label": "Phase 6 \u2014 Parallel Multi-Agent Execution",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L602",
+      "community": 50,
+      "norm_label": "phase 6 \u2014 parallel multi-agent execution",
+      "id": "langgraph_agent_project_phase_6_parallel_multi_agent_execution"
+    },
+    {
+      "label": "code:text (invoice \u2192 music \u2192 final_response)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L608",
+      "community": 50,
+      "norm_label": "code:text (invoice \u2192 music \u2192 final_response)",
+      "id": "langgraph_agent_project_codeblock_21"
+    },
+    {
+      "label": "code:text (invoice \u2510)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L614",
+      "community": 50,
+      "norm_label": "code:text (invoice \u2510)",
+      "id": "langgraph_agent_project_codeblock_22"
+    },
+    {
+      "label": "Phase 7 \u2014 Deployment Readiness",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L622",
+      "community": 50,
+      "norm_label": "phase 7 \u2014 deployment readiness",
+      "id": "langgraph_agent_project_phase_7_deployment_readiness"
+    },
+    {
+      "label": "Run Commands",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L637",
+      "community": 53,
+      "norm_label": "run commands",
+      "id": "langgraph_agent_project_run_commands"
+    },
+    {
+      "label": "code:bash (uv run python scripts/run_mcp_server.py --host localhost --p)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L641",
+      "community": 53,
+      "norm_label": "code:bash (uv run python scripts/run_mcp_server.py --host localhost --p)",
+      "id": "langgraph_agent_project_codeblock_23"
+    },
+    {
+      "label": "code:bash (uv run python scripts/run_invoice_a2a.py --host localhost --)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L645",
+      "community": 53,
+      "norm_label": "code:bash (uv run python scripts/run_invoice_a2a.py --host localhost --)",
+      "id": "langgraph_agent_project_codeblock_24"
+    },
+    {
+      "label": "code:bash (uv run python scripts/run_music_a2a.py --host localhost --po)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L649",
+      "community": 53,
+      "norm_label": "code:bash (uv run python scripts/run_music_a2a.py --host localhost --po)",
+      "id": "langgraph_agent_project_codeblock_25"
+    },
+    {
+      "label": "code:bash (uv run python tests/test_planner_graph.py)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L653",
+      "community": 53,
+      "norm_label": "code:bash (uv run python tests/test_planner_graph.py)",
+      "id": "langgraph_agent_project_codeblock_26"
+    },
+    {
+      "label": "code:bash (uv run python tests/test_llm_planner.py)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L657",
+      "community": 53,
+      "norm_label": "code:bash (uv run python tests/test_llm_planner.py)",
+      "id": "langgraph_agent_project_codeblock_27"
+    },
+    {
+      "label": "code:bash (uv run python scripts/run_planner.py)",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L661",
+      "community": 53,
+      "norm_label": "code:bash (uv run python scripts/run_planner.py)",
+      "id": "langgraph_agent_project_codeblock_28"
+    },
+    {
+      "label": "Current Checkpoint: Planner Reliability Hardening",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L680",
+      "community": 2,
+      "norm_label": "current checkpoint: planner reliability hardening",
+      "id": "langgraph_agent_project_current_checkpoint_planner_reliability_hardening"
+    },
+    {
+      "label": "Immediate Next Steps",
+      "file_type": "document",
+      "source_file": "PROJECT.md",
+      "source_location": "L700",
+      "community": 2,
+      "norm_label": "immediate next steps",
+      "id": "langgraph_agent_project_immediate_next_steps"
     },
     {
       "label": "test_mcp_database_can_query_latest_invoice_for_customer()",
@@ -6840,7 +7353,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 8,
       "norm_label": "musicagentexecutor",
       "id": "music_executor_musicagentexecutor"
     },
@@ -6853,7 +7366,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 8,
       "norm_label": "musicagentexecutor.execute",
       "id": "music_executor_execute"
     },
@@ -6905,7 +7418,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 8,
       "norm_label": "music a2a service create_app",
       "id": "music_server_create_app"
     },
@@ -6918,7 +7431,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 8,
       "norm_label": "music a2a service main",
       "id": "music_server_main"
     },
@@ -6970,7 +7483,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 8,
       "norm_label": "registered a2a agent identifiers",
       "id": "common_constants_agent_identifiers"
     },
@@ -7217,7 +7730,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 8,
       "norm_label": "a2a agentexecutor",
       "id": "external_a2a_agentexecutor"
     },
@@ -7230,7 +7743,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 8,
       "norm_label": "musicagent",
       "id": "external_musicagent"
     },
@@ -7243,7 +7756,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 8,
       "norm_label": "a2a defaultrequesthandler",
       "id": "external_a2a_request_handler"
     },
@@ -7256,7 +7769,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 4,
+      "community": 8,
       "norm_label": "fastapi application",
       "id": "external_fastapi_app"
     },
@@ -7347,7 +7860,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 56,
       "norm_label": "planneragent.invoke",
       "id": "planner_agent_invoke"
     },
@@ -7412,7 +7925,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 56,
       "norm_label": "planneragent._invoke_deterministic",
       "id": "planner_agent_invoke_deterministic"
     },
@@ -7425,7 +7938,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 56,
       "norm_label": "planneragent intent detection helpers",
       "id": "planner_agent_intent_detection"
     },
@@ -7438,7 +7951,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 56,
       "norm_label": "planneragent missing field detection",
       "id": "planner_agent_missing_field_detection"
     },
@@ -7451,7 +7964,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 56,
       "norm_label": "planneragent instruction builders",
       "id": "planner_agent_instruction_builders"
     },
@@ -7517,7 +8030,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 56,
       "norm_label": "planner_graph",
       "id": "planner_app_graph_planner_graph"
     },
@@ -7582,7 +8095,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 56,
       "norm_label": "test_llm_planner manual planner cases",
       "id": "tests_test_llm_planner"
     },
@@ -7608,7 +8121,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 56,
       "norm_label": "test_planner_graph end-to-end graph runner",
       "id": "tests_test_planner_graph"
     },
@@ -7621,7 +8134,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 3,
+      "community": 56,
       "norm_label": "test_planner_hitl resume flow",
       "id": "tests_test_planner_hitl"
     },
@@ -8151,6 +8664,76 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_task_instructions.py",
+      "source_location": "L19",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_task_instructions_py",
+      "target": "tests_test_task_instructions_test_build_a2a_payload_from_invoice_task"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L34",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_task_instructions_py",
+      "target": "tests_test_task_instructions_test_build_all_invoices_instruction"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L43",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_task_instructions_py",
+      "target": "tests_test_task_instructions_test_build_a2a_payload_from_all_invoices_task"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L34",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_task_instructions_py",
+      "target": "tests_test_task_instructions_test_build_support_employee_instruction"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L46",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_task_instructions_py",
+      "target": "tests_test_task_instructions_test_build_a2a_payload_from_support_employee_task"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L34",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_task_instructions_py",
+      "target": "tests_test_task_instructions_test_build_a2a_payload_from_music_task"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L49",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_task_instructions_py",
+      "target": "tests_test_task_instructions_test_build_a2a_payload_copies_args"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_task_instructions.py",
       "source_location": "L18",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -8218,6 +8801,26 @@
       "target": "tests_test_task_instructions_test_missing_required_arg_raises_error"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L131",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_task_instructions_py",
+      "target": "tests_test_task_instructions_test_build_a2a_payload_requires_agent"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L141",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_task_instructions_py",
+      "target": "tests_test_task_instructions_test_build_a2a_payload_requires_dict_args"
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
@@ -8227,6 +8830,83 @@
       "weight": 1.0,
       "source": "tests_test_task_instructions_test_build_latest_invoice_instruction",
       "target": "planner_app_task_instructions_build_instruction_from_task"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "tests_test_task_instructions_test_build_a2a_payload_from_invoice_task",
+      "target": "planner_app_task_instructions_build_a2a_payload_from_task"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "tests_test_task_instructions_test_build_all_invoices_instruction",
+      "target": "planner_app_task_instructions_build_instruction_from_task"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L50",
+      "weight": 1.0,
+      "source": "tests_test_task_instructions_test_build_a2a_payload_from_all_invoices_task",
+      "target": "planner_app_task_instructions_build_a2a_payload_from_task"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "tests_test_task_instructions_test_build_support_employee_instruction",
+      "target": "planner_app_task_instructions_build_instruction_from_task"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L53",
+      "weight": 1.0,
+      "source": "tests_test_task_instructions_test_build_a2a_payload_from_support_employee_task",
+      "target": "planner_app_task_instructions_build_a2a_payload_from_task"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "tests_test_task_instructions_test_build_a2a_payload_from_music_task",
+      "target": "planner_app_task_instructions_build_a2a_payload_from_task"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L57",
+      "weight": 1.0,
+      "source": "tests_test_task_instructions_test_build_a2a_payload_copies_args",
+      "target": "planner_app_task_instructions_build_a2a_payload_from_task"
     },
     {
       "relation": "calls",
@@ -8304,6 +8984,28 @@
       "weight": 1.0,
       "source": "tests_test_task_instructions_test_missing_required_arg_raises_error",
       "target": "planner_app_task_instructions_build_instruction_from_task"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L138",
+      "weight": 1.0,
+      "source": "tests_test_task_instructions_test_build_a2a_payload_requires_agent",
+      "target": "planner_app_task_instructions_build_a2a_payload_from_task"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_task_instructions.py",
+      "source_location": "L149",
+      "weight": 1.0,
+      "source": "tests_test_task_instructions_test_build_a2a_payload_requires_dict_args",
+      "target": "planner_app_task_instructions_build_a2a_payload_from_task"
     },
     {
       "relation": "contains",
@@ -9654,6 +10356,110 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "tests/test_invoice_support_employee_integration.py",
+      "source_location": "L17",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_invoice_support_employee_integration_py",
+      "target": "tests_test_invoice_support_employee_integration_anyio_backend"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_invoice_support_employee_integration.py",
+      "source_location": "L22",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_invoice_support_employee_integration_py",
+      "target": "tests_test_invoice_support_employee_integration_test_invoice_a2a_all_invoices_include_support_employee"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_invoice_support_employee_integration.py",
+      "source_location": "L38",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_invoice_support_employee_integration_py",
+      "target": "tests_test_invoice_support_employee_integration_test_invoice_a2a_unit_price_invoices_include_support_employee"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_invoice_support_employee_integration.py",
+      "source_location": "L22",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_invoice_support_employee_integration_py",
+      "target": "tests_test_invoice_support_employee_integration_test_invoice_a2a_latest_invoice_includes_support_employee"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_invoice_support_employee_integration.py",
+      "source_location": "L22",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_invoice_support_employee_integration_py",
+      "target": "tests_test_invoice_support_employee_integration_test_invoice_a2a_returns_support_employee_for_latest_invoice"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_invoice_support_employee_integration.py",
+      "source_location": "L35",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_invoice_support_employee_integration_py",
+      "target": "tests_test_invoice_support_employee_integration_test_real_planner_api_returns_support_employee_for_latest_invoice"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_invoice_support_employee_integration.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "tests_test_invoice_support_employee_integration_test_invoice_a2a_all_invoices_include_support_employee",
+      "target": "a2a_client_invoice_client_invoicea2aclient"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_invoice_support_employee_integration.py",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "tests_test_invoice_support_employee_integration_test_invoice_a2a_unit_price_invoices_include_support_employee",
+      "target": "a2a_client_invoice_client_invoicea2aclient"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_invoice_support_employee_integration.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "tests_test_invoice_support_employee_integration_test_invoice_a2a_latest_invoice_includes_support_employee",
+      "target": "a2a_client_invoice_client_invoicea2aclient"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_invoice_support_employee_integration.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "tests_test_invoice_support_employee_integration_test_invoice_a2a_returns_support_employee_for_latest_invoice",
+      "target": "a2a_client_invoice_client_invoicea2aclient"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "tests/test_planner_hitl.py",
       "source_location": "L7",
       "weight": 1.0,
@@ -10385,6 +11191,26 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "tests/test_a2a_payload_integration.py",
+      "source_location": "L15",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_a2a_payload_integration_py",
+      "target": "tests_test_a2a_payload_integration_test_real_planner_api_records_invoice_a2a_payload"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_a2a_payload_integration.py",
+      "source_location": "L47",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_a2a_payload_integration_py",
+      "target": "tests_test_a2a_payload_integration_test_real_planner_api_records_music_a2a_payload"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "tests/test_llm_planner.py",
       "source_location": "L22",
       "weight": 1.0,
@@ -10785,6 +11611,26 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_node_instruction_rebuild.py",
+      "source_location": "L117",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_node_instruction_rebuild_py",
+      "target": "tests_test_node_instruction_rebuild_test_invoice_node_rebuilds_all_invoices_instruction_from_args"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_node_instruction_rebuild.py",
+      "source_location": "L117",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_node_instruction_rebuild_py",
+      "target": "tests_test_node_instruction_rebuild_test_invoice_node_rebuilds_support_employee_instruction_from_args"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_node_instruction_rebuild.py",
       "source_location": "L111",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -10841,6 +11687,28 @@
       "source_location": "L98",
       "weight": 1.0,
       "source": "tests_test_node_instruction_rebuild_test_invoice_node_rebuilds_unit_price_instruction_from_args",
+      "target": "planner_app_nodes_invoice_node"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_node_instruction_rebuild.py",
+      "source_location": "L153",
+      "weight": 1.0,
+      "source": "tests_test_node_instruction_rebuild_test_invoice_node_rebuilds_all_invoices_instruction_from_args",
+      "target": "planner_app_nodes_invoice_node"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_node_instruction_rebuild.py",
+      "source_location": "L153",
+      "weight": 1.0,
+      "source": "tests_test_node_instruction_rebuild_test_invoice_node_rebuilds_support_employee_instruction_from_args",
       "target": "planner_app_nodes_invoice_node"
     },
     {
@@ -11172,6 +12040,26 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_planner_schema_validation_py",
+      "target": "tests_test_planner_schema_validation_test_planned_task_accepts_latest_invoice_support_employee_task"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_planner_schema_validation.py",
+      "source_location": "L33",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_planner_schema_validation_py",
+      "target": "tests_test_planner_schema_validation_test_planned_task_accepts_all_invoices_task"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_planner_schema_validation.py",
+      "source_location": "L20",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_planner_schema_validation_py",
       "target": "tests_test_planner_schema_validation_test_planned_task_normalizes_arg_values_to_strings"
     },
     {
@@ -11293,6 +12181,28 @@
       "source_location": "L8",
       "weight": 1.0,
       "source": "tests_test_planner_schema_validation_test_planned_task_accepts_complete_invoice_task",
+      "target": "planner_schemas_plannedtask"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_planner_schema_validation.py",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "tests_test_planner_schema_validation_test_planned_task_accepts_latest_invoice_support_employee_task",
+      "target": "planner_schemas_plannedtask"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_planner_schema_validation.py",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "tests_test_planner_schema_validation_test_planned_task_accepts_all_invoices_task",
       "target": "planner_schemas_plannedtask"
     },
     {
@@ -11525,6 +12435,26 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_planner_e2e_flows_py",
+      "target": "tests_test_planner_e2e_flows_test_planner_e2e_support_employee_query_uses_args_first_instruction"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_planner_e2e_flows.py",
+      "source_location": "L198",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_planner_e2e_flows_py",
+      "target": "tests_test_planner_e2e_flows_test_planner_e2e_all_invoices_query_uses_args_first_instruction"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_planner_e2e_flows.py",
+      "source_location": "L172",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_planner_e2e_flows_py",
       "target": "tests_test_planner_e2e_flows_test_planner_e2e_direct_music_query_uses_args_first_instruction"
     },
     {
@@ -11691,6 +12621,28 @@
       "source_location": "L176",
       "weight": 1.0,
       "confidence_score": 1.0,
+      "source": "tests_test_planner_e2e_flows_test_planner_e2e_support_employee_query_uses_args_first_instruction",
+      "target": "tests_test_planner_e2e_flows_set_planner_output"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_planner_e2e_flows.py",
+      "source_location": "L202",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_planner_e2e_flows_test_planner_e2e_all_invoices_query_uses_args_first_instruction",
+      "target": "tests_test_planner_e2e_flows_set_planner_output"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_planner_e2e_flows.py",
+      "source_location": "L176",
+      "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_planner_e2e_flows_test_planner_e2e_direct_music_query_uses_args_first_instruction",
       "target": "tests_test_planner_e2e_flows_set_planner_output"
     },
@@ -11779,6 +12731,28 @@
       "source_location": "L187",
       "weight": 1.0,
       "confidence_score": 1.0,
+      "source": "tests_test_planner_e2e_flows_test_planner_e2e_support_employee_query_uses_args_first_instruction",
+      "target": "tests_test_planner_e2e_flows_invoke_graph"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_planner_e2e_flows.py",
+      "source_location": "L213",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_planner_e2e_flows_test_planner_e2e_all_invoices_query_uses_args_first_instruction",
+      "target": "tests_test_planner_e2e_flows_invoke_graph"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_planner_e2e_flows.py",
+      "source_location": "L187",
+      "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_planner_e2e_flows_test_planner_e2e_direct_music_query_uses_args_first_instruction",
       "target": "tests_test_planner_e2e_flows_invoke_graph"
     },
@@ -11846,6 +12820,28 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_planner_e2e_flows_test_planner_e2e_direct_invoice_query_uses_args_first_instruction",
+      "target": "tests_test_planner_e2e_flows_task"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_planner_e2e_flows.py",
+      "source_location": "L179",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_planner_e2e_flows_test_planner_e2e_support_employee_query_uses_args_first_instruction",
+      "target": "tests_test_planner_e2e_flows_task"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_planner_e2e_flows.py",
+      "source_location": "L205",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_planner_e2e_flows_test_planner_e2e_all_invoices_query_uses_args_first_instruction",
       "target": "tests_test_planner_e2e_flows_task"
     },
     {
@@ -12048,6 +13044,66 @@
       "confidence_score": 1.0,
       "source": "tests_test_invoice_agent_parsing_py",
       "target": "tests_test_invoice_agent_parsing_test_invoice_agent_missing_customer_id_fails_validation"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_invoice_agent_parsing.py",
+      "source_location": "L70",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_invoice_agent_parsing_py",
+      "target": "tests_test_invoice_agent_parsing_anyio_backend"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_invoice_agent_parsing.py",
+      "source_location": "L85",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_invoice_agent_parsing_py",
+      "target": "tests_test_invoice_agent_parsing_test_invoice_agent_returns_unit_price_invoices_with_support_employee"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_invoice_agent_parsing.py",
+      "source_location": "L177",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_invoice_agent_parsing_py",
+      "target": "tests_test_invoice_agent_parsing_test_invoice_agent_returns_all_invoices_with_support_employee"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_invoice_agent_parsing.py",
+      "source_location": "L75",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_invoice_agent_parsing_py",
+      "target": "tests_test_invoice_agent_parsing_test_invoice_agent_returns_latest_invoice_with_support_employee"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_invoice_agent_parsing.py",
+      "source_location": "L75",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_invoice_agent_parsing_py",
+      "target": "tests_test_invoice_agent_parsing_test_invoice_agent_returns_support_employee_for_latest_invoice"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_invoice_agent_parsing.py",
+      "source_location": "L138",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_invoice_agent_parsing_py",
+      "target": "tests_test_invoice_agent_parsing_test_invoice_agent_returns_no_invoice_for_support_employee_request"
     },
     {
       "relation": "calls",
@@ -12666,6 +13722,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L217",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_multi_agent_system_planner_app_nodes_py",
+      "target": "planner_app_nodes_attach_a2a_payload"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
       "source_location": "L219",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -12752,6 +13818,17 @@
       "confidence_score": 1.0,
       "source": "planner_app_nodes_missing_info_node",
       "target": "planner_app_nodes_copy_planner_output"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L39",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "planner_app_nodes_missing_info_node",
+      "target": "planner_app_nodes_attach_a2a_payload"
     },
     {
       "relation": "calls",
@@ -12865,6 +13942,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L78",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "planner_app_nodes_invoice_node",
+      "target": "planner_app_nodes_attach_a2a_payload"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
       "source_location": "L96",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -12888,10 +13976,10 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L78",
+      "source_location": "L111",
       "weight": 1.0,
       "source": "planner_app_nodes_invoice_node",
-      "target": "planner_app_task_instructions_build_instruction_from_task"
+      "target": "a2a_client_invoice_client_invoicea2aclient"
     },
     {
       "relation": "calls",
@@ -12899,10 +13987,10 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L111",
+      "source_location": "L78",
       "weight": 1.0,
       "source": "planner_app_nodes_invoice_node",
-      "target": "a2a_client_invoice_client_invoicea2aclient"
+      "target": "planner_app_task_instructions_build_instruction_from_task"
     },
     {
       "relation": "references",
@@ -12961,6 +14049,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L110",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "planner_app_nodes_music_node",
+      "target": "planner_app_nodes_attach_a2a_payload"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
       "source_location": "L129",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -12984,10 +14083,10 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L111",
+      "source_location": "L127",
       "weight": 1.0,
       "source": "planner_app_nodes_music_node",
-      "target": "planner_app_task_instructions_build_instruction_from_task"
+      "target": "a2a_client_music_client_musica2aclient"
     },
     {
       "relation": "calls",
@@ -12995,10 +14094,10 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L127",
+      "source_location": "L111",
       "weight": 1.0,
       "source": "planner_app_nodes_music_node",
-      "target": "a2a_client_music_client_musica2aclient"
+      "target": "planner_app_task_instructions_build_instruction_from_task"
     },
     {
       "relation": "references",
@@ -13114,6 +14213,17 @@
       "target": "valueerror"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L218",
+      "weight": 1.0,
+      "source": "planner_app_nodes_attach_a2a_payload",
+      "target": "planner_app_task_instructions_build_a2a_payload_from_task"
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/multi_agent_system/planner_app/edges.py",
@@ -13211,7 +14321,27 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "src_multi_agent_system_planner_app_task_instructions_py",
+      "target": "planner_app_task_instructions_build_a2a_payload_from_task"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/task_instructions.py",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_multi_agent_system_planner_app_task_instructions_py",
       "target": "planner_app_task_instructions_build_instruction_from_task"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/task_instructions.py",
+      "source_location": "L58",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_multi_agent_system_planner_app_task_instructions_py",
+      "target": "planner_app_task_instructions_require_task_field"
     },
     {
       "relation": "contains",
@@ -13238,10 +14368,32 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/multi_agent_system/planner_app/task_instructions.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "planner_app_task_instructions_build_a2a_payload_from_task",
+      "target": "planner_app_task_instructions_taskinstructionerror"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/task_instructions.py",
       "source_location": "L37",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "planner_app_task_instructions_build_instruction_from_task",
+      "target": "planner_app_task_instructions_taskinstructionerror"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/task_instructions.py",
+      "source_location": "L62",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "planner_app_task_instructions_require_task_field",
       "target": "planner_app_task_instructions_taskinstructionerror"
     },
     {
@@ -13330,6 +14482,28 @@
       "weight": 1.0,
       "source": "planner_schemas_validate_output_consistency",
       "target": "valueerror"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/task_instructions.py",
+      "source_location": "L15",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "planner_app_task_instructions_build_a2a_payload_from_task",
+      "target": "planner_app_task_instructions_require_task_field"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/task_instructions.py",
+      "source_location": "L18",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "planner_app_task_instructions_build_a2a_payload_from_task",
+      "target": "planner_app_task_instructions_build_instruction_from_task"
     },
     {
       "relation": "calls",
@@ -15486,6 +16660,39 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L108",
+      "weight": 1.0,
+      "source": "invoice_agent_agent_invoiceagent_get_invoices_by_unit_price",
+      "target": "invoice_agent_schemas_invoiceagentresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L124",
+      "weight": 1.0,
+      "source": "invoice_agent_agent_invoiceagent_get_all_invoices",
+      "target": "invoice_agent_schemas_invoiceagentresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L126",
+      "weight": 1.0,
+      "source": "invoice_agent_agent_invoiceagent_get_latest_invoice_with_support_employee",
+      "target": "invoice_agent_schemas_invoiceagentresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
       "source_location": "L87",
       "weight": 1.0,
       "source": "invoice_agent_agent_invoiceagent_get_latest_invoice",
@@ -15497,9 +16704,9 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L108",
+      "source_location": "L128",
       "weight": 1.0,
-      "source": "invoice_agent_agent_invoiceagent_get_invoices_by_unit_price",
+      "source": "invoice_agent_agent_invoiceagent_get_latest_invoice_support_employee",
       "target": "invoice_agent_schemas_invoiceagentresponse"
     },
     {
@@ -15628,6 +16835,86 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L114",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "invoice_agent_agent_invoiceagent",
+      "target": "invoice_agent_agent_invoiceagent_get_all_invoices"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L118",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "invoice_agent_agent_invoiceagent",
+      "target": "invoice_agent_agent_invoiceagent_get_latest_invoice_support_employee"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L114",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "invoice_agent_agent_invoiceagent",
+      "target": "invoice_agent_agent_invoiceagent_get_latest_invoice_with_support_employee"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L170",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "invoice_agent_agent_invoiceagent",
+      "target": "invoice_agent_agent_invoiceagent_is_support_employee_request"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L224",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "invoice_agent_agent_invoiceagent",
+      "target": "invoice_agent_agent_invoiceagent_is_all_invoices_request"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L234",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "invoice_agent_agent_invoiceagent",
+      "target": "invoice_agent_agent_invoiceagent_get_support_employee_for_invoice"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L263",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "invoice_agent_agent_invoiceagent",
+      "target": "invoice_agent_agent_invoiceagent_enrich_invoices_with_support_employee"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L285",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "invoice_agent_agent_invoiceagent",
+      "target": "invoice_agent_agent_invoiceagent_extract_invoice_id"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
       "source_location": "L135",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -15707,6 +16994,116 @@
       "confidence_score": 1.0,
       "source": "invoice_agent_agent_invoiceagent_parse_request",
       "target": "invoice_agent_agent_invoiceagent_extract_number"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L47",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "invoice_agent_agent_invoiceagent_parse_request",
+      "target": "invoice_agent_agent_invoiceagent_is_support_employee_request"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L53",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "invoice_agent_agent_invoiceagent_parse_request",
+      "target": "invoice_agent_agent_invoiceagent_is_all_invoices_request"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L75",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "invoice_agent_agent_invoiceagent_get_latest_invoice",
+      "target": "invoice_agent_agent_invoiceagent_get_latest_invoice_with_support_employee"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L100",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "invoice_agent_agent_invoiceagent_get_invoices_by_unit_price",
+      "target": "invoice_agent_agent_invoiceagent_enrich_invoices_with_support_employee"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L130",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "invoice_agent_agent_invoiceagent_get_all_invoices",
+      "target": "invoice_agent_agent_invoiceagent_enrich_invoices_with_support_employee"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L109",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "invoice_agent_agent_invoiceagent_get_latest_invoice_support_employee",
+      "target": "invoice_agent_agent_invoiceagent_get_latest_invoice_with_support_employee"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L172",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "invoice_agent_agent_invoiceagent_get_latest_invoice_with_support_employee",
+      "target": "invoice_agent_agent_invoiceagent_extract_invoice_id"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L180",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "invoice_agent_agent_invoiceagent_get_latest_invoice_with_support_employee",
+      "target": "invoice_agent_agent_invoiceagent_get_support_employee_for_invoice"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L240",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "invoice_agent_agent_invoiceagent_get_support_employee_for_invoice",
+      "target": "invoice_agent_agent_invoiceagent_extract_invoice_id"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
+      "source_location": "L275",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "invoice_agent_agent_invoiceagent_enrich_invoices_with_support_employee",
+      "target": "invoice_agent_agent_invoiceagent_get_support_employee_for_invoice"
     },
     {
       "relation": "contains",
@@ -17408,6 +18805,86 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "PROJECT.md",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_multi_agent_system_using_langgraph",
+      "target": "langgraph_agent_project_current_architecture",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L27",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_multi_agent_system_using_langgraph",
+      "target": "langgraph_agent_project_core_boundaries",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_multi_agent_system_using_langgraph",
+      "target": "langgraph_agent_project_current_checkpoint",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L56",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_multi_agent_system_using_langgraph",
+      "target": "langgraph_agent_project_current_invoice_rule",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L71",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_multi_agent_system_using_langgraph",
+      "target": "langgraph_agent_project_runtime_commands",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L113",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_multi_agent_system_using_langgraph",
+      "target": "langgraph_agent_project_test_commands",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L138",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_multi_agent_system_using_langgraph",
+      "target": "langgraph_agent_project_configuration_notes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L146",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_multi_agent_system_using_langgraph",
+      "target": "langgraph_agent_project_roadmap",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
       "source_location": "L6",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -17568,51 +19045,11 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "PROJECT.md",
-      "source_location": "L7",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_key_components",
-      "target": "langgraph_agent_project_agents"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L8",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_agents",
-      "target": "langgraph_agent_project_invoice_agent"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
       "source_location": "L11",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_agents",
-      "target": "langgraph_agent_project_music_agent"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L14",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_agents",
-      "target": "langgraph_agent_project_planner_agent"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L18",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_agents",
-      "target": "langgraph_agent_project_aggregator_agent"
+      "source": "langgraph_agent_project_current_architecture",
+      "target": "langgraph_agent_project_codeblock_1",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -17628,11 +19065,11 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "PROJECT.md",
-      "source_location": "L122",
+      "source_location": "L62",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_configuration",
-      "target": "langgraph_agent_project_config_py"
+      "source": "langgraph_agent_project_current_invoice_rule",
+      "target": "langgraph_agent_project_codeblock_2",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -17643,6 +19080,66 @@
       "confidence_score": 1.0,
       "source": "langgraph_agent_project_config_py",
       "target": "langgraph_agent_project_codeblock_2"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L75",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_runtime_commands",
+      "target": "langgraph_agent_project_codeblock_3",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L81",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_runtime_commands",
+      "target": "langgraph_agent_project_codeblock_4",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L89",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_runtime_commands",
+      "target": "langgraph_agent_project_codeblock_5",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L95",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_runtime_commands",
+      "target": "langgraph_agent_project_codeblock_6",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L101",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_runtime_commands",
+      "target": "langgraph_agent_project_codeblock_7",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L105",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_runtime_commands",
+      "target": "langgraph_agent_project_codeblock_8",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -17708,6 +19205,36 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "PROJECT.md",
+      "source_location": "L117",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_test_commands",
+      "target": "langgraph_agent_project_codeblock_9",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L123",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_test_commands",
+      "target": "langgraph_agent_project_codeblock_10",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L129",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_test_commands",
+      "target": "langgraph_agent_project_codeblock_11",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
       "source_location": "L283",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -17723,26 +19250,6 @@
       "confidence_score": 1.0,
       "source": "langgraph_agent_project_hitl_and_aggregator",
       "target": "langgraph_agent_project_codeblock_10"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L447",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_current_reliability_improvements",
-      "target": "langgraph_agent_project_completed_reliability_work"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L463",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_current_reliability_improvements",
-      "target": "langgraph_agent_project_current_execution_flow"
     },
     {
       "relation": "contains",
@@ -17768,71 +19275,71 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "PROJECT.md",
-      "source_location": "L483",
+      "source_location": "L148",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_future_roadmap",
-      "target": "langgraph_agent_project_phase_1_finish_runtime_cleanup"
+      "source": "langgraph_agent_project_roadmap",
+      "target": "langgraph_agent_project_phase_1_stabilize_current_invoice_behavior",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "PROJECT.md",
-      "source_location": "L491",
+      "source_location": "L157",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_future_roadmap",
-      "target": "langgraph_agent_project_phase_2_add_api_server_entrypoint"
+      "source": "langgraph_agent_project_roadmap",
+      "target": "langgraph_agent_project_phase_2_replace_domain_text_parsing_with_structured_inputs",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "PROJECT.md",
-      "source_location": "L530",
+      "source_location": "L183",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_future_roadmap",
-      "target": "langgraph_agent_project_phase_3_structured_a2a_payload_preparation"
+      "source": "langgraph_agent_project_roadmap",
+      "target": "langgraph_agent_project_phase_3_add_focused_domain_capabilities",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "PROJECT.md",
-      "source_location": "L558",
+      "source_location": "L201",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_future_roadmap",
-      "target": "langgraph_agent_project_phase_4_add_more_domain_capabilities"
+      "source": "langgraph_agent_project_roadmap",
+      "target": "langgraph_agent_project_phase_4_parallel_multi_agent_execution",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "PROJECT.md",
-      "source_location": "L581",
+      "source_location": "L221",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_future_roadmap",
-      "target": "langgraph_agent_project_phase_5_replace_domain_text_parsing_with_structured_inputs"
+      "source": "langgraph_agent_project_roadmap",
+      "target": "langgraph_agent_project_phase_5_deployment_readiness",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "PROJECT.md",
-      "source_location": "L602",
+      "source_location": "L163",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_future_roadmap",
-      "target": "langgraph_agent_project_phase_6_parallel_multi_agent_execution"
+      "source": "langgraph_agent_project_phase_2_replace_domain_text_parsing_with_structured_inputs",
+      "target": "langgraph_agent_project_codeblock_12",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "PROJECT.md",
-      "source_location": "L622",
+      "source_location": "L169",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_future_roadmap",
-      "target": "langgraph_agent_project_phase_7_deployment_readiness"
+      "source": "langgraph_agent_project_phase_2_replace_domain_text_parsing_with_structured_inputs",
+      "target": "langgraph_agent_project_codeblock_13",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -17842,6 +19349,16 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "langgraph_agent_project_phase_2_add_api_server_entrypoint",
+      "target": "langgraph_agent_project_codeblock_12"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L386",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_run_commands",
       "target": "langgraph_agent_project_codeblock_12"
     },
     {
@@ -17858,10 +19375,50 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "PROJECT.md",
+      "source_location": "L390",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_run_commands",
+      "target": "langgraph_agent_project_codeblock_13"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L207",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_phase_4_parallel_multi_agent_execution",
+      "target": "langgraph_agent_project_codeblock_14",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L213",
+      "weight": 1.0,
+      "source": "langgraph_agent_project_phase_4_parallel_multi_agent_execution",
+      "target": "langgraph_agent_project_codeblock_15",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
       "source_location": "L509",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "langgraph_agent_project_phase_2_add_api_server_entrypoint",
+      "target": "langgraph_agent_project_codeblock_14"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L394",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_run_commands",
       "target": "langgraph_agent_project_codeblock_14"
     },
     {
@@ -17878,181 +19435,11 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "PROJECT.md",
-      "source_location": "L386",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_run_commands",
-      "target": "langgraph_agent_project_codeblock_12"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L390",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_run_commands",
-      "target": "langgraph_agent_project_codeblock_13"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L394",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_run_commands",
-      "target": "langgraph_agent_project_codeblock_14"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
       "source_location": "L398",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "langgraph_agent_project_run_commands",
       "target": "langgraph_agent_project_codeblock_15"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L536",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_phase_3_structured_a2a_payload_preparation",
-      "target": "langgraph_agent_project_codeblock_16"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L548",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_phase_3_structured_a2a_payload_preparation",
-      "target": "langgraph_agent_project_codeblock_17"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L554",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_phase_3_structured_a2a_payload_preparation",
-      "target": "langgraph_agent_project_codeblock_18"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L402",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_run_commands",
-      "target": "langgraph_agent_project_codeblock_16"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L587",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_phase_5_replace_domain_text_parsing_with_structured_inputs",
-      "target": "langgraph_agent_project_codeblock_19"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L593",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_phase_5_replace_domain_text_parsing_with_structured_inputs",
-      "target": "langgraph_agent_project_codeblock_20"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L608",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_phase_6_parallel_multi_agent_execution",
-      "target": "langgraph_agent_project_codeblock_21"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L614",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_phase_6_parallel_multi_agent_execution",
-      "target": "langgraph_agent_project_codeblock_22"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L641",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_run_commands",
-      "target": "langgraph_agent_project_codeblock_23"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L645",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_run_commands",
-      "target": "langgraph_agent_project_codeblock_24"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L649",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_run_commands",
-      "target": "langgraph_agent_project_codeblock_25"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L653",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_run_commands",
-      "target": "langgraph_agent_project_codeblock_26"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L657",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_run_commands",
-      "target": "langgraph_agent_project_codeblock_27"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "PROJECT.md",
-      "source_location": "L661",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "langgraph_agent_project_run_commands",
-      "target": "langgraph_agent_project_codeblock_28"
     },
     {
       "relation": "contains",
@@ -18360,9 +19747,9 @@
       "source_file": "README.md",
       "source_location": "L223",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "langgraph_agent_readme_running_the_system",
-      "target": "langgraph_agent_readme_5_or_run_planner_api",
-      "confidence_score": 1.0
+      "target": "langgraph_agent_readme_5_or_run_planner_api"
     },
     {
       "relation": "contains",
@@ -18430,9 +19817,9 @@
       "source_file": "README.md",
       "source_location": "L225",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "langgraph_agent_readme_5_or_run_planner_api",
-      "target": "langgraph_agent_readme_codeblock_9",
-      "confidence_score": 1.0
+      "target": "langgraph_agent_readme_codeblock_9"
     },
     {
       "relation": "contains",
@@ -18440,9 +19827,9 @@
       "source_file": "README.md",
       "source_location": "L231",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "langgraph_agent_readme_5_or_run_planner_api",
-      "target": "langgraph_agent_readme_codeblock_10",
-      "confidence_score": 1.0
+      "target": "langgraph_agent_readme_codeblock_10"
     },
     {
       "relation": "contains",
@@ -18450,9 +19837,9 @@
       "source_file": "README.md",
       "source_location": "L235",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "langgraph_agent_readme_5_or_run_planner_api",
-      "target": "langgraph_agent_readme_codeblock_11",
-      "confidence_score": 1.0
+      "target": "langgraph_agent_readme_codeblock_11"
     },
     {
       "relation": "contains",
@@ -18520,9 +19907,9 @@
       "source_file": "README.md",
       "source_location": "L271",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "langgraph_agent_readme_example_prompts",
-      "target": "langgraph_agent_readme_codeblock_15",
-      "confidence_score": 1.0
+      "target": "langgraph_agent_readme_codeblock_15"
     },
     {
       "relation": "contains",
@@ -18530,9 +19917,9 @@
       "source_file": "README.md",
       "source_location": "L277",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "langgraph_agent_readme_example_prompts",
-      "target": "langgraph_agent_readme_codeblock_16",
-      "confidence_score": 1.0
+      "target": "langgraph_agent_readme_codeblock_16"
     },
     {
       "relation": "contains",
@@ -18540,9 +19927,9 @@
       "source_file": "README.md",
       "source_location": "L285",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "langgraph_agent_readme_example_prompts",
-      "target": "langgraph_agent_readme_codeblock_17",
-      "confidence_score": 1.0
+      "target": "langgraph_agent_readme_codeblock_17"
     },
     {
       "relation": "contains",
@@ -18600,9 +19987,9 @@
       "source_file": "README.md",
       "source_location": "L310",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "langgraph_agent_readme_testing",
-      "target": "langgraph_agent_readme_codeblock_20",
-      "confidence_score": 1.0
+      "target": "langgraph_agent_readme_codeblock_20"
     },
     {
       "relation": "contains",
@@ -18610,9 +19997,9 @@
       "source_file": "README.md",
       "source_location": "L316",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "langgraph_agent_readme_testing",
-      "target": "langgraph_agent_readme_codeblock_21",
-      "confidence_score": 1.0
+      "target": "langgraph_agent_readme_codeblock_21"
     },
     {
       "relation": "contains",
@@ -18620,9 +20007,9 @@
       "source_file": "README.md",
       "source_location": "L322",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "langgraph_agent_readme_testing",
-      "target": "langgraph_agent_readme_codeblock_22",
-      "confidence_score": 1.0
+      "target": "langgraph_agent_readme_codeblock_22"
     },
     {
       "relation": "contains",
@@ -18630,9 +20017,29 @@
       "source_file": "README.md",
       "source_location": "L328",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "langgraph_agent_readme_testing",
-      "target": "langgraph_agent_readme_codeblock_23",
-      "confidence_score": 1.0
+      "target": "langgraph_agent_readme_codeblock_23"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L334",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_readme_testing",
+      "target": "langgraph_agent_readme_codeblock_24"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L342",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_readme_testing",
+      "target": "langgraph_agent_readme_codeblock_25"
     },
     {
       "relation": "contains",
@@ -18680,29 +20087,9 @@
       "source_file": "README.md",
       "source_location": "L336",
       "weight": 1.0,
-      "source": "langgraph_agent_readme_development_workflow",
-      "target": "langgraph_agent_readme_codeblock_24",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "README.md",
-      "source_location": "L344",
-      "weight": 1.0,
-      "source": "langgraph_agent_readme_development_workflow",
-      "target": "langgraph_agent_readme_codeblock_25",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "README.md",
-      "source_location": "L328",
-      "weight": 1.0,
       "confidence_score": 1.0,
       "source": "langgraph_agent_readme_development_workflow",
-      "target": "langgraph_agent_readme_a2a_integration_test_fails_with_connection_error"
+      "target": "langgraph_agent_readme_codeblock_24"
     },
     {
       "relation": "contains",
@@ -18718,6 +20105,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
+      "source_location": "L344",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_readme_development_workflow",
+      "target": "langgraph_agent_readme_codeblock_25"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
       "source_location": "L371",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -18728,11 +20125,51 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
+      "source_location": "L350",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_readme_development_workflow",
+      "target": "langgraph_agent_readme_codeblock_26"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
       "source_location": "L358",
       "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_readme_development_workflow",
+      "target": "langgraph_agent_readme_codeblock_27"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L328",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_readme_development_workflow",
+      "target": "langgraph_agent_readme_a2a_integration_test_fails_with_connection_error"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L358",
+      "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "langgraph_agent_readme_a2a_integration_test_fails_with_connection_error",
-      "target": "langgraph_agent_readme_codeblock_26",
-      "confidence_score": 1.0
+      "target": "langgraph_agent_readme_codeblock_26"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L364",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_readme_a2a_integration_test_fails_with_connection_error",
+      "target": "langgraph_agent_readme_codeblock_27"
     },
     {
       "relation": "contains",
@@ -18740,9 +20177,19 @@
       "source_file": "README.md",
       "source_location": "L368",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "langgraph_agent_readme_knowledge_graph",
-      "target": "langgraph_agent_readme_codeblock_27",
-      "confidence_score": 1.0
+      "target": "langgraph_agent_readme_codeblock_27"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L372",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_readme_a2a_integration_test_fails_with_connection_error",
+      "target": "langgraph_agent_readme_codeblock_28"
     },
     {
       "relation": "contains",
@@ -18750,9 +20197,29 @@
       "source_file": "README.md",
       "source_location": "L377",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "langgraph_agent_readme_knowledge_graph",
-      "target": "langgraph_agent_readme_codeblock_28",
-      "confidence_score": 1.0
+      "target": "langgraph_agent_readme_codeblock_28"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L383",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_readme_knowledge_graph",
+      "target": "langgraph_agent_readme_codeblock_29"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L391",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_readme_knowledge_graph",
+      "target": "langgraph_agent_readme_codeblock_30"
     },
     {
       "relation": "contains",
@@ -18760,9 +20227,29 @@
       "source_file": "README.md",
       "source_location": "L397",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "langgraph_agent_readme_current_status",
-      "target": "langgraph_agent_readme_codeblock_29",
-      "confidence_score": 1.0
+      "target": "langgraph_agent_readme_codeblock_29"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L403",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_readme_current_status",
+      "target": "langgraph_agent_readme_codeblock_30"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L411",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_readme_current_status",
+      "target": "langgraph_agent_readme_codeblock_31"
     },
     {
       "relation": "contains",
@@ -18843,6 +20330,296 @@
       "confidence_score": 1.0,
       "source": "langgraph_agent_agents_repository_instructions",
       "target": "langgraph_agent_agents_workflow"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L7",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_key_components",
+      "target": "langgraph_agent_project_agents"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_agents",
+      "target": "langgraph_agent_project_invoice_agent"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L11",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_agents",
+      "target": "langgraph_agent_project_music_agent"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L14",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_agents",
+      "target": "langgraph_agent_project_planner_agent"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L18",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_agents",
+      "target": "langgraph_agent_project_aggregator_agent"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L122",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_configuration",
+      "target": "langgraph_agent_project_config_py"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L447",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_current_reliability_improvements",
+      "target": "langgraph_agent_project_completed_reliability_work"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L463",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_current_reliability_improvements",
+      "target": "langgraph_agent_project_current_execution_flow"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L483",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_future_roadmap",
+      "target": "langgraph_agent_project_phase_1_finish_runtime_cleanup"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L491",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_future_roadmap",
+      "target": "langgraph_agent_project_phase_2_add_api_server_entrypoint"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L530",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_future_roadmap",
+      "target": "langgraph_agent_project_phase_3_structured_a2a_payload_preparation"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L558",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_future_roadmap",
+      "target": "langgraph_agent_project_phase_4_add_more_domain_capabilities"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L581",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_future_roadmap",
+      "target": "langgraph_agent_project_phase_5_replace_domain_text_parsing_with_structured_inputs"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L602",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_future_roadmap",
+      "target": "langgraph_agent_project_phase_6_parallel_multi_agent_execution"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L622",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_future_roadmap",
+      "target": "langgraph_agent_project_phase_7_deployment_readiness"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L536",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_phase_3_structured_a2a_payload_preparation",
+      "target": "langgraph_agent_project_codeblock_16"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L548",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_phase_3_structured_a2a_payload_preparation",
+      "target": "langgraph_agent_project_codeblock_17"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L554",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_phase_3_structured_a2a_payload_preparation",
+      "target": "langgraph_agent_project_codeblock_18"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L402",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_run_commands",
+      "target": "langgraph_agent_project_codeblock_16"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L587",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_phase_5_replace_domain_text_parsing_with_structured_inputs",
+      "target": "langgraph_agent_project_codeblock_19"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L593",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_phase_5_replace_domain_text_parsing_with_structured_inputs",
+      "target": "langgraph_agent_project_codeblock_20"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L608",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_phase_6_parallel_multi_agent_execution",
+      "target": "langgraph_agent_project_codeblock_21"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L614",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_phase_6_parallel_multi_agent_execution",
+      "target": "langgraph_agent_project_codeblock_22"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L641",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_run_commands",
+      "target": "langgraph_agent_project_codeblock_23"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L645",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_run_commands",
+      "target": "langgraph_agent_project_codeblock_24"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L649",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_run_commands",
+      "target": "langgraph_agent_project_codeblock_25"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L653",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_run_commands",
+      "target": "langgraph_agent_project_codeblock_26"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L657",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_run_commands",
+      "target": "langgraph_agent_project_codeblock_27"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT.md",
+      "source_location": "L661",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "langgraph_agent_project_run_commands",
+      "target": "langgraph_agent_project_codeblock_28"
     },
     {
       "relation": "calls",
@@ -20906,5 +22683,5 @@
       "source_file": "tests/test_planner_graph.py"
     }
   ],
-  "built_at_commit": "dd3c3b60f121bf54e6520069aeacd19b0e138a15"
+  "built_at_commit": "f39f9f5dd70c60b73d9bfd058ffe81edc8b73859"
 }
