@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>langgraph-agent — Complete Call Flow &amp; Architecture Documentation</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+:root {
+  --bg: #0f172a; --surface: #1e293b; --border: #334155;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #38bdf8;
+  --warn: #fbbf24; --err: #f87171; --ok: #34d399;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+.container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+h1 { font-size: 2.4rem; margin-bottom: 8px; background: linear-gradient(135deg, var(--accent), #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+h2 { font-size: 1.7rem; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); }
+h3 { font-size: 1.25rem; margin: 32px 0 12px; color: var(--accent); }
+h4 { font-size: 1.05rem; margin: 20px 0 8px; color: var(--warn); }
+p { margin: 8px 0; color: var(--muted); }
+.subtitle { color: var(--muted); font-size: 1.1rem; margin-bottom: 32px; }
+.mermaid { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 20px 0; overflow-x: auto; position: relative; }
+.mermaid.is-enhanced { padding: 0; overflow: hidden; min-height: 260px; }
+.mermaid-viewport { padding: 54px 24px 24px; overflow: hidden; cursor: grab; touch-action: none; min-height: 260px; }
+.mermaid-viewport.is-dragging { cursor: grabbing; }
+.mermaid-viewport svg { max-width: none !important; height: auto; transform-origin: 0 0; transition: transform 120ms ease; }
+.mermaid-toolbar { position: absolute; top: 10px; right: 10px; z-index: 3; display: flex; align-items: center; gap: 6px; padding: 6px; background: rgba(15,23,42,0.92); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.28); }
+.mermaid-toolbar button, .mermaid-toolbar .zoom-level { height: 28px; min-width: 32px; border: 1px solid var(--border); border-radius: 6px; background: #1e293b; color: var(--text); font: 600 0.78rem system-ui, sans-serif; display: inline-flex; align-items: center; justify-content: center; }
+.mermaid-toolbar button { cursor: pointer; }
+.mermaid-toolbar button:hover { border-color: var(--accent); color: var(--accent); }
+.mermaid-toolbar .zoom-level { min-width: 52px; color: var(--muted); background: transparent; }
+.call-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.92rem; }
+.call-table th { background: #1a2744; color: var(--accent); text-align: left; padding: 10px 14px; border: 1px solid var(--border); }
+.call-table td { padding: 8px 14px; border: 1px solid var(--border); vertical-align: top; }
+.call-table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+.tag-async { background: #7c3aed33; color: #a78bfa; }
+.tag-class { background: #05966933; color: var(--ok); }
+.tag-func { background: #2563eb33; color: var(--accent); }
+.tag-cmd { background: #d9770633; color: var(--warn); }
+.tag-endpoint { background: #dc262633; color: var(--err); }
+.tag-hook { background: #db277733; color: #f472b6; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin: 16px 0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin: 16px 0; }
+.arrow-chain { font-family: 'Fira Code', monospace; font-size: 0.85rem; color: var(--accent); padding: 10px; background: rgba(56,189,248,0.06); border-radius: 6px; }
+code { font-family: 'Fira Code', 'Cascadia Code', monospace; background: rgba(255,255,255,0.06); padding: 1px 6px; border-radius: 3px; font-size: 0.88em; }
+ul, ol { margin: 8px 0 8px 24px; color: var(--muted); }
+li { margin: 4px 0; }
+a { color: var(--accent); }
+hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+.nav { position: sticky; top: 0; background: var(--bg); z-index: 10; padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; gap: 20px; flex-wrap: wrap; font-size: 0.9rem; }
+.nav a { text-decoration: none; }
+.nav a:hover { text-decoration: underline; }
+@media (max-width: 768px) { .container { padding: 16px; } h1 { font-size: 1.8rem; } }
+
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>langgraph-agent — Complete Call Flow &amp; Architecture Documentation</h1>
+<p class="subtitle">Generated from graphify knowledge graph: 583 nodes, 900 edges, 58 communities. Commit: b2ef924</p>
+
+<div class="nav">
+    <a href="#overview">Architecture Overview</a>
+    <a href="#build-graph">Graph Build</a>
+    <a href="#cli-skills">CLI &amp; Skill Installers</a>
+    <a href="#serve-api">Serving API</a>
+    <a href="#tests-fixtures">Tests &amp; Fixtures</a>
+    <a href="#agentsmd-repository-instructions">Agentsmd Repository Instructions</a>
+    <a href="#run-mcp-serverpy">Run Mcp Serverpy</a>
+    <a href="#run-invoice-a2apy">Run Invoice A2Apy</a>
+    <a href="#run-music-a2apy">Run Music A2Apy</a>
+    <a href="#git-workflow-rule">Git Workflow Rule</a>
+</div>
+
+<!-- ====== Architecture Overview ====== -->
+<h2 id="overview">1. Architecture Overview</h2>
+
+<div class="mermaid">
+
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    BUILD_GRAPH_321CBB04("Graph Build<br/><small>18 nodes</small>")
+    class BUILD_GRAPH_321CBB04 module;
+    CLI_SKILLS_9964CBB8("CLI &amp; Skill Installers<br/><small>199 nodes</small>")
+    class CLI_SKILLS_9964CBB8 module;
+    SERVE_API_35EC8E86("Serving API<br/><small>2 nodes</small>")
+    class SERVE_API_35EC8E86 module;
+    TESTS_FIXTURES_B84B1DCC("Tests &amp; Fixtures<br/><small>356 nodes</small>")
+    class TESTS_FIXTURES_B84B1DCC module;
+    AGENTSMD_REPOSITORY_INSTRUCTIONS_C2A2C98E("Agentsmd Repository Instructions<br/><small>4 nodes</small>")
+    class AGENTSMD_REPOSITORY_INSTRUCTIONS_C2A2C98E module;
+    RUN_MCP_SERVERPY_A0CB31D3("Run Mcp Serverpy<br/><small>1 nodes</small>")
+    class RUN_MCP_SERVERPY_A0CB31D3 module;
+    RUN_INVOICE_A2APY_8A13D0C0("Run Invoice A2Apy<br/><small>1 nodes</small>")
+    class RUN_INVOICE_A2APY_8A13D0C0 module;
+    RUN_MUSIC_A2APY_F3174010("Run Music A2Apy<br/><small>1 nodes</small>")
+    class RUN_MUSIC_A2APY_F3174010 module;
+    GIT_WORKFLOW_RULE_0129464D("Git Workflow Rule<br/><small>1 nodes</small>")
+    class GIT_WORKFLOW_RULE_0129464D module;
+    TESTS_FIXTURES_B84B1DCC -->|inherits x4| CLI_SKILLS_9964CBB8
+    CLI_SKILLS_9964CBB8 -->|contains x2| TESTS_FIXTURES_B84B1DCC
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h4>Architecture Layers</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>Layer</th><th>Nodes</th><th>Communities</th></tr>
+      <tr><td>Graph Build</td><td>18</td><td><code>16, 24, 33</code></td></tr><tr><td>CLI &amp; Skill Installers</td><td>199</td><td><code>2, 4, 6, 7, 14, 17, 18, 23, 30, 32, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56</code></td></tr><tr><td>Serving API</td><td>2</td><td><code>31</code></td></tr><tr><td>Tests &amp; Fixtures</td><td>356</td><td><code>0, 1, 3, 5, 8, 9, 10, 11, 12, 13, 15, 19, 20, 22, 25, 26, 27, 28, 29</code></td></tr><tr><td>Agentsmd Repository Instructions</td><td>4</td><td><code>21</code></td></tr><tr><td>Run Mcp Serverpy</td><td>1</td><td><code>34</code></td></tr><tr><td>Run Invoice A2Apy</td><td>1</td><td><code>35</code></td></tr><tr><td>Run Music A2Apy</td><td>1</td><td><code>36</code></td></tr><tr><td>Git Workflow Rule</td><td>1</td><td><code>57</code></td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Core Flow</h4>
+    <div class="arrow-chain">Graph Build -&gt; CLI &amp; Skill Installers -&gt; Tests &amp; Fixtures -&gt; Serving API -&gt; Agentsmd Repository Instructions -&gt; Run Mcp Serverpy -&gt; Run Invoice A2Apy</div>
+  </div>
+</div>
+<div class="grid">
+  <div class="card">
+    <h4>Graph Report Highlights</h4>
+    <ul>
+      <li>583 nodes · 900 edges · 58 communities (52 shown, 6 thin omitted)</li>
+      <li>Extraction: 79% EXTRACTED · 21% INFERRED · 0% AMBIGUOUS · INFERRED: 187 edges (avg confidence: 0.77)</li>
+      <li>Token cost: 0 input · 0 output</li>
+      <li>1. `MusicAgent` - 26 edges</li>
+      <li>2. `InvoiceAgent` - 21 edges</li>
+      <li>3. `MCPToolAgent` - 18 edges</li>
+    </ul>
+  </div>
+</div>
+<hr>
+<!-- ====== 2. Graph Build ====== -->
+<h2 id="build-graph">2. Graph Build</h2>
+<p>Graph Build groups implementation around graphify, detectjson, hooksjson, codex, mostly in .graphify_detect.json, .codex/hooks.json, langgraph.json. This section covers 18 nodes and 15 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Graph Build (18 nodes, 15 edges)
+    subgraph build_graph_graphify_detect_json_150a86f6[".graphify_detect.json"]
+        graphify_detect_json_ac28b63e(".graphify_detect.json")
+        langgraph_agent_graphify_detect_files_d75c7dea("files<br/><small>.graphify_detect.json</small>")
+        langgraph_agent_graphify_detect_total_files_e646f74d("total_files<br/><small>.graphify_detect.json</small>")
+        langgraph_agent_graphify_detect_total_words_7aad663c("total_words<br/><small>.graphify_detect.json</small>")
+        langgraph_agent_graphify_detect_needs_graph_2595dce4("needs_graph<br/><small>.graphify_detect.json</small>")
+        langgraph_agent_graphify_detect_warning_cef04378("warning<br/><small>.graphify_detect.json</small>")
+        langgraph_agent_graphify_detect_skipped_sensitiv_e8e96765("skipped_sensitive<br/><small>.graphify_detect.json</small>")
+        langgraph_agent_graphify_detect_graphifyignore_p_d0899aa0("graphifyignore_patterns<br/><small>.graphify_detect.json</small>")
+        langgraph_agent_graphify_detect_scan_root_4834e510("scan_root<br/><small>.graphify_detect.json</small>")
+        langgraph_agent_graphify_detect_files_code_95e5a8a4("code<br/><small>.graphify_detect.json</small>")
+        langgraph_agent_graphify_detect_files_document_9e4bdb21("document<br/><small>.graphify_detect.json</small>")
+        langgraph_agent_graphify_detect_files_paper_2bc6229f("paper<br/><small>.graphify_detect.json</small>")
+        langgraph_agent_graphify_detect_files_image_328c1a03("image<br/><small>.graphify_detect.json</small>")
+        langgraph_agent_graphify_detect_files_video_2b95b44f("video<br/><small>.graphify_detect.json</small>")
+    end
+    subgraph build_graph_codex_hooks_json_b1af5fad[".codex/hooks.json"]
+        codex_hooks_json_96b7918d("hooks.json")
+        codex_hooks_hooks_33f35617("hooks<br/><small>.codex/hooks.json</small>")
+        codex_hooks_hooks_pretooluse_27d57a05("PreToolUse<br/><small>.codex/hooks.json</small>")
+    end
+    langgraph_json_d00ea15f("langgraph.json")
+    graphify_detect_json_ac28b63e -->|contains| langgraph_agent_graphify_detect_files_d75c7dea
+    graphify_detect_json_ac28b63e -->|contains| langgraph_agent_graphify_detect_total_files_e646f74d
+    graphify_detect_json_ac28b63e -->|contains| langgraph_agent_graphify_detect_total_words_7aad663c
+    graphify_detect_json_ac28b63e -->|contains| langgraph_agent_graphify_detect_needs_graph_2595dce4
+    graphify_detect_json_ac28b63e -->|contains| langgraph_agent_graphify_detect_warning_cef04378
+    graphify_detect_json_ac28b63e -->|contains| langgraph_agent_graphify_detect_skipped_sensitiv_e8e96765
+    graphify_detect_json_ac28b63e -->|contains| langgraph_agent_graphify_detect_graphifyignore_p_d0899aa0
+    graphify_detect_json_ac28b63e -->|contains| langgraph_agent_graphify_detect_scan_root_4834e510
+    langgraph_agent_graphify_detect_files_d75c7dea -->|contains| langgraph_agent_graphify_detect_files_code_95e5a8a4
+    langgraph_agent_graphify_detect_files_d75c7dea -->|contains| langgraph_agent_graphify_detect_files_document_9e4bdb21
+    langgraph_agent_graphify_detect_files_d75c7dea -->|contains| langgraph_agent_graphify_detect_files_paper_2bc6229f
+    langgraph_agent_graphify_detect_files_d75c7dea -->|contains| langgraph_agent_graphify_detect_files_image_328c1a03
+    langgraph_agent_graphify_detect_files_d75c7dea -->|contains| langgraph_agent_graphify_detect_files_video_2b95b44f
+    codex_hooks_json_96b7918d -->|contains| codex_hooks_hooks_33f35617
+    codex_hooks_hooks_33f35617 -->|contains| codex_hooks_hooks_pretooluse_27d57a05
+    class graphify_detect_json_ac28b63e function;
+    class langgraph_agent_graphify_detect_files_d75c7dea function;
+    class langgraph_agent_graphify_detect_total_files_e646f74d function;
+    class langgraph_agent_graphify_detect_total_words_7aad663c function;
+    class langgraph_agent_graphify_detect_needs_graph_2595dce4 function;
+    class langgraph_agent_graphify_detect_warning_cef04378 function;
+    class langgraph_agent_graphify_detect_skipped_sensitiv_e8e96765 function;
+    class langgraph_agent_graphify_detect_graphifyignore_p_d0899aa0 function;
+    class langgraph_agent_graphify_detect_scan_root_4834e510 function;
+    class langgraph_agent_graphify_detect_files_code_95e5a8a4 function;
+    class langgraph_agent_graphify_detect_files_document_9e4bdb21 function;
+    class langgraph_agent_graphify_detect_files_paper_2bc6229f function;
+    class langgraph_agent_graphify_detect_files_image_328c1a03 function;
+    class langgraph_agent_graphify_detect_files_video_2b95b44f function;
+    class codex_hooks_json_96b7918d ui;
+    class codex_hooks_hooks_33f35617 ui;
+    class codex_hooks_hooks_pretooluse_27d57a05 klass;
+    class langgraph_json_d00ea15f function;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>.graphify_detect.json</code><br><small style="color:var(--muted)">.graphify_detect.json</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Builds dependency relationships and graph data.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>files</code><br><small style="color:var(--muted)">.graphify_detect.json</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>files node in .graphify_detect.json.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>code</code><br><small style="color:var(--muted)">.graphify_detect.json</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>code node in .graphify_detect.json.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>document</code><br><small style="color:var(--muted)">.graphify_detect.json</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>document node in .graphify_detect.json.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>paper</code><br><small style="color:var(--muted)">.graphify_detect.json</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>paper node in .graphify_detect.json.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>image</code><br><small style="color:var(--muted)">.graphify_detect.json</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>image node in .graphify_detect.json.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>video</code><br><small style="color:var(--muted)">.graphify_detect.json</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>video node in .graphify_detect.json.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>total_files</code><br><small style="color:var(--muted)">.graphify_detect.json</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>total_files node in .graphify_detect.json.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>total_words</code><br><small style="color:var(--muted)">.graphify_detect.json</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>total_words node in .graphify_detect.json.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>needs_graph</code><br><small style="color:var(--muted)">.graphify_detect.json</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Builds dependency relationships and graph data.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>warning</code><br><small style="color:var(--muted)">.graphify_detect.json</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>warning node in .graphify_detect.json.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>skipped_sensitive</code><br><small style="color:var(--muted)">.graphify_detect.json</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>skipped_sensitive node in .graphify_detect.json.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>graphifyignore_patterns</code><br><small style="color:var(--muted)">.graphify_detect.json</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Builds dependency relationships and graph data.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>scan_root</code><br><small style="color:var(--muted)">.graphify_detect.json</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Starts scanning or handles scan status.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>hooks.json</code><br><small style="color:var(--muted)">.codex/hooks.json</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>hooks.json node in .codex/hooks.json.</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td><code>hooks</code><br><small style="color:var(--muted)">.codex/hooks.json</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>hooks node in .codex/hooks.json.</td>
+</tr>
+<tr>
+  <td>17</td>
+  <td><code>PreToolUse</code><br><small style="color:var(--muted)">.codex/hooks.json</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>PreToolUse node in .codex/hooks.json.</td>
+</tr>
+<tr>
+  <td>18</td>
+  <td><code>langgraph.json</code><br><small style="color:var(--muted)">langgraph.json</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Builds dependency relationships and graph data.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>.graphify_detect.json</code></td><td>14 nodes</td></tr>
+<tr><td><code>.codex/hooks.json</code></td><td>3 nodes</td></tr>
+<tr><td><code>langgraph.json</code></td><td>1 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x15. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 3. CLI & Skill Installers ====== -->
+<h2 id="cli-skills">3. CLI &amp; Skill Installers</h2>
+<p>CLI &amp; Skill Installers groups implementation around agent, multi, system, a2a, mostly in a2a_servers/music_agent/agent.py, PROJECT.md, a2a_servers/invoice_agent/agent.py. This section covers 199 nodes and 268 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: CLI &amp; Skill Installers (199 nodes, 268 edges)
+    subgraph cli_skills_tests_test_mcp_tool_agent_error_handl_6170c8ba["tests/test_mcp_tool_agent_error_handling.py"]
+        tests_test_mcp_tool_agent_error_handling_fakecli_e6a57cb9("FakeClient<br/><small>tests/test_mcp_tool_agent_error_handling.py</small>")
+        tests_test_mcp_tool_agent_error_handling_faketoo_fa3b0b77("FakeTool<br/><small>tests/test_mcp_tool_agent_error_handling.py</small>")
+        tests_test_mcp_tool_agent_error_handling_faketoo_3b419671("__init__()<br/><small>tests/test_mcp_tool_agent_error_handling.py</small>")
+        tests_test_mcp_tool_agent_error_handling_faketoo_c7eb77f2("ainvoke()<br/><small>tests/test_mcp_tool_agent_error_handling.py</small>")
+        tests_test_mcp_tool_agent_error_handling_test_ca_5e356035("parsed text payload()<br/><small>tests/test_mcp_tool_agent_error_handling.py</small>")
+        tests_test_mcp_tool_agent_error_handling_test_ca_219db88f("empty list payload()<br/><small>tests/test_mcp_tool_agent_error_handling.py</small>")
+        tests_test_mcp_tool_agent_error_handling_test_ca_b66781ca("returns structured content()<br/><small>tests/test_mcp_tool_agent_error_handling.py</small>")
+        tests_test_mcp_tool_agent_error_handling_test_ca_e0c5617d("tool not found()<br/><small>tests/test_mcp_tool_agent_error_handling.py</small>")
+        tests_test_mcp_tool_agent_error_handling_test_ca_0ca4ba95("tool invocation fails()<br/><small>tests/test_mcp_tool_agent_error_handling.py</small>")
+        tests_test_mcp_tool_agent_error_handling_test_ca_392cfd5d("is invalid json()<br/><small>tests/test_mcp_tool_agent_error_handling.py</small>")
+        tests_test_mcp_tool_agent_error_handling_test_ca_8ae62d5c("type is unsupported()<br/><small>tests/test_mcp_tool_agent_error_handling.py</small>")
+        tests_test_mcp_tool_agent_error_handling_fakecli_47402cd4("__init__()<br/><small>tests/test_mcp_tool_agent_error_handling.py</small>")
+        tests_test_mcp_tool_agent_error_handling_fakecli_f0ecce8b("get_tools()<br/><small>tests/test_mcp_tool_agent_error_handling.py</small>")
+        tests_test_mcp_tool_agent_error_handling_test_ca_9bc4fd20("tool loader fails()<br/><small>tests/test_mcp_tool_agent_error_handling.py</small>")
+    end
+    subgraph cli_skills_a2a_servers_music_agent_agent_py_f1b1a2fa["a2a_servers/music_agent/agent.py"]
+        music_agent_agent_musicagent_ed11e233("MusicAgent<br/><small>a2a_servers/music_agent/agent.py</small>")
+        music_agent_agent_musicagent_parse_request_df359357("_parse_request()<br/><small>a2a_servers/music_agent/agent.py</small>")
+    end
+    invoice_agent_agent_invoiceagent_f509106e("InvoiceAgent<br/><small>a2a_servers/invoice_agent/agent.py</small>")
+    common_mcp_tool_agent_mcptoolagent_cc163e54("MCPToolAgent<br/><small>multi_agent_system/common/mcp_tool_agent.py</small>")
+    tests_test_mcp_tool_agent_error_handling_faketoo_fa3b0b77 -->|method| tests_test_mcp_tool_agent_error_handling_faketoo_3b419671
+    tests_test_mcp_tool_agent_error_handling_faketoo_fa3b0b77 -->|method| tests_test_mcp_tool_agent_error_handling_faketoo_c7eb77f2
+    tests_test_mcp_tool_agent_error_handling_faketoo_fa3b0b77 -->|calls| tests_test_mcp_tool_agent_error_handling_test_ca_5e356035
+    tests_test_mcp_tool_agent_error_handling_faketoo_fa3b0b77 -->|calls| tests_test_mcp_tool_agent_error_handling_test_ca_219db88f
+    tests_test_mcp_tool_agent_error_handling_faketoo_fa3b0b77 -->|calls| tests_test_mcp_tool_agent_error_handling_test_ca_b66781ca
+    tests_test_mcp_tool_agent_error_handling_faketoo_fa3b0b77 -->|calls| tests_test_mcp_tool_agent_error_handling_test_ca_e0c5617d
+    tests_test_mcp_tool_agent_error_handling_faketoo_fa3b0b77 -->|calls| tests_test_mcp_tool_agent_error_handling_test_ca_0ca4ba95
+    tests_test_mcp_tool_agent_error_handling_faketoo_fa3b0b77 -->|calls| tests_test_mcp_tool_agent_error_handling_test_ca_392cfd5d
+    tests_test_mcp_tool_agent_error_handling_faketoo_fa3b0b77 -->|calls| tests_test_mcp_tool_agent_error_handling_test_ca_8ae62d5c
+    tests_test_mcp_tool_agent_error_handling_fakecli_e6a57cb9 -->|method| tests_test_mcp_tool_agent_error_handling_fakecli_47402cd4
+    tests_test_mcp_tool_agent_error_handling_fakecli_e6a57cb9 -->|method| tests_test_mcp_tool_agent_error_handling_fakecli_f0ecce8b
+    tests_test_mcp_tool_agent_error_handling_fakecli_e6a57cb9 -->|calls| tests_test_mcp_tool_agent_error_handling_test_ca_5e356035
+    tests_test_mcp_tool_agent_error_handling_fakecli_e6a57cb9 -->|calls| tests_test_mcp_tool_agent_error_handling_test_ca_219db88f
+    tests_test_mcp_tool_agent_error_handling_fakecli_e6a57cb9 -->|calls| tests_test_mcp_tool_agent_error_handling_test_ca_b66781ca
+    tests_test_mcp_tool_agent_error_handling_fakecli_e6a57cb9 -->|calls| tests_test_mcp_tool_agent_error_handling_test_ca_9bc4fd20
+    tests_test_mcp_tool_agent_error_handling_fakecli_e6a57cb9 -->|calls| tests_test_mcp_tool_agent_error_handling_test_ca_e0c5617d
+    tests_test_mcp_tool_agent_error_handling_fakecli_e6a57cb9 -->|calls| tests_test_mcp_tool_agent_error_handling_test_ca_0ca4ba95
+    tests_test_mcp_tool_agent_error_handling_fakecli_e6a57cb9 -->|calls| tests_test_mcp_tool_agent_error_handling_test_ca_392cfd5d
+    tests_test_mcp_tool_agent_error_handling_fakecli_e6a57cb9 -->|calls| tests_test_mcp_tool_agent_error_handling_test_ca_8ae62d5c
+    music_agent_agent_musicagent_ed11e233 -->|method| music_agent_agent_musicagent_parse_request_df359357
+    %% Omitted for readability: 181 nodes, 0 edges
+    class tests_test_mcp_tool_agent_error_handling_fakecli_e6a57cb9 test;
+    class tests_test_mcp_tool_agent_error_handling_faketoo_fa3b0b77 test;
+    class tests_test_mcp_tool_agent_error_handling_faketoo_3b419671 test;
+    class tests_test_mcp_tool_agent_error_handling_faketoo_c7eb77f2 test;
+    class tests_test_mcp_tool_agent_error_handling_test_ca_5e356035 test;
+    class tests_test_mcp_tool_agent_error_handling_test_ca_219db88f test;
+    class tests_test_mcp_tool_agent_error_handling_test_ca_b66781ca test;
+    class tests_test_mcp_tool_agent_error_handling_test_ca_e0c5617d test;
+    class tests_test_mcp_tool_agent_error_handling_test_ca_0ca4ba95 test;
+    class tests_test_mcp_tool_agent_error_handling_test_ca_392cfd5d test;
+    class tests_test_mcp_tool_agent_error_handling_test_ca_8ae62d5c test;
+    class tests_test_mcp_tool_agent_error_handling_fakecli_47402cd4 test;
+    class tests_test_mcp_tool_agent_error_handling_fakecli_f0ecce8b test;
+    class tests_test_mcp_tool_agent_error_handling_test_ca_9bc4fd20 test;
+    class music_agent_agent_musicagent_ed11e233 klass;
+    class music_agent_agent_musicagent_parse_request_df359357 function;
+    class invoice_agent_agent_invoiceagent_f509106e klass;
+    class common_mcp_tool_agent_mcptoolagent_cc163e54 klass;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>Multi-Agent System Using LangGraph</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Multi-Agent System Using LangGraph.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>LangGraph</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for LangGraph.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>A2A Services</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for A2A Services.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>FastMCP Tools</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for FastMCP Tools.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>Chinook SQLite Database</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>MCP Tools</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td>Chinook SQLite Database node in PROJECT.md.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>PlannerService</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>PlannerAgent Structured PlannerOutput</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td>PlannerService node in PROJECT.md.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>PlannerAgent Structured PlannerOutput</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>PlannerService</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><code>LangGraph Planner App</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td>Supports retrieval-augmented Q&amp;A or streaming chat.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>LangGraph Planner App</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>PlannerAgent Structured PlannerOutput</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td>No direct outbound edge</td>
+  <td>Builds dependency relationships and graph data.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>HITL Interrupt Resume</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for HITL Interrupt Resume.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>Task Args Source of Truth</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Task Args Source of Truth.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>build_a2a_payload_from_task</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>build_a2a_payload_from_task node in PROJECT.md.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>Text-Compatible A2A Instruction</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Text-Compatible A2A Instruction.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>Invoice A2A Service</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>Invoice A2A Client</code><br><small style="color:var(--muted)">README.md</small><br><code>Invoice MCP Tools</code><br><small style="color:var(--muted)">README.md</small><br><code>MCP Tools</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td>Invoice A2A Service node in PROJECT.md.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>Music A2A Service</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>MCP Tools</code><br><small style="color:var(--muted)">PROJECT.md</small><br><code>Music A2A Client</code><br><small style="color:var(--muted)">README.md</small><br><code>Music MCP Tools</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td>Music A2A Service node in PROJECT.md.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>MCP Tools</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>Chinook SQLite Database</code><br><small style="color:var(--muted)">PROJECT.md</small><br><code>Invoice A2A Service</code><br><small style="color:var(--muted)">PROJECT.md</small><br><code>Music A2A Service</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td>No direct outbound edge</td>
+  <td>MCP Tools node in PROJECT.md.</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td><code>Aggregator</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Aggregator node in PROJECT.md.</td>
+</tr>
+<tr>
+  <td>17</td>
+  <td><code>Invoice Support Employee Enrichment</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Invoice Support Employee Enrichment.</td>
+</tr>
+<tr>
+  <td>18</td>
+  <td><code>Structured A2A Payload Contract</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Structured A2A Payload Contract.</td>
+</tr>
+<tr>
+  <td>19</td>
+  <td><code>Parallel Multi-Agent Execution</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Parallel Multi-Agent Execution.</td>
+</tr>
+<tr>
+  <td>20</td>
+  <td><code>Multi-Agent System with LangGraph, A2A, and MCP</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Multi-Agent System with LangGraph, A2A, and MCP.</td>
+</tr>
+<tr>
+  <td>21</td>
+  <td><code>Planner LangGraph App</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>LLM Planner Agent</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td>Builds dependency relationships and graph data.</td>
+</tr>
+<tr>
+  <td>22</td>
+  <td><code>LLM Planner Agent</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>Planner LangGraph App</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td>No direct outbound edge</td>
+  <td>LLM Planner Agent node in README.md.</td>
+</tr>
+<tr>
+  <td>23</td>
+  <td><code>Task Routing</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>Human-in-the-Loop Interrupts</code><br><small style="color:var(--muted)">README.md</small><br><code>Invoice A2A Client</code><br><small style="color:var(--muted)">README.md</small><br><code>Music A2A Client</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td>Design note for Task Routing.</td>
+</tr>
+<tr>
+  <td>24</td>
+  <td><code>Invoice A2A Client</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-cmd">Entry</span></td>
+  <td><code>Invoice A2A Service</code><br><small style="color:var(--muted)">PROJECT.md</small><br><code>Task Routing</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td>No direct outbound edge</td>
+  <td>Invoice A2A Client node in README.md.</td>
+</tr>
+<tr>
+  <td>25</td>
+  <td><code>Music A2A Client</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-cmd">Entry</span></td>
+  <td><code>Music A2A Service</code><br><small style="color:var(--muted)">PROJECT.md</small><br><code>Task Routing</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td>No direct outbound edge</td>
+  <td>Music A2A Client node in README.md.</td>
+</tr>
+<tr>
+  <td>26</td>
+  <td><code>Invoice MCP Tools</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>Invoice A2A Service</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><code>Chinook DB</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td>Invoice MCP Tools node in README.md.</td>
+</tr>
+<tr>
+  <td>27</td>
+  <td><code>Music MCP Tools</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>Music A2A Service</code><br><small style="color:var(--muted)">PROJECT.md</small></td>
+  <td><code>Chinook DB</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td>Music MCP Tools node in README.md.</td>
+</tr>
+<tr>
+  <td>28</td>
+  <td><code>Chinook DB</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>Invoice MCP Tools</code><br><small style="color:var(--muted)">README.md</small><br><code>Music MCP Tools</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td>No direct outbound edge</td>
+  <td>Chinook DB node in README.md.</td>
+</tr>
+<tr>
+  <td>29</td>
+  <td><code>Aggregator Agent</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Aggregator Agent node in README.md.</td>
+</tr>
+<tr>
+  <td>30</td>
+  <td><code>Design Principles</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Design Principles.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>a2a_servers/music_agent/agent.py</code></td><td>20 nodes</td></tr>
+<tr><td><code>PROJECT.md</code></td><td>19 nodes</td></tr>
+<tr><td><code>a2a_servers/invoice_agent/agent.py</code></td><td>17 nodes</td></tr>
+<tr><td><code>tests/test_mcp_tool_agent_error_handling.py</code></td><td>16 nodes</td></tr>
+<tr><td><code>README.md</code></td><td>15 nodes</td></tr>
+<tr><td><code>multi_agent_system/common/mcp_tool_agent.py</code></td><td>12 nodes</td></tr>
+<tr><td><code>multi_agent_system/agent_cards/invoice_agent.json</code></td><td>11 nodes</td></tr>
+<tr><td><code>multi_agent_system/agent_cards/music_agent.json</code></td><td>11 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: calls x70, contains x63, method x50, references x15. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 4. Serving API ====== -->
+<h2 id="serve-api">4. Serving API</h2>
+<p>Serving API groups implementation around run, orchestrator, apipy, scripts, mostly in scripts/run_orchestrator_api.py. This section covers 2 nodes and 1 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Serving API (2 nodes, 1 edges)
+    scripts_run_orchestrator_api_py_fbc864f5("run_orchestrator_api.py")
+    scripts_run_orchestrator_api_main_ea3ac873("main()<br/><small>scripts/run_orchestrator_api.py</small>")
+    scripts_run_orchestrator_api_py_fbc864f5 -->|contains| scripts_run_orchestrator_api_main_ea3ac873
+    class scripts_run_orchestrator_api_py_fbc864f5 api;
+    class scripts_run_orchestrator_api_main_ea3ac873 function;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>run_orchestrator_api.py</code><br><small style="color:var(--muted)">scripts/run_orchestrator_api.py</small></td>
+  <td><span class="tag tag-endpoint">API</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Module file in scripts/run_orchestrator_api.py.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>main()</code><br><small style="color:var(--muted)">scripts/run_orchestrator_api.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>main() node in scripts/run_orchestrator_api.py.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>scripts/run_orchestrator_api.py</code></td><td>2 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x1. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 5. Tests & Fixtures ====== -->
+<h2 id="tests-fixtures">5. Tests &amp; Fixtures</h2>
+<p>Tests &amp; Fixtures groups implementation around test, tests, planner, agent, mostly in tests/test_mcp_tools.py, tests/test_planner_e2e_flows.py, tests/test_task_instructions.py. This section covers 356 nodes and 605 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Tests &amp; Fixtures (356 nodes, 605 edges)
+    subgraph tests_fixtures_tests_test_orchestrator_api_py_2cd518b9["tests/test_orchestrator_api.py"]
+        tests_test_orchestrator_api_fakeplannerservice_f6c79b58("FakePlannerService<br/><small>tests/test_orchestrator_api.py</small>")
+        tests_test_orchestrator_api_fakeplannerservice_i_6f01de60("__init__()<br/><small>tests/test_orchestrator_api.py</small>")
+        tests_test_orchestrator_api_fakeplannerservice_i_db49de9a("invoke()<br/><small>tests/test_orchestrator_api.py</small>")
+        tests_test_orchestrator_api_test_planner_api_ret_ec9a3f16("returns completed response()<br/><small>tests/test_orchestrator_api.py</small>")
+        tests_test_orchestrator_api_test_planner_api_ret_1dc8281b("returns interrupted response()<br/><small>tests/test_orchestrator_api.py</small>")
+        tests_test_orchestrator_api_test_planner_api_pas_c5acd5f9("request to service()<br/><small>tests/test_orchestrator_api.py</small>")
+        tests_test_orchestrator_api_test_planner_api_rej_cc70dfa3("blank user input()<br/><small>tests/test_orchestrator_api.py</small>")
+        tests_test_orchestrator_api_test_planner_api_tri_6cd5e8d9("trims user input()<br/><small>tests/test_orchestrator_api.py</small>")
+    end
+    subgraph tests_fixtures_tests_test_planner_repair_py_d0e689c2["tests/test_planner_repair.py"]
+        tests_test_planner_repair_repairableplanneragent_05396c65("RepairablePlannerAgent<br/><small>tests/test_planner_repair.py</small>")
+        tests_test_planner_repair_repairableplanneragent_06a66a21("__init__()<br/><small>tests/test_planner_repair.py</small>")
+        tests_test_planner_repair_repairableplanneragent_c3318b27("_invoke_planner_once()<br/><small>tests/test_planner_repair.py</small>")
+        tests_test_planner_repair_repairableplanneragent_0e9bddda("_repair_planner_output()<br/><small>tests/test_planner_repair.py</small>")
+    end
+    subgraph tests_fixtures_tests_test_planner_e2e_flows_py_d82a849f["tests/test_planner_e2e_flows.py"]
+        tests_test_planner_e2e_flows_invoke_graph_a0271a9c("_invoke_graph()<br/><small>tests/test_planner_e2e_flows.py</small>")
+        tests_test_planner_e2e_flows_task_d4f02346("_task()<br/><small>tests/test_planner_e2e_flows.py</small>")
+    end
+    planner_agent_planneragent_50034e64("PlannerAgent<br/><small>multi_agent_system/planner/agent.py</small>")
+    tests_test_a2a_client_response_extraction_stuba2_e708057e("StubA2AClient<br/><small>tests/test_a2a_client_response_extraction.py</small>")
+    tests_test_aggregator_aggregate_cffdffe1("aggregate()<br/><small>tests/test_aggregator.py</small>")
+    tests_test_mcp_tools_call_tool_73e0f5c3("_call_tool()<br/><small>tests/test_mcp_tools.py</small>")
+    tests_test_orchestrator_api_fakeplannerservice_f6c79b58 -->|method| tests_test_orchestrator_api_fakeplannerservice_i_6f01de60
+    tests_test_orchestrator_api_fakeplannerservice_f6c79b58 -->|method| tests_test_orchestrator_api_fakeplannerservice_i_db49de9a
+    tests_test_orchestrator_api_fakeplannerservice_f6c79b58 -->|calls| tests_test_orchestrator_api_test_planner_api_ret_ec9a3f16
+    tests_test_orchestrator_api_fakeplannerservice_f6c79b58 -->|calls| tests_test_orchestrator_api_test_planner_api_ret_1dc8281b
+    tests_test_orchestrator_api_fakeplannerservice_f6c79b58 -->|calls| tests_test_orchestrator_api_test_planner_api_pas_c5acd5f9
+    tests_test_orchestrator_api_fakeplannerservice_f6c79b58 -->|calls| tests_test_orchestrator_api_test_planner_api_rej_cc70dfa3
+    tests_test_orchestrator_api_fakeplannerservice_f6c79b58 -->|calls| tests_test_orchestrator_api_test_planner_api_tri_6cd5e8d9
+    tests_test_planner_repair_repairableplanneragent_05396c65 -->|method| tests_test_planner_repair_repairableplanneragent_06a66a21
+    tests_test_planner_repair_repairableplanneragent_05396c65 -->|method| tests_test_planner_repair_repairableplanneragent_c3318b27
+    tests_test_planner_repair_repairableplanneragent_05396c65 -->|method| tests_test_planner_repair_repairableplanneragent_0e9bddda
+    %% Omitted for readability: 338 nodes, 0 edges
+    class tests_test_orchestrator_api_fakeplannerservice_f6c79b58 test;
+    class tests_test_orchestrator_api_fakeplannerservice_i_6f01de60 test;
+    class tests_test_orchestrator_api_fakeplannerservice_i_db49de9a test;
+    class tests_test_orchestrator_api_test_planner_api_ret_ec9a3f16 test;
+    class tests_test_orchestrator_api_test_planner_api_ret_1dc8281b test;
+    class tests_test_orchestrator_api_test_planner_api_pas_c5acd5f9 test;
+    class tests_test_orchestrator_api_test_planner_api_rej_cc70dfa3 test;
+    class tests_test_orchestrator_api_test_planner_api_tri_6cd5e8d9 test;
+    class tests_test_planner_repair_repairableplanneragent_05396c65 test;
+    class tests_test_planner_repair_repairableplanneragent_06a66a21 test;
+    class tests_test_planner_repair_repairableplanneragent_c3318b27 test;
+    class tests_test_planner_repair_repairableplanneragent_0e9bddda test;
+    class tests_test_planner_e2e_flows_invoke_graph_a0271a9c test;
+    class tests_test_planner_e2e_flows_task_d4f02346 test;
+    class planner_agent_planneragent_50034e64 klass;
+    class tests_test_a2a_client_response_extraction_stuba2_e708057e test;
+    class tests_test_aggregator_aggregate_cffdffe1 test;
+    class tests_test_mcp_tools_call_tool_73e0f5c3 test;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>test_orchestrator_api.py</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Module file in tests/test_orchestrator_api.py.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>FakePlannerService</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>__init__()</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small><br><code>blank user input()</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small><br><code>invoke()</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small><br>+5 more</td>
+  <td>FakePlannerService node in tests/test_orchestrator_api.py.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>.__init__()</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td><code>FakePlannerService</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>.__init__() node in tests/test_orchestrator_api.py.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>.invoke()</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td><code>FakePlannerService</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>.invoke() node in tests/test_orchestrator_api.py.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>test_planner_api_returns_completed_response()</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td><code>FakePlannerService</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small></td>
+  <td><code>PlannerServiceResponse</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/schemas.py</small></td>
+  <td>Verifies imports, entry points, or version behavior.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>test_planner_api_returns_interrupted_response()</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td><code>FakePlannerService</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small></td>
+  <td><code>PlannerServiceResponse</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/schemas.py</small></td>
+  <td>Verifies imports, entry points, or version behavior.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>test_planner_api_passes_resume_request_to_service()</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td><code>FakePlannerService</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small></td>
+  <td><code>PlannerServiceResponse</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/schemas.py</small></td>
+  <td>Verifies imports, entry points, or version behavior.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>test_planner_api_rejects_blank_user_input()</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td><code>FakePlannerService</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small></td>
+  <td><code>PlannerServiceResponse</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/schemas.py</small></td>
+  <td>Verifies imports, entry points, or version behavior.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>test_planner_api_trims_user_input()</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td><code>FakePlannerService</code><br><small style="color:var(--muted)">tests/test_orchestrator_api.py</small></td>
+  <td><code>PlannerServiceResponse</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/schemas.py</small></td>
+  <td>Verifies imports, entry points, or version behavior.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>test_planner_service.py</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Module file in tests/test_planner_service.py.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>FakeGraph</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>__init__()</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small><br><code>ainvoke()</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small><br><code>final answer missing()</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small><br>+6 more</td>
+  <td>Builds dependency relationships and graph data.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>.__init__()</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td><code>FakeGraph</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>.__init__() node in tests/test_planner_service.py.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>.ainvoke()</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td><code>FakeGraph</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>.ainvoke() node in tests/test_planner_service.py.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>FakeInterrupt</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>__init__()</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small><br><code>PlannerService</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small><br><code>returns interrupt response()</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td>FakeInterrupt node in tests/test_planner_service.py.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>.__init__()</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td><code>FakeInterrupt</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>.__init__() node in tests/test_planner_service.py.</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td><code>anyio_backend()</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>anyio_backend() node in tests/test_planner_service.py.</td>
+</tr>
+<tr>
+  <td>17</td>
+  <td><code>test_planner_service_returns_completed_response()</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td><code>FakeGraph</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><code>PlannerService</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td>Verifies imports, entry points, or version behavior.</td>
+</tr>
+<tr>
+  <td>18</td>
+  <td><code>test_planner_service_generates_thread_id_when_missing()</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td><code>FakeGraph</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><code>PlannerService</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td>Verifies imports, entry points, or version behavior.</td>
+</tr>
+<tr>
+  <td>19</td>
+  <td><code>test_planner_service_returns_interrupt_response()</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td><code>FakeGraph</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small><br><code>FakeInterrupt</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><code>PlannerService</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td>Verifies imports, entry points, or version behavior.</td>
+</tr>
+<tr>
+  <td>20</td>
+  <td><code>test_planner_service_resumes_with_command()</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td><code>FakeGraph</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><code>PlannerService</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td>Verifies imports, entry points, or version behavior.</td>
+</tr>
+<tr>
+  <td>21</td>
+  <td><code>test_planner_service_returns_failed_response_when_graph_raises()</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td><code>FakeGraph</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><code>PlannerService</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td>Builds dependency relationships and graph data.</td>
+</tr>
+<tr>
+  <td>22</td>
+  <td><code>test_planner_service_uses_fallback_answer_when_final_answer_missing()</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><span class="tag tag-func">Test</span></td>
+  <td><code>FakeGraph</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small></td>
+  <td><code>PlannerService</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td>Verifies imports, entry points, or version behavior.</td>
+</tr>
+<tr>
+  <td>23</td>
+  <td><code>service.py</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Module file in multi_agent_system/orchestrator/service.py.</td>
+</tr>
+<tr>
+  <td>24</td>
+  <td><code>PlannerService</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>FakeGraph</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small><br><code>FakeInterrupt</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small><br><code>final answer missing()</code><br><small style="color:var(--muted)">tests/test_planner_service.py</small><br>+6 more</td>
+  <td><code>__init__()</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small><br><code>create_app()</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/server.py</small><br><code>invoke()</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small><br>+2 more</td>
+  <td>PlannerService node in multi_agent_system/orchestrator/service.py.</td>
+</tr>
+<tr>
+  <td>25</td>
+  <td><code>.__init__()</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>PlannerService</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>.__init__() node in multi_agent_system/orchestrator/service.py.</td>
+</tr>
+<tr>
+  <td>26</td>
+  <td><code>.invoke()</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>PlannerService</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td><code>_extract_final_answer()</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small><br><code>_extract_interrupt_message()</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small><br><code>_has_interrupt()</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small><br>+2 more</td>
+  <td>.invoke() node in multi_agent_system/orchestrator/service.py.</td>
+</tr>
+<tr>
+  <td>27</td>
+  <td><code>_has_interrupt()</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>invoke()</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>_has_interrupt() node in multi_agent_system/orchestrator/service.py.</td>
+</tr>
+<tr>
+  <td>28</td>
+  <td><code>_extract_interrupt_message()</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>invoke()</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>_extract_interrupt_message() node in multi_agent_system/orchestrator/service.py.</td>
+</tr>
+<tr>
+  <td>29</td>
+  <td><code>_extract_final_answer()</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>invoke()</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>_extract_final_answer() node in multi_agent_system/orchestrator/service.py.</td>
+</tr>
+<tr>
+  <td>30</td>
+  <td><code>_safe_raw_result()</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>invoke()</code><br><small style="color:var(--muted)">multi_agent_system/orchestrator/service.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>_safe_raw_result() node in multi_agent_system/orchestrator/service.py.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>tests/test_mcp_tools.py</code></td><td>28 nodes</td></tr>
+<tr><td><code>tests/test_planner_e2e_flows.py</code></td><td>22 nodes</td></tr>
+<tr><td><code>tests/test_task_instructions.py</code></td><td>18 nodes</td></tr>
+<tr><td><code>tests/test_planner_schema_validation.py</code></td><td>16 nodes</td></tr>
+<tr><td><code>tests/test_planner_hitl.py</code></td><td>15 nodes</td></tr>
+<tr><td><code>tests/test_planner_repair.py</code></td><td>14 nodes</td></tr>
+<tr><td><code>tests/test_planner_service.py</code></td><td>13 nodes</td></tr>
+<tr><td><code>tests/test_a2a_client_response_extraction.py</code></td><td>12 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x245, calls x144, method x49, inherits x14. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 6. Agentsmd Repository Instructions ====== -->
+<h2 id="agentsmd-repository-instructions">6. Agentsmd Repository Instructions</h2>
+<p>Agentsmd Repository Instructions groups implementation around agentsmd, repository, instructions, graphify, mostly in AGENTS.md. This section covers 4 nodes and 3 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Agentsmd Repository Instructions (4 nodes, 3 edges)
+    agents_repository_instructions_fb30e5fc("Repository Instructions<br/><small>AGENTS.md</small>")
+    agents_graphify_workflow_fd890124("Graphify Workflow<br/><small>AGENTS.md</small>")
+    agents_uv_package_management_772eee6b("uv Package Management<br/><small>AGENTS.md</small>")
+    agents_runtime_configuration_6fa5a412("Runtime Configuration<br/><small>AGENTS.md</small>")
+    agents_repository_instructions_fb30e5fc -->|references| agents_graphify_workflow_fd890124
+    agents_repository_instructions_fb30e5fc -->|references| agents_uv_package_management_772eee6b
+    agents_repository_instructions_fb30e5fc -->|references| agents_runtime_configuration_6fa5a412
+    class agents_repository_instructions_fb30e5fc concept;
+    class agents_graphify_workflow_fd890124 concept;
+    class agents_uv_package_management_772eee6b concept;
+    class agents_runtime_configuration_6fa5a412 concept;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>Repository Instructions</code><br><small style="color:var(--muted)">AGENTS.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Repository Instructions.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>Graphify Workflow</code><br><small style="color:var(--muted)">AGENTS.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Graphify Workflow.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>uv Package Management</code><br><small style="color:var(--muted)">AGENTS.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for uv Package Management.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>Runtime Configuration</code><br><small style="color:var(--muted)">AGENTS.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Runtime Configuration.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>AGENTS.md</code></td><td>4 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: references x3. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 7. Run Mcp Serverpy ====== -->
+<h2 id="run-mcp-serverpy">7. Run Mcp Serverpy</h2>
+<p>Run Mcp Serverpy groups implementation around run, mcp, serverpy, scripts, mostly in scripts/run_mcp_server.py. This section covers 1 nodes and 0 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Run Mcp Serverpy (1 nodes, 0 edges)
+    scripts_run_mcp_server_py_6b811ea3("run_mcp_server.py")
+    class scripts_run_mcp_server_py_6b811ea3 module;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>run_mcp_server.py</code><br><small style="color:var(--muted)">scripts/run_mcp_server.py</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Module file in scripts/run_mcp_server.py.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>scripts/run_mcp_server.py</code></td><td>1 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: No high-confidence call edges detected. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 8. Run Invoice A2Apy ====== -->
+<h2 id="run-invoice-a2apy">8. Run Invoice A2Apy</h2>
+<p>Run Invoice A2Apy groups implementation around run, invoice, a2apy, scripts, mostly in scripts/run_invoice_a2a.py. This section covers 1 nodes and 0 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Run Invoice A2Apy (1 nodes, 0 edges)
+    scripts_run_invoice_a2a_py_d0faf194("run_invoice_a2a.py")
+    class scripts_run_invoice_a2a_py_d0faf194 module;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>run_invoice_a2a.py</code><br><small style="color:var(--muted)">scripts/run_invoice_a2a.py</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Module file in scripts/run_invoice_a2a.py.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>scripts/run_invoice_a2a.py</code></td><td>1 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: No high-confidence call edges detected. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 9. Run Music A2Apy ====== -->
+<h2 id="run-music-a2apy">9. Run Music A2Apy</h2>
+<p>Run Music A2Apy groups implementation around run, music, a2apy, scripts, mostly in scripts/run_music_a2a.py. This section covers 1 nodes and 0 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Run Music A2Apy (1 nodes, 0 edges)
+    scripts_run_music_a2a_py_93c62054("run_music_a2a.py")
+    class scripts_run_music_a2a_py_93c62054 module;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>run_music_a2a.py</code><br><small style="color:var(--muted)">scripts/run_music_a2a.py</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Module file in scripts/run_music_a2a.py.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>scripts/run_music_a2a.py</code></td><td>1 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: No high-confidence call edges detected. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 10. Git Workflow Rule ====== -->
+<h2 id="git-workflow-rule">10. Git Workflow Rule</h2>
+<p>Git Workflow Rule groups implementation around git, workflow, rule, agentsmd, mostly in AGENTS.md. This section covers 1 nodes and 0 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Git Workflow Rule (1 nodes, 0 edges)
+    agents_git_workflow_rule_f8362e32("Git Workflow Rule<br/><small>AGENTS.md</small>")
+    class agents_git_workflow_rule_f8362e32 concept;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>Git Workflow Rule</code><br><small style="color:var(--muted)">AGENTS.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Git Workflow Rule.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>AGENTS.md</code></td><td>1 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: No high-confidence call edges detected. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<h2 id="hyperedges">Group Relationships (Hyperedges)</h2>
+<div class="grid">
+
+  <div class="card">
+    <h4>Runtime Architecture Flow</h4>
+    <p><code>participate_in</code> — 12 participants</p>
+    <ul>
+      <li><code>readme_planner_langgraph_app</code></li>
+      <li><code>readme_llm_planner_agent</code></li>
+      <li><code>readme_human_in_the_loop_interrupts</code></li>
+      <li><code>readme_task_routing</code></li>
+      <li><code>readme_invoice_a2a_client</code></li>
+      <li>... and 7 more</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Structured Payload Compatibility Pattern</h4>
+    <p><code>form</code> — 4 participants</p>
+    <ul>
+      <li><code>project_task_args_source_of_truth</code></li>
+      <li><code>project_build_a2a_payload_from_task</code></li>
+      <li><code>project_text_compatible_a2a_instruction</code></li>
+      <li><code>project_structured_a2a_payload_contract</code></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Component Boundary Principles</h4>
+    <p><code>form</code> — 5 participants</p>
+    <ul>
+      <li><code>readme_design_principles</code></li>
+      <li><code>readme_domain_agents_stay_focused</code></li>
+      <li><code>readme_mcp_tools_only_access_data</code></li>
+      <li><code>project_aggregator</code></li>
+      <li><code>project_task_args_source_of_truth</code></li>
+    </ul>
+  </div>
+</div>
+<hr>
+<h2 id="stats">Project Statistics</h2>
+
+<div class="grid">
+  <div class="card">
+    <h4>Graph</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><td>Nodes</td><td>583</td></tr>
+      <tr><td>Edges</td><td>900</td></tr>
+      <tr><td>Hyperedges</td><td>3</td></tr>
+      <tr><td>Communities</td><td>58</td></tr>
+      <tr><td>Documented Sections</td><td>9</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Edge Confidence</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><td>EXTRACTED</td><td>713</td></tr>
+      <tr><td>INFERRED</td><td>187</td></tr>
+      <tr><td>AMBIGUOUS</td><td>0</td></tr>
+    </table>
+  </div>
+</div>
+
+<div style="text-align:center; padding:40px 0; color: var(--muted); font-size:0.9rem;">
+  <p>langgraph-agent — Architecture Documentation</p>
+  <p>Generated: 2026-05-21 10:21 UTC · graphify callflow-html</p>
+</div>
+
+</div><!-- .container -->
+
+<script>
+(function () {
+  const mermaidConfig = {
+    startOnLoad: false,
+    theme: 'dark',
+    securityLevel: 'loose',
+    flowchart: { htmlLabels: true, useMaxWidth: true },
+    themeVariables: {
+      primaryColor: '#1e293b',
+      primaryTextColor: '#e2e8f0',
+      primaryBorderColor: '#38bdf8',
+      secondaryColor: '#0f172a',
+      tertiaryColor: '#334155',
+      lineColor: '#64748b',
+      textColor: '#e2e8f0',
+    }
+  };
+
+  mermaid.initialize(mermaidConfig);
+
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function enhanceMermaidDiagrams() {
+    document.querySelectorAll('.mermaid').forEach((container) => {
+      if (container.dataset.zoomReady === 'true') return;
+      const svg = container.querySelector('svg');
+      if (!svg) return;
+
+      container.dataset.zoomReady = 'true';
+      container.classList.add('is-enhanced');
+
+      const viewport = document.createElement('div');
+      viewport.className = 'mermaid-viewport';
+      svg.parentNode.insertBefore(viewport, svg);
+      viewport.appendChild(svg);
+
+      const toolbar = document.createElement('div');
+      toolbar.className = 'mermaid-toolbar';
+      toolbar.innerHTML = [
+        '<button type="button" data-action="zoom-out" title="Zoom out">-</button>',
+        '<span class="zoom-level" data-role="level">100%</span>',
+        '<button type="button" data-action="zoom-in" title="Zoom in">+</button>',
+        '<button type="button" data-action="fit" title="Fit width">Fit</button>',
+        '<button type="button" data-action="reset" title="Reset view">Reset</button>'
+      ].join('');
+      container.insertBefore(toolbar, viewport);
+
+      const state = { scale: 1, x: 0, y: 0, dragging: false, startX: 0, startY: 0, originX: 0, originY: 0 };
+      const level = toolbar.querySelector('[data-role="level"]');
+
+      function applyTransform() {
+        svg.style.transform = `translate(${state.x}px, ${state.y}px) scale(${state.scale})`;
+        level.textContent = `${Math.round(state.scale * 100)}%`;
+      }
+
+      function zoomBy(delta) {
+        state.scale = clamp(state.scale + delta, 0.25, 3);
+        applyTransform();
+      }
+
+      function reset() {
+        state.scale = 1;
+        state.x = 0;
+        state.y = 0;
+        applyTransform();
+      }
+
+      function fitWidth() {
+        const rawWidth = svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.width
+          ? svg.viewBox.baseVal.width
+          : svg.getBoundingClientRect().width / state.scale;
+        if (!rawWidth) {
+          reset();
+          return;
+        }
+        state.scale = clamp((viewport.clientWidth - 48) / rawWidth, 0.25, 1.4);
+        state.x = 0;
+        state.y = 0;
+        applyTransform();
+      }
+
+      toolbar.addEventListener('click', (event) => {
+        const button = event.target.closest('button[data-action]');
+        if (!button) return;
+        const action = button.dataset.action;
+        if (action === 'zoom-in') zoomBy(0.15);
+        if (action === 'zoom-out') zoomBy(-0.15);
+        if (action === 'fit') fitWidth();
+        if (action === 'reset') reset();
+      });
+
+      viewport.addEventListener('wheel', (event) => {
+        if (!event.ctrlKey && !event.metaKey) return;
+        event.preventDefault();
+        zoomBy(event.deltaY < 0 ? 0.1 : -0.1);
+      }, { passive: false });
+
+      viewport.addEventListener('pointerdown', (event) => {
+        if (event.button !== 0) return;
+        state.dragging = true;
+        state.startX = event.clientX;
+        state.startY = event.clientY;
+        state.originX = state.x;
+        state.originY = state.y;
+        viewport.classList.add('is-dragging');
+        viewport.setPointerCapture(event.pointerId);
+      });
+
+      viewport.addEventListener('pointermove', (event) => {
+        if (!state.dragging) return;
+        state.x = state.originX + event.clientX - state.startX;
+        state.y = state.originY + event.clientY - state.startY;
+        applyTransform();
+      });
+
+      function endDrag(event) {
+        if (!state.dragging) return;
+        state.dragging = false;
+        viewport.classList.remove('is-dragging');
+        if (viewport.hasPointerCapture(event.pointerId)) {
+          viewport.releasePointerCapture(event.pointerId);
+        }
+      }
+
+      viewport.addEventListener('pointerup', endDrag);
+      viewport.addEventListener('pointercancel', endDrag);
+      applyTransform();
+    });
+  }
+
+  function renderMermaid() {
+    const result = mermaid.run
+      ? mermaid.run({ querySelector: '.mermaid' })
+      : Promise.resolve();
+    Promise.resolve(result)
+      .then(enhanceMermaidDiagrams)
+      .catch((error) => {
+        console.error('Mermaid render failed:', error);
+        enhanceMermaidDiagrams();
+      });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderMermaid);
+  } else {
+    renderMermaid();
+  }
+})();
+</script>
+
+</body>
+</html>

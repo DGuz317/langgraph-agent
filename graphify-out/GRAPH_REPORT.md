@@ -4,38 +4,38 @@
 - Corpus is ~21,414 words - fits in a single context window. You may not need a graph.
 
 ## Summary
-- 558 nodes · 873 edges · 58 communities (50 shown, 8 thin omitted)
+- 583 nodes · 900 edges · 58 communities (52 shown, 6 thin omitted)
 - Extraction: 79% EXTRACTED · 21% INFERRED · 0% AMBIGUOUS · INFERRED: 187 edges (avg confidence: 0.77)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
 - [[_COMMUNITY_Planner API Service|Planner API Service]]
 - [[_COMMUNITY_A2A Client Layer|A2A Client Layer]]
-- [[_COMMUNITY_MCP Server Tools|MCP Server Tools]]
-- [[_COMMUNITY_MCP Tool Agent|MCP Tool Agent]]
+- [[_COMMUNITY_Runtime Architecture|Runtime Architecture]]
+- [[_COMMUNITY_MCP Data Tools|MCP Data Tools]]
+- [[_COMMUNITY_MCP Tool Client|MCP Tool Client]]
+- [[_COMMUNITY_Planner Agent Logic|Planner Agent Logic]]
 - [[_COMMUNITY_Invoice Domain Agent|Invoice Domain Agent]]
-- [[_COMMUNITY_Architecture Documentation|Architecture Documentation]]
 - [[_COMMUNITY_Music Domain Agent|Music Domain Agent]]
-- [[_COMMUNITY_LangGraph Nodes|LangGraph Nodes]]
-- [[_COMMUNITY_Task Instructions|Task Instructions]]
-- [[_COMMUNITY_Result Aggregation|Result Aggregation]]
+- [[_COMMUNITY_Graph Execution Nodes|Graph Execution Nodes]]
 - [[_COMMUNITY_Planner Validation|Planner Validation]]
-- [[_COMMUNITY_Planner Schemas|Planner Schemas]]
-- [[_COMMUNITY_End To End Flows|End To End Flows]]
+- [[_COMMUNITY_Final Aggregation|Final Aggregation]]
+- [[_COMMUNITY_Task Instruction Builder|Task Instruction Builder]]
+- [[_COMMUNITY_Graph Test Fixtures|Graph Test Fixtures]]
 - [[_COMMUNITY_Human In The Loop|Human In The Loop]]
-- [[_COMMUNITY_A2A Executors|A2A Executors]]
-- [[_COMMUNITY_Graph Checkpointing|Graph Checkpointing]]
-- [[_COMMUNITY_LLM Planner|LLM Planner]]
+- [[_COMMUNITY_A2A Agent Executors|A2A Agent Executors]]
+- [[_COMMUNITY_Planner Checkpointing|Planner Checkpointing]]
+- [[_COMMUNITY_Graphify Detection Data|Graphify Detection Data]]
 - [[_COMMUNITY_Invoice Agent Card|Invoice Agent Card]]
 - [[_COMMUNITY_Music Agent Card|Music Agent Card]]
-- [[_COMMUNITY_Graph Routing Tests|Graph Routing Tests]]
-- [[_COMMUNITY_A2A Error Handling|A2A Error Handling]]
-- [[_COMMUNITY_Tool Hooks|Tool Hooks]]
+- [[_COMMUNITY_Planner Routing Tests|Planner Routing Tests]]
+- [[_COMMUNITY_A2A Error Tests|A2A Error Tests]]
+- [[_COMMUNITY_Repository Workflow|Repository Workflow]]
 - [[_COMMUNITY_Runtime Settings|Runtime Settings]]
+- [[_COMMUNITY_Tool Hooks|Tool Hooks]]
 - [[_COMMUNITY_Planner App State|Planner App State]]
 - [[_COMMUNITY_Shared Constants|Shared Constants]]
-- [[_COMMUNITY_Sequential Execution Rationale|Sequential Execution Rationale]]
-- [[_COMMUNITY_Repository Guidance|Repository Guidance]]
+- [[_COMMUNITY_Git Workflow|Git Workflow]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `MusicAgent` - 26 edges
@@ -50,7 +50,9 @@
 10. `StubA2AClient` - 13 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `HITL Owns Missing Information Collection` --semantically_similar_to--> `Thread ID Preservation`  [INFERRED] [semantically similar]
+- `Sequential Debuggable Workflow` --semantically_similar_to--> `Parallel Multi-Agent Execution`  [INFERRED] [semantically similar]
+  README.md → PROJECT.md
+- `Design Principles` --semantically_similar_to--> `Domain Boundary Rule`  [INFERRED] [semantically similar]
   README.md → AGENTS.md
 - `test_build_latest_invoice_instruction()` --calls--> `build_instruction_from_task()`  [INFERRED]
   tests/test_task_instructions.py → src/multi_agent_system/planner_app/task_instructions.py
@@ -58,15 +60,13 @@
   tests/test_task_instructions.py → src/multi_agent_system/planner_app/task_instructions.py
 - `test_build_all_invoices_instruction()` --calls--> `build_instruction_from_task()`  [INFERRED]
   tests/test_task_instructions.py → src/multi_agent_system/planner_app/task_instructions.py
-- `test_build_a2a_payload_from_all_invoices_task()` --calls--> `build_a2a_payload_from_task()`  [INFERRED]
-  tests/test_task_instructions.py → src/multi_agent_system/planner_app/task_instructions.py
 
 ## Hyperedges (group relationships)
-- **Runtime Request Flow** — readme_user_query, readme_planner_langgraph_app, readme_llm_planner_agent, readme_task_routing, readme_aggregator_agent, readme_final_answer [EXTRACTED 1.00]
-- **Invoice Data Path** — readme_invoice_a2a_client, readme_invoice_a2a_service, readme_invoice_mcp_tools, readme_chinook_db [EXTRACTED 1.00]
-- **Music Data Path** — readme_music_a2a_client, readme_music_a2a_service, readme_music_mcp_tools, readme_chinook_db [EXTRACTED 1.00]
+- **Runtime Architecture Flow** — readme_planner_langgraph_app, readme_llm_planner_agent, readme_human_in_the_loop_interrupts, readme_task_routing, readme_invoice_a2a_client, readme_music_a2a_client, project_invoice_a2a_service, project_music_a2a_service, readme_invoice_mcp_tools, readme_music_mcp_tools, readme_chinook_db, readme_aggregator_agent [EXTRACTED 1.00]
+- **Structured Payload Compatibility Pattern** — project_task_args_source_of_truth, project_build_a2a_payload_from_task, project_text_compatible_a2a_instruction, project_structured_a2a_payload_contract [EXTRACTED 1.00]
+- **Component Boundary Principles** — readme_design_principles, readme_domain_agents_stay_focused, readme_mcp_tools_only_access_data, project_aggregator, project_task_args_source_of_truth [EXTRACTED 1.00]
 
-## Communities (58 total, 8 thin omitted)
+## Communities (58 total, 6 thin omitted)
 
 ### Community 0 - "Planner API Service"
 Cohesion: 0.08
@@ -76,47 +76,47 @@ Nodes (30): PlannerInvokeRequest, PlannerServiceResponse, API request for invoki
 Cohesion: 0.07
 Nodes (18): BaseA2AClient, InvoiceA2AClient, MusicA2AClient, BaseA2AClient, A2AClientError, Raised when an A2A service request fails., StubA2AClient, test_ask_combines_multiple_text_parts() (+10 more)
 
-### Community 2 - "MCP Server Tools"
+### Community 2 - "Runtime Architecture"
+Cohesion: 0.07
+Nodes (38): Domain Boundary Rule, Planner Output Structured Schema, Service Start Order, Thread ID Resume Behavior, A2A Services, Aggregator, build_a2a_payload_from_task, Chinook SQLite Database (+30 more)
+
+### Community 3 - "MCP Data Tools"
 Cohesion: 0.10
 Nodes (32): get_db(), create_mcp_server(), main(), _assert_non_empty_list_of_dicts(), _call_tool(), _call_tool_async(), db(), _extract_tool_data() (+24 more)
 
-### Community 3 - "MCP Tool Agent"
+### Community 4 - "MCP Tool Client"
 Cohesion: 0.12
 Nodes (17): MCPToolError, MultiAgentSystemError, Raised when an MCP tool call fails., Base error for application-level failures., MCPToolAgent, Base class for agents that call tools exposed by the MCP server., RuntimeError, FakeClient (+9 more)
 
-### Community 4 - "Invoice Domain Agent"
+### Community 5 - "Planner Agent Logic"
 Cohesion: 0.11
-Nodes (8): BaseModel, InvoiceAgent, InvoiceRequest, InvoiceAgentResponse, MCPToolAgent, test_invoice_agent_does_not_treat_invoice_id_as_customer_id(), test_invoice_agent_missing_customer_id_fails_validation(), test_invoice_agent_parse_request()
+Nodes (20): PlannerAgent, PlannedTask, PlannerOutput, test_normalize_output_adds_task_id_and_sets_status(), test_normalize_output_preserves_task_args(), test_planned_task_accepts_all_invoices_task(), test_planned_task_accepts_clarify_music_search_with_missing_search_type(), test_planned_task_accepts_complete_invoice_task() (+12 more)
 
-### Community 5 - "Architecture Documentation"
-Cohesion: 0.09
-Nodes (29): Runtime Config, Service Start Order, Thread ID Preservation, A2A, Aggregator Agent, Aggregator Formats Results, Chinook SQLite Database, Domain Agents Stay Focused (+21 more)
+### Community 6 - "Invoice Domain Agent"
+Cohesion: 0.11
+Nodes (7): InvoiceAgent, InvoiceRequest, InvoiceAgentResponse, MCPToolAgent, test_invoice_agent_does_not_treat_invoice_id_as_customer_id(), test_invoice_agent_missing_customer_id_fails_validation(), test_invoice_agent_parse_request()
 
-### Community 6 - "Music Domain Agent"
+### Community 7 - "Music Domain Agent"
 Cohesion: 0.13
 Nodes (8): MusicAgent, MusicRequest, MusicAgentResponse, test_music_agent_missing_artist_fails_validation(), test_music_agent_parses_artist_requests(), test_music_agent_parses_genre_requests(), test_music_agent_parses_song_check_requests(), test_song_title_with_genre_word_does_not_become_genre_request()
 
-### Community 7 - "LangGraph Nodes"
+### Community 8 - "Graph Execution Nodes"
 Cohesion: 0.15
 Nodes (21): _attach_a2a_payload(), _copy_planner_output(), _failure_result(), _get_next_task_for_agent(), invoice_node(), _mark_task_failed(), missing_info_node(), music_node() (+13 more)
 
-### Community 8 - "Task Instructions"
+### Community 9 - "Planner Validation"
+Cohesion: 0.11
+Nodes (14): get_llm(), _has_arg_value(), _instruction_must_not_be_blank(), _validate_agent_intent_and_required_fields(), _validate_output_consistency(), PlannerAgent, FailingPlannerAgent, RepairablePlannerAgent (+6 more)
+
+### Community 10 - "Final Aggregation"
+Cohesion: 0.17
+Nodes (16): AggregatorAgent, AgentResult, AggregatorInput, AggregatorOutput, BaseModel, final_response_node(), aggregate(), test_aggregator_combines_multiple_agent_results_in_order() (+8 more)
+
+### Community 11 - "Task Instruction Builder"
 Cohesion: 0.16
 Nodes (23): build_a2a_payload_from_task(), build_instruction_from_task(), Raised when a planner task cannot be converted into an executable instruction., _require_arg(), _require_task_field(), TaskInstructionError, test_build_a2a_payload_copies_args(), test_build_a2a_payload_from_all_invoices_task() (+15 more)
 
-### Community 9 - "Result Aggregation"
-Cohesion: 0.17
-Nodes (15): AggregatorAgent, AgentResult, AggregatorInput, AggregatorOutput, final_response_node(), aggregate(), test_aggregator_combines_multiple_agent_results_in_order(), test_aggregator_formats_dict_result_without_data() (+7 more)
-
-### Community 10 - "Planner Validation"
-Cohesion: 0.13
-Nodes (13): _has_arg_value(), _instruction_must_not_be_blank(), _validate_agent_intent_and_required_fields(), _validate_output_consistency(), PlannerAgent, FailingPlannerAgent, RepairablePlannerAgent, test_planner_repairs_generic_music_request_to_clarify_search() (+5 more)
-
-### Community 11 - "Planner Schemas"
-Cohesion: 0.17
-Nodes (19): PlannedTask, PlannerOutput, test_normalize_output_adds_task_id_and_sets_status(), test_normalize_output_preserves_task_args(), test_planned_task_accepts_all_invoices_task(), test_planned_task_accepts_clarify_music_search_with_missing_search_type(), test_planned_task_accepts_complete_invoice_task(), test_planned_task_accepts_latest_invoice_support_employee_task() (+11 more)
-
-### Community 12 - "End To End Flows"
+### Community 12 - "Graph Test Fixtures"
 Cohesion: 0.25
 Nodes (15): FakePlanner, FakePlannerOutput, _invoke_graph(), _set_planner_output(), _task(), test_planner_e2e_all_invoices_query_uses_args_first_instruction(), test_planner_e2e_ambiguous_music_can_choose_artist_after_hitl(), test_planner_e2e_ambiguous_music_defaults_to_genre_after_hitl() (+7 more)
 
@@ -124,13 +124,17 @@ Nodes (15): FakePlanner, FakePlannerOutput, _invoke_graph(), _set_planner_output
 Cohesion: 0.18
 Nodes (18): ask_for_missing_info(), _extract_labeled_value(), extract_missing_fields(), interrupt_for_missing_info(), test_ask_for_missing_artist(), test_ask_for_missing_genre(), test_ask_for_missing_music_search_type(), test_ask_for_missing_song_title() (+10 more)
 
-### Community 14 - "A2A Executors"
+### Community 14 - "A2A Agent Executors"
 Cohesion: 0.12
 Nodes (8): AgentExecutor, load_agent_card(), InvoiceAgentExecutor, create_app(), main(), MusicAgentExecutor, create_app(), main()
 
-### Community 15 - "Graph Checkpointing"
+### Community 15 - "Planner Checkpointing"
 Cohesion: 0.14
 Nodes (13): build_async_checkpointer_context(), build_memory_checkpointer(), Checkpointer factory for the planner LangGraph app., Build an in-memory checkpointer for tests and simple local runs., Build the configured checkpointer.      Supported backends:     - memory: volati, build_graph(), main(), test_async_checkpointer_context_is_case_insensitive() (+5 more)
+
+### Community 16 - "Graphify Detection Data"
+Cohesion: 0.14
+Nodes (13): files, code, document, image, paper, video, graphifyignore_patterns, needs_graph (+5 more)
 
 ### Community 17 - "Invoice Agent Card"
 Cohesion: 0.18
@@ -140,24 +144,28 @@ Nodes (10): capabilities, pushNotifications, streaming, defaultInputModes, defau
 Cohesion: 0.18
 Nodes (10): capabilities, pushNotifications, streaming, defaultInputModes, defaultOutputModes, description, name, skills (+2 more)
 
-### Community 20 - "A2A Error Handling"
+### Community 20 - "A2A Error Tests"
 Cohesion: 0.39
 Nodes (7): make_client(), test_send_message_raises_on_connection_error(), test_send_message_raises_on_http_500(), test_send_message_raises_on_invalid_json(), test_send_message_raises_on_jsonrpc_error(), test_send_message_raises_on_timeout(), test_send_message_returns_jsonrpc_body()
 
+### Community 21 - "Repository Workflow"
+Cohesion: 0.50
+Nodes (4): Graphify Workflow, Repository Instructions, Runtime Configuration, uv Package Management
+
 ## Knowledge Gaps
-- **20 isolated node(s):** `PreToolUse`, `name`, `description`, `supportedInterfaces`, `version` (+15 more)
+- **35 isolated node(s):** `code`, `document`, `paper`, `image`, `video` (+30 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `MCPToolAgent` connect `MCP Tool Agent` to `Invoice Domain Agent`, `Music Domain Agent`?**
-  _High betweenness centrality (0.102) - this node is a cross-community bridge._
-- **Why does `build_async_checkpointer_context()` connect `Graph Checkpointing` to `Planner Validation`, `MCP Tool Agent`?**
-  _High betweenness centrality (0.077) - this node is a cross-community bridge._
-- **Why does `final_response_node()` connect `Result Aggregation` to `LangGraph Nodes`?**
-  _High betweenness centrality (0.068) - this node is a cross-community bridge._
+- **Why does `MCPToolAgent` connect `MCP Tool Client` to `Invoice Domain Agent`, `Music Domain Agent`?**
+  _High betweenness centrality (0.094) - this node is a cross-community bridge._
+- **Why does `build_async_checkpointer_context()` connect `Planner Checkpointing` to `Planner Validation`, `MCP Tool Client`?**
+  _High betweenness centrality (0.071) - this node is a cross-community bridge._
+- **Why does `final_response_node()` connect `Final Aggregation` to `Graph Execution Nodes`?**
+  _High betweenness centrality (0.062) - this node is a cross-community bridge._
 - **Are the 7 inferred relationships involving `MusicAgent` (e.g. with `MCPToolAgent` and `test_music_agent_parses_artist_requests()`) actually correct?**
   _`MusicAgent` has 7 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 5 inferred relationships involving `InvoiceAgent` (e.g. with `MCPToolAgent` and `test_invoice_agent_parse_request()`) actually correct?**
