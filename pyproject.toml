@@ -24,7 +24,6 @@ dependencies = [
     "langchain-openai>=1.2.1",
     "langchain-google-genai>=4.2.2",
     "langchain-anthropic>=1.4.3",
-    "acontext>=0.1.22",
 ]
 
 [dependency-groups]

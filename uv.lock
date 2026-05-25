@@ -33,22 +33,6 @@ http-server = [
 ]
 
 [[package]]
-name = "acontext"
-version = "0.1.22"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "anthropic" },
-    { name = "httpx" },
-    { name = "openai" },
-    { name = "pydantic" },
-    { name = "urllib3" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/26/b6/6c1f6e49d30064878da04742bd80893ec65d320e1e09e1f84a1bd266b120/acontext-0.1.22.tar.gz", hash = "sha256:04390bc930937e7df0501b81de300b85698c274a752c824fd6c4033faad3eda7", size = 49745, upload-time = "2026-04-01T06:53:45.059Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/96/98/6a3b14f0e5dd67ed91d55cd09a2de08ca8fb68e69eea2b082f0f02b19e14/acontext-0.1.22-py3-none-any.whl", hash = "sha256:559b18b493fd2c768b4554a0d4311ddbc6c1aec9e239f15cd267c82c280b37ea", size = 73112, upload-time = "2026-04-01T06:53:45.825Z" },
-]
-
-[[package]]
 name = "aiofile"
 version = "3.11.1"
 source = { registry = "https://pypi.org/simple" }
@@ -159,9 +143,9 @@ name = "aiologic"
 version = "0.16.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "sniffio" },
+    { name = "sniffio", marker = "python_full_version < '3.13'" },
     { name = "typing-extensions", marker = "python_full_version < '3.13'" },
-    { name = "wrapt" },
+    { name = "wrapt", marker = "python_full_version < '3.13'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a8/13/50b91a3ea6b030d280d2654be97c48b6ed81753a50286ee43c646ba36d3c/aiologic-0.16.0.tar.gz", hash = "sha256:c267ccbd3ff417ec93e78d28d4d577ccca115d5797cdbd16785a551d9658858f", size = 225952, upload-time = "2025-11-27T23:48:41.195Z" }
 wheels = [
@@ -519,7 +503,7 @@ name = "culsans"
 version = "0.11.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "aiologic" },
+    { name = "aiologic", marker = "python_full_version < '3.13'" },
     { name = "typing-extensions", marker = "python_full_version < '3.13'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d9/e3/49afa1bc180e0d28008ec6bcdf82a4072d1c7a41032b5b759b60814ca4b0/culsans-0.11.0.tar.gz", hash = "sha256:0b43d0d05dce6106293d114c86e3fb4bfc63088cfe8ff08ed3fe36891447fe33", size = 107546, upload-time = "2025-12-31T23:15:38.196Z" }
@@ -1506,7 +1490,6 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "a2a-sdk", extra = ["http-server"] },
-    { name = "acontext" },
     { name = "click" },
     { name = "fastapi" },
     { name = "fastmcp" },
@@ -1535,7 +1518,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "a2a-sdk", extras = ["http-server"], specifier = ">=0.3.25" },
-    { name = "acontext", specifier = ">=0.1.22" },
     { name = "click", specifier = ">=8.0.0" },
     { name = "fastapi", specifier = ">=0.135.1" },
     { name = "fastmcp", specifier = ">=3.2.0" },

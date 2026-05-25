@@ -1,5 +1,7 @@
+import json
 import os
 
+import httpx
 import pytest
 
 
@@ -18,6 +20,17 @@ def anyio_backend() -> str:
     return "asyncio"
 
 
+def _response_data(result: str):
+    body = json.loads(result)
+    assert body["success"] is True, body
+    return body["data"]
+
+
+def _assert_support_employee(employee: dict) -> None:
+    assert employee["FirstName"]
+    assert employee["Email"]
+
+
 @pytest.mark.anyio
 async def test_invoice_a2a_all_invoices_include_support_employee() -> None:
     from multi_agent_system.a2a_client.invoice_client import InvoiceA2AClient
@@ -32,6 +45,11 @@ async def test_invoice_a2a_all_invoices_include_support_employee() -> None:
     assert "support_employee" in result
     assert "FirstName" in result
     assert "Email" in result
+    data = _response_data(result)
+    assert isinstance(data, list) and data
+    for entry in data:
+        assert "invoice" in entry
+        _assert_support_employee(entry["support_employee"])
 
 
 @pytest.mark.anyio
@@ -48,6 +66,11 @@ async def test_invoice_a2a_unit_price_invoices_include_support_employee() -> Non
     assert "support_employee" in result
     assert "FirstName" in result
     assert "Email" in result
+    data = _response_data(result)
+    assert isinstance(data, list) and data
+    for entry in data:
+        assert "invoice" in entry
+        _assert_support_employee(entry["support_employee"])
 
 
 @pytest.mark.anyio
@@ -65,6 +88,9 @@ async def test_invoice_a2a_latest_invoice_includes_support_employee() -> None:
     assert "support_employee" in result
     assert "FirstName" in result
     assert "Email" in result
+    data = _response_data(result)
+    assert "latest_invoice" in data
+    _assert_support_employee(data["support_employee"])
 
 
 @pytest.mark.anyio
@@ -79,22 +105,24 @@ async def test_invoice_a2a_returns_support_employee_for_latest_invoice() -> None
     assert "failed" not in result.lower()
     assert "FirstName" in result
     assert "Email" in result
+    data = _response_data(result)
+    assert "latest_invoice" in data
+    _assert_support_employee(data["support_employee"])
 
 
-def test_real_planner_api_returns_support_employee_for_latest_invoice() -> None:
-    from fastapi.testclient import TestClient
-
+@pytest.mark.anyio
+async def test_real_planner_api_returns_support_employee_for_latest_invoice() -> None:
     from multi_agent_system.orchestrator.server import create_app
 
-    client = TestClient(create_app())
-
-    response = client.post(
-        "/planner/invoke",
-        json={
-            "user_input": "Who is the support employee for latest invoice of customer id 5?",
-            "thread_id": "integration-invoice-support-employee-thread",
-        },
-    )
+    transport = httpx.ASGITransport(app=create_app())
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+        response = await client.post(
+            "/planner/invoke",
+            json={
+                "user_input": "Who is the support employee for latest invoice of customer id 5?",
+                "thread_id": "integration-invoice-support-employee-thread",
+            },
+        )
 
     body = response.json()
 

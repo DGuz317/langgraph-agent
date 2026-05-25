@@ -1,5 +1,6 @@
 import os
 
+import httpx
 import pytest
 
 
@@ -12,20 +13,24 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_real_planner_api_completes_invoice_flow() -> None:
-    from fastapi.testclient import TestClient
+@pytest.fixture
+def anyio_backend() -> str:
+    return "asyncio"
 
+
+@pytest.mark.anyio
+async def test_real_planner_api_completes_invoice_flow() -> None:
     from multi_agent_system.orchestrator.server import create_app
 
-    client = TestClient(create_app())
-
-    response = client.post(
-        "/planner/invoke",
-        json={
-            "user_input": "Get latest invoice for customer_id=5",
-            "thread_id": "integration-invoice-thread",
-        },
-    )
+    transport = httpx.ASGITransport(app=create_app())
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+        response = await client.post(
+            "/planner/invoke",
+            json={
+                "user_input": "Get latest invoice for customer_id=5",
+                "thread_id": "integration-invoice-thread",
+            },
+        )
 
     body = response.json()
 
@@ -38,37 +43,36 @@ def test_real_planner_api_completes_invoice_flow() -> None:
     assert "invoice" in body["final_answer"].lower()
 
 
-def test_real_planner_api_interrupts_and_resumes_invoice_flow() -> None:
-    from fastapi.testclient import TestClient
-
+@pytest.mark.anyio
+async def test_real_planner_api_interrupts_and_resumes_invoice_flow() -> None:
     from multi_agent_system.orchestrator.server import create_app
 
-    client = TestClient(create_app())
+    transport = httpx.ASGITransport(app=create_app())
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+        interrupted = await client.post(
+            "/planner/invoke",
+            json={
+                "user_input": "What is my latest invoice?",
+                "thread_id": "integration-hitl-thread",
+            },
+        )
 
-    interrupted = client.post(
-        "/planner/invoke",
-        json={
-            "user_input": "What is my latest invoice?",
-            "thread_id": "integration-hitl-thread",
-        },
-    )
+        interrupted_body = interrupted.json()
 
-    interrupted_body = interrupted.json()
+        assert interrupted.status_code == 200, interrupted_body
+        assert interrupted_body["status"] == "interrupted", interrupted_body
+        assert interrupted_body["thread_id"] == "integration-hitl-thread"
+        assert interrupted_body["needs_resume"] is True
+        assert interrupted_body["interrupt_message"]
 
-    assert interrupted.status_code == 200, interrupted_body
-    assert interrupted_body["status"] == "interrupted", interrupted_body
-    assert interrupted_body["thread_id"] == "integration-hitl-thread"
-    assert interrupted_body["needs_resume"] is True
-    assert interrupted_body["interrupt_message"]
-
-    completed = client.post(
-        "/planner/invoke",
-        json={
-            "user_input": "5",
-            "thread_id": interrupted_body["thread_id"],
-            "resume": True,
-        },
-    )
+        completed = await client.post(
+            "/planner/invoke",
+            json={
+                "user_input": "5",
+                "thread_id": interrupted_body["thread_id"],
+                "resume": True,
+            },
+        )
 
     completed_body = completed.json()
 

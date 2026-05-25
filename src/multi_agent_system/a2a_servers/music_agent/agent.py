@@ -1,18 +1,11 @@
 import re
-from typing import Literal
 
-from pydantic import BaseModel
-
-from multi_agent_system.a2a_servers.music_agent.schemas import MusicAgentResponse
+from multi_agent_system.a2a_servers.music_agent.schemas import (
+    MusicAgentResponse,
+    MusicIntent,
+    MusicRequest,
+)
 from multi_agent_system.common.mcp_tool_agent import MCPToolAgent
-
-
-MusicIntent = Literal[
-    "albums_by_artist",
-    "tracks_by_artist",
-    "songs_by_genre",
-    "check_song",
-]
 
 
 # Keep the longest / most specific genre names before shorter overlapping names.
@@ -43,17 +36,11 @@ KNOWN_GENRES = (
 )
 
 
-class MusicRequest(BaseModel):
-    intent: MusicIntent
-    artist: str | None = None
-    genre: str | None = None
-    song_title: str | None = None
-
-
 class MusicAgent(MCPToolAgent):
     async def ainvoke(self, query: str) -> MusicAgentResponse:
-        request = self._parse_request(query)
+        return await self.invoke_request(self._parse_request(query))
 
+    async def invoke_request(self, request: MusicRequest) -> MusicAgentResponse:
         if error := self._validate_request(request):
             return error
 

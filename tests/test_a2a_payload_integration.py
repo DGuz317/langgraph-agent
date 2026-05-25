@@ -1,5 +1,6 @@
 import os
 
+import httpx
 import pytest
 
 
@@ -12,20 +13,24 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_real_planner_api_records_invoice_a2a_payload() -> None:
-    from fastapi.testclient import TestClient
+@pytest.fixture
+def anyio_backend() -> str:
+    return "asyncio"
 
+
+@pytest.mark.anyio
+async def test_real_planner_api_records_invoice_a2a_payload() -> None:
     from multi_agent_system.orchestrator.server import create_app
 
-    client = TestClient(create_app())
-
-    response = client.post(
-        "/planner/invoke",
-        json={
-            "user_input": "Get latest invoice for customer_id=5",
-            "thread_id": "integration-a2a-payload-invoice-thread",
-        },
-    )
+    transport = httpx.ASGITransport(app=create_app())
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+        response = await client.post(
+            "/planner/invoke",
+            json={
+                "user_input": "Get latest invoice for customer_id=5",
+                "thread_id": "integration-a2a-payload-invoice-thread",
+            },
+        )
 
     body = response.json()
 
@@ -44,20 +49,19 @@ def test_real_planner_api_records_invoice_a2a_payload() -> None:
     }
 
 
-def test_real_planner_api_records_music_a2a_payload() -> None:
-    from fastapi.testclient import TestClient
-
+@pytest.mark.anyio
+async def test_real_planner_api_records_music_a2a_payload() -> None:
     from multi_agent_system.orchestrator.server import create_app
 
-    client = TestClient(create_app())
-
-    response = client.post(
-        "/planner/invoke",
-        json={
-            "user_input": "Find tracks by artist AC/DC",
-            "thread_id": "integration-a2a-payload-music-thread",
-        },
-    )
+    transport = httpx.ASGITransport(app=create_app())
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+        response = await client.post(
+            "/planner/invoke",
+            json={
+                "user_input": "Find tracks by artist AC/DC",
+                "thread_id": "integration-a2a-payload-music-thread",
+            },
+        )
 
     body = response.json()
 

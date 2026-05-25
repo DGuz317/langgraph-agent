@@ -9,7 +9,13 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_llm_planner_returns_structured_tasks_for_core_cases() -> None:
+@pytest.fixture
+def anyio_backend() -> str:
+    return "asyncio"
+
+
+@pytest.mark.anyio
+async def test_llm_planner_returns_structured_tasks_for_core_cases() -> None:
     from multi_agent_system.planner.agent import PlannerAgent
 
     planner = PlannerAgent()
@@ -33,6 +39,20 @@ def test_llm_planner_returns_structured_tasks_for_core_cases() -> None:
             "user_input": "Get invoices sorted by unit price for customer_id=5",
             "agent": "invoice",
             "intent": "invoices_by_unit_price",
+            "missing_fields": [],
+            "args": {"customer_id": "5"},
+        },
+        {
+            "user_input": "All my invoice information of customer id 5",
+            "agent": "invoice",
+            "intent": "all_invoices",
+            "missing_fields": [],
+            "args": {"customer_id": "5"},
+        },
+        {
+            "user_input": "Who is the support employee for latest invoice of customer id 5?",
+            "agent": "invoice",
+            "intent": "latest_invoice_support_employee",
             "missing_fields": [],
             "args": {"customer_id": "5"},
         },
@@ -67,7 +87,7 @@ def test_llm_planner_returns_structured_tasks_for_core_cases() -> None:
     ]
 
     for case in cases:
-        output = planner.invoke(case["user_input"])
+        output = await planner.ainvoke(case["user_input"])
 
         assert output.status == "completed"
         assert len(output.tasks) == 1
@@ -83,7 +103,8 @@ def test_llm_planner_returns_structured_tasks_for_core_cases() -> None:
             assert task.args.get(key) == value
 
 
-def test_llm_planner_marks_generic_music_recommendation_as_ambiguous() -> None:
+@pytest.mark.anyio
+async def test_llm_planner_marks_generic_music_recommendation_as_ambiguous() -> None:
     from multi_agent_system.planner.agent import PlannerAgent
 
     planner = PlannerAgent()
@@ -96,7 +117,7 @@ def test_llm_planner_marks_generic_music_recommendation_as_ambiguous() -> None:
     ]
 
     for user_input in ambiguous_inputs:
-        output = planner.invoke(user_input)
+        output = await planner.ainvoke(user_input)
 
         assert output.status == "completed"
         assert len(output.tasks) == 1

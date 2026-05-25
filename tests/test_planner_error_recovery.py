@@ -11,7 +11,7 @@ async def test_invoice_node_returns_readable_failure_when_a2a_client_fails(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     class FailingInvoiceClient:
-        async def ask(self, instruction: str) -> str:
+        async def ask_payload(self, payload: dict) -> str:
             raise RuntimeError("invoice service unavailable")
 
     monkeypatch.setattr(
@@ -52,7 +52,7 @@ async def test_music_node_returns_readable_failure_when_a2a_client_fails(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     class FailingMusicClient:
-        async def ask(self, instruction: str) -> str:
+        async def ask_payload(self, payload: dict) -> str:
             raise RuntimeError("music service unavailable")
 
     monkeypatch.setattr(

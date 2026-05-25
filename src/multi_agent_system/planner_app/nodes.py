@@ -26,7 +26,7 @@ async def planner_node(state: PlannerAppState) -> dict:
     }
 
 
-def missing_info_node(state: PlannerAppState) -> dict:
+async def missing_info_node(state: PlannerAppState) -> dict:
     missing_fields = state.get("missing_fields", [])
     extracted = interrupt_for_missing_info(missing_fields)
 
@@ -77,7 +77,7 @@ async def invoice_node(state: PlannerAppState) -> dict:
 
         payload = _attach_a2a_payload(task)
 
-        result = await InvoiceA2AClient().ask(payload["instruction"])
+        result = await InvoiceA2AClient().ask_payload(payload)
         task["status"] = "completed"
 
         return {
@@ -109,7 +109,7 @@ async def music_node(state: PlannerAppState) -> dict:
 
         payload = _attach_a2a_payload(task)
 
-        result = await MusicA2AClient().ask(payload["instruction"])
+        result = await MusicA2AClient().ask_payload(payload)
         task["status"] = "completed"
 
         return {
@@ -132,7 +132,7 @@ async def music_node(state: PlannerAppState) -> dict:
         }
 
 
-def final_response_node(state: PlannerAppState) -> dict:
+async def final_response_node(state: PlannerAppState) -> dict:
     invoice_result = state.get("invoice_result")
     music_result = state.get("music_result")
 

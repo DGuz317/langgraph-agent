@@ -1,4 +1,5 @@
-from fastapi.testclient import TestClient
+import httpx
+import pytest
 
 from multi_agent_system.orchestrator.schemas import PlannerServiceResponse
 from multi_agent_system.orchestrator.server import create_app
@@ -26,7 +27,23 @@ class FakePlannerService:
         return self.response
 
 
-def test_planner_api_returns_completed_response() -> None:
+@pytest.fixture
+def anyio_backend() -> str:
+    return "asyncio"
+
+
+async def _post(service: FakePlannerService, payload: dict) -> httpx.Response:
+    transport = httpx.ASGITransport(app=create_app(service=service))
+
+    async with httpx.AsyncClient(
+        transport=transport,
+        base_url="http://testserver",
+    ) as client:
+        return await client.post("/planner/invoke", json=payload)
+
+
+@pytest.mark.anyio
+async def test_planner_api_returns_completed_response() -> None:
     service = FakePlannerService(
         PlannerServiceResponse(
             status="completed",
@@ -35,11 +52,9 @@ def test_planner_api_returns_completed_response() -> None:
             raw_result={"final_answer": "Done."},
         )
     )
-    client = TestClient(create_app(service=service))
-
-    response = client.post(
-        "/planner/invoke",
-        json={
+    response = await _post(
+        service,
+        {
             "user_input": "Get latest invoice for customer_id=5",
             "thread_id": "thread-1",
         },
@@ -63,7 +78,8 @@ def test_planner_api_returns_completed_response() -> None:
     ]
 
 
-def test_planner_api_returns_interrupted_response() -> None:
+@pytest.mark.anyio
+async def test_planner_api_returns_interrupted_response() -> None:
     service = FakePlannerService(
         PlannerServiceResponse(
             status="interrupted",
@@ -72,11 +88,9 @@ def test_planner_api_returns_interrupted_response() -> None:
             needs_resume=True,
         )
     )
-    client = TestClient(create_app(service=service))
-
-    response = client.post(
-        "/planner/invoke",
-        json={
+    response = await _post(
+        service,
+        {
             "user_input": "Check for song",
         },
     )
@@ -88,7 +102,8 @@ def test_planner_api_returns_interrupted_response() -> None:
     assert response.json()["needs_resume"] is True
 
 
-def test_planner_api_passes_resume_request_to_service() -> None:
+@pytest.mark.anyio
+async def test_planner_api_passes_resume_request_to_service() -> None:
     service = FakePlannerService(
         PlannerServiceResponse(
             status="completed",
@@ -96,11 +111,9 @@ def test_planner_api_passes_resume_request_to_service() -> None:
             final_answer="Song found.",
         )
     )
-    client = TestClient(create_app(service=service))
-
-    response = client.post(
-        "/planner/invoke",
-        json={
+    response = await _post(
+        service,
+        {
             "user_input": "Ligia",
             "thread_id": "thread-2",
             "resume": True,
@@ -118,18 +131,17 @@ def test_planner_api_passes_resume_request_to_service() -> None:
     ]
 
 
-def test_planner_api_rejects_blank_user_input() -> None:
+@pytest.mark.anyio
+async def test_planner_api_rejects_blank_user_input() -> None:
     service = FakePlannerService(
         PlannerServiceResponse(
             status="completed",
             thread_id="unused",
         )
     )
-    client = TestClient(create_app(service=service))
-
-    response = client.post(
-        "/planner/invoke",
-        json={
+    response = await _post(
+        service,
+        {
             "user_input": "   ",
         },
     )
@@ -138,7 +150,8 @@ def test_planner_api_rejects_blank_user_input() -> None:
     assert service.calls == []
 
 
-def test_planner_api_trims_user_input() -> None:
+@pytest.mark.anyio
+async def test_planner_api_trims_user_input() -> None:
     service = FakePlannerService(
         PlannerServiceResponse(
             status="completed",
@@ -146,11 +159,9 @@ def test_planner_api_trims_user_input() -> None:
             final_answer="Done.",
         )
     )
-    client = TestClient(create_app(service=service))
-
-    response = client.post(
-        "/planner/invoke",
-        json={
+    response = await _post(
+        service,
+        {
             "user_input": "  Find tracks by artist AC/DC  ",
         },
     )

@@ -4,7 +4,7 @@
 
 This project is a Python multi-agent system for invoice and music queries. It uses LangGraph for orchestration, A2A services for domain agents, FastMCP tools for database access, and the Chinook SQLite database as the sample data source.
 
-The current implementation is past the initial demo stage. It has a tested planner runtime, CLI and API entrypoints, structured internal task payloads, text-compatible A2A execution, and invoice result enrichment with support employee data.
+The current implementation is past the initial demo stage. It has a tested planner runtime, CLI and API entrypoints, structured internal task payloads, structured-first A2A execution with text fallback, and invoice result enrichment with support employee data.
 
 ## Current Architecture
 
@@ -17,7 +17,7 @@ User input
 -> optional HITL interrupt/resume
 -> task intent + args
 -> build_a2a_payload_from_task()
--> text-compatible A2A instruction
+-> A2A structured data part plus compatibility text instruction
 -> Invoice/Music A2A service
 -> MCP tools
 -> Aggregator
@@ -47,7 +47,9 @@ Completed:
 - `src/multi_agent_system/orchestrator/server.py` exposes `POST /planner/invoke`.
 - Graph nodes rebuild execution instructions from structured `task["args"]`, not stale planner instruction text.
 - `build_a2a_payload_from_task()` creates `{agent, intent, args, instruction}` for every executable task.
-- Current A2A compatibility still sends `payload["instruction"]` as text.
+- Planner task execution sends `a2a_payload` as native A2A structured data and retains `payload["instruction"]` as a text compatibility part.
+- Invoice and music A2A executors validate structured requests first and fall back to legacy text-only callers.
+- Planner graph callbacks are asynchronous so API/CLI `ainvoke()` flows do not depend on thread-dispatched callbacks.
 - A2A client handles HTTP errors, timeouts, JSON-RPC errors, invalid JSON, missing result objects, and malformed response parts.
 - MCP tool agent handles tool loading, missing tools, invocation errors, invalid JSON payloads, and unsupported MCP result shapes.
 - Invoice agent supports `latest_invoice`, `all_invoices`, `latest_invoice_support_employee`, and `invoices_by_unit_price`.
@@ -149,36 +151,32 @@ RUN_LLM_TESTS=1 uv run pytest tests/test_llm_planner.py -q
 
 Priority: high.
 
-- Run real-service smoke prompts through `scripts/run_planner.py` and `/planner/invoke`.
-- Confirm all invoice prompts return support employee data for each returned invoice row.
-- Add regression tests for prompt wording that the LLM planner routes incorrectly.
-- Keep `task["args"]` and `a2a_payload` as the compatibility contract.
+- Completed in automated coverage: invoice response-shape tests verify support employee enrichment for latest, all, and unit-price-sorted invoice flows.
+- Remaining validation gate: run real-service smoke prompts through `scripts/run_planner.py` and `/planner/invoke` with the selected LLM provider running.
+- Keep `task["args"]` and `a2a_payload` as the execution contract.
 
 ### Phase 2: Replace Domain Text Parsing With Structured Inputs
 
 Priority: high.
 
-Current services still parse text instructions such as:
+Implemented transport contract:
 
 ```text
 Get all invoices for customer_id=5
 ```
 
-Target internal service contract:
-
 ```json
 {
   "agent": "invoice",
   "intent": "all_invoices",
-  "args": {"customer_id": "5"}
+  "args": {"customer_id": "5"},
+  "instruction": "Get all invoices for customer_id=5"
 }
 ```
 
-Implementation notes:
-
-- Add structured request models for invoice and music A2A executors.
-- Accept structured payloads first and fall back to text parsing.
-- Keep existing text tests until structured transport is fully proven.
+- Planner nodes send this payload in an A2A data part and include `instruction` as a text part for compatibility.
+- Invoice and music executors dispatch typed structured requests when supplied and retain text parsing for direct legacy callers.
+- Existing text A2A tests remain as backward-compatibility coverage.
 
 ### Phase 3: Add Focused Domain Capabilities
 

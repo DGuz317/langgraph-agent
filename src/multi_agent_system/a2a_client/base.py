@@ -13,7 +13,17 @@ class BaseA2AClient:
         self.timeout_seconds = timeout_seconds
         self.transport = transport
 
-    async def send_message(self, text: str) -> dict[str, Any]:
+    async def send_message(
+        self,
+        text: str,
+        *,
+        data: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        parts: list[dict[str, Any]] = [{"text": text}]
+
+        if data is not None:
+            parts.insert(0, {"data": data})
+
         payload = {
             "jsonrpc": "2.0",
             "id": str(uuid4()),
@@ -21,7 +31,7 @@ class BaseA2AClient:
             "params": {
                 "message": {
                     "role": "ROLE_USER",
-                    "parts": [{"text": text}],
+                    "parts": parts,
                     "messageId": str(uuid4()),
                 }
             },
@@ -68,6 +78,16 @@ class BaseA2AClient:
 
     async def ask(self, text: str) -> str:
         body = await self.send_message(text)
+        return self._extract_text_response(body)
+
+    async def ask_payload(self, payload: dict[str, Any]) -> str:
+        """Send structured task data while retaining text compatibility."""
+        instruction = payload.get("instruction")
+
+        if not isinstance(instruction, str) or not instruction.strip():
+            raise A2AClientError("Structured A2A payload requires instruction text.")
+
+        body = await self.send_message(instruction, data=payload)
         return self._extract_text_response(body)
 
     def _extract_text_response(self, body: dict[str, Any]) -> str:

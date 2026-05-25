@@ -18,8 +18,9 @@ async def test_invoice_node_rebuilds_instruction_from_args(
     captured: dict[str, str] = {}
 
     class FakeInvoiceClient:
-        async def ask(self, instruction: str) -> str:
-            captured["instruction"] = instruction
+        async def ask_payload(self, payload: dict) -> str:
+            captured["instruction"] = payload["instruction"]
+            captured["payload"] = payload
             return '{"success": true, "content": "ok", "data": {}}'
 
     monkeypatch.setattr(
@@ -61,6 +62,7 @@ async def test_invoice_node_rebuilds_instruction_from_args(
         "args": {"customer_id": "5"},
         "instruction": "Get latest invoice for customer_id=5",
     }
+    assert captured["payload"] == result["planner_output"]["tasks"][0]["a2a_payload"]
     assert result["planner_output"]["tasks"][0]["status"] == "completed"
 
 
@@ -71,8 +73,8 @@ async def test_invoice_node_rebuilds_unit_price_instruction_from_args(
     captured: dict[str, str] = {}
 
     class FakeInvoiceClient:
-        async def ask(self, instruction: str) -> str:
-            captured["instruction"] = instruction
+        async def ask_payload(self, payload: dict) -> str:
+            captured["instruction"] = payload["instruction"]
             return '{"success": true, "content": "ok", "data": []}'
 
     monkeypatch.setattr(
@@ -120,8 +122,8 @@ async def test_invoice_node_rebuilds_all_invoices_instruction_from_args(
     captured: dict[str, str] = {}
 
     class FakeInvoiceClient:
-        async def ask(self, instruction: str) -> str:
-            captured["instruction"] = instruction
+        async def ask_payload(self, payload: dict) -> str:
+            captured["instruction"] = payload["instruction"]
             return '{"success": true, "content": "ok", "data": []}'
 
     monkeypatch.setattr(
@@ -168,8 +170,8 @@ async def test_invoice_node_rebuilds_support_employee_instruction_from_args(
     captured: dict[str, str] = {}
 
     class FakeInvoiceClient:
-        async def ask(self, instruction: str) -> str:
-            captured["instruction"] = instruction
+        async def ask_payload(self, payload: dict) -> str:
+            captured["instruction"] = payload["instruction"]
             return '{"success": true, "content": "ok", "data": {}}'
 
     monkeypatch.setattr(
@@ -219,8 +221,8 @@ async def test_music_node_rebuilds_genre_instruction_from_args(
     captured: dict[str, str] = {}
 
     class FakeMusicClient:
-        async def ask(self, instruction: str) -> str:
-            captured["instruction"] = instruction
+        async def ask_payload(self, payload: dict) -> str:
+            captured["instruction"] = payload["instruction"]
             return '{"success": true, "content": "ok", "data": []}'
 
     monkeypatch.setattr(
@@ -272,8 +274,8 @@ async def test_music_node_rebuilds_artist_instruction_from_args(
     captured: dict[str, str] = {}
 
     class FakeMusicClient:
-        async def ask(self, instruction: str) -> str:
-            captured["instruction"] = instruction
+        async def ask_payload(self, payload: dict) -> str:
+            captured["instruction"] = payload["instruction"]
             return '{"success": true, "content": "ok", "data": []}'
 
     monkeypatch.setattr(
@@ -318,8 +320,8 @@ async def test_music_node_rebuilds_song_check_instruction_from_args(
     captured: dict[str, str] = {}
 
     class FakeMusicClient:
-        async def ask(self, instruction: str) -> str:
-            captured["instruction"] = instruction
+        async def ask_payload(self, payload: dict) -> str:
+            captured["instruction"] = payload["instruction"]
             return '{"success": true, "content": "ok", "data": []}'
 
     monkeypatch.setattr(
@@ -362,7 +364,7 @@ async def test_node_instruction_rebuild_does_not_mutate_original_state(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     class FakeInvoiceClient:
-        async def ask(self, instruction: str) -> str:
+        async def ask_payload(self, payload: dict) -> str:
             return '{"success": true, "content": "ok", "data": {}}'
 
     monkeypatch.setattr(

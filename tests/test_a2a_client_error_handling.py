@@ -49,6 +49,38 @@ async def test_send_message_returns_jsonrpc_body() -> None:
 
 
 @pytest.mark.anyio
+async def test_ask_payload_sends_data_and_compatibility_text_parts() -> None:
+    captured: dict = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured.update(json.loads(request.content))
+        return httpx.Response(
+            200,
+            json={
+                "jsonrpc": "2.0",
+                "id": "test-id",
+                "result": {"message": {"parts": [{"text": "ok"}]}},
+            },
+        )
+
+    client = make_client(httpx.MockTransport(handler))
+    payload = {
+        "agent": "invoice",
+        "intent": "latest_invoice",
+        "args": {"customer_id": "5"},
+        "instruction": "Get latest invoice for customer_id=5",
+    }
+
+    result = await client.ask_payload(payload)
+
+    assert result == "ok"
+    assert captured["params"]["message"]["parts"] == [
+        {"data": payload},
+        {"text": payload["instruction"]},
+    ]
+
+
+@pytest.mark.anyio
 async def test_send_message_raises_on_http_500() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(500, text="server exploded")

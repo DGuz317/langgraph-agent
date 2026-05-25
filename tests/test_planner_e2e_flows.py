@@ -50,8 +50,8 @@ def fake_a2a_clients(monkeypatch: pytest.MonkeyPatch) -> dict[str, list[str]]:
     }
 
     class FakeInvoiceA2AClient:
-        async def ask(self, instruction: str) -> str:
-            calls["invoice"].append(instruction)
+        async def ask_payload(self, payload: dict) -> str:
+            calls["invoice"].append(payload["instruction"])
             return json.dumps(
                 {
                     "success": True,
@@ -64,8 +64,8 @@ def fake_a2a_clients(monkeypatch: pytest.MonkeyPatch) -> dict[str, list[str]]:
             )
 
     class FakeMusicA2AClient:
-        async def ask(self, instruction: str) -> str:
-            calls["music"].append(instruction)
+        async def ask_payload(self, payload: dict) -> str:
+            calls["music"].append(payload["instruction"])
             return json.dumps(
                 {
                     "success": True,

@@ -1,4 +1,32 @@
-from pydantic import BaseModel
+from typing import Literal
+
+from pydantic import BaseModel, Field
+
+
+InvoiceIntent = Literal[
+    "latest_invoice",
+    "all_invoices",
+    "latest_invoice_support_employee",
+    "invoices_by_unit_price",
+]
+
+
+class InvoiceRequest(BaseModel):
+    intent: InvoiceIntent
+    customer_id: str | None = None
+
+
+class InvoiceTaskPayload(BaseModel):
+    agent: Literal["invoice"]
+    intent: InvoiceIntent
+    args: dict[str, str] = Field(default_factory=dict)
+    instruction: str | None = None
+
+    def to_request(self) -> InvoiceRequest:
+        return InvoiceRequest(
+            intent=self.intent,
+            customer_id=self.args.get("customer_id"),
+        )
 
 
 class InvoiceAgentResponse(BaseModel):

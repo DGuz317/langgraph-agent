@@ -41,12 +41,6 @@ class Settings(BaseSettings):
     langsmith_tracing: bool = True
     langsmith_project: str = "multi-agent-system"
 
-    # Acontext runtime conversation capture
-    acontext_enabled: bool = False
-    acontext_api_key: str | None = None
-    acontext_base_url: str = "https://api.acontext.app/api/v1"
-    acontext_user_identifier: str = "multi_agent_planner"
-
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

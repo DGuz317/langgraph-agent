@@ -1,7 +1,15 @@
+import pytest
+
 from multi_agent_system.planner_app import nodes
 
 
-def test_missing_info_node_rebuilds_song_title_instruction(monkeypatch) -> None:
+@pytest.fixture
+def anyio_backend() -> str:
+    return "asyncio"
+
+
+@pytest.mark.anyio
+async def test_missing_info_node_rebuilds_song_title_instruction(monkeypatch) -> None:
     def fake_interrupt_for_missing_info(missing_fields: list[str]) -> dict:
         assert missing_fields == ["song_title"]
         return {"song_title": "Ligia"}
@@ -28,7 +36,7 @@ def test_missing_info_node_rebuilds_song_title_instruction(monkeypatch) -> None:
         },
     }
 
-    result = nodes.missing_info_node(state)
+    result = await nodes.missing_info_node(state)
     task = result["planner_output"]["tasks"][0]
 
     assert task["intent"] == "check_song"
@@ -39,7 +47,8 @@ def test_missing_info_node_rebuilds_song_title_instruction(monkeypatch) -> None:
     assert result["song_title"] == "Ligia"
 
 
-def test_missing_info_node_rebuilds_customer_id_instruction(monkeypatch) -> None:
+@pytest.mark.anyio
+async def test_missing_info_node_rebuilds_customer_id_instruction(monkeypatch) -> None:
     def fake_interrupt_for_missing_info(missing_fields: list[str]) -> dict:
         assert missing_fields == ["customer_id"]
         return {"customer_id": "5"}
@@ -66,7 +75,7 @@ def test_missing_info_node_rebuilds_customer_id_instruction(monkeypatch) -> None
         },
     }
 
-    result = nodes.missing_info_node(state)
+    result = await nodes.missing_info_node(state)
     task = result["planner_output"]["tasks"][0]
 
     assert task["intent"] == "latest_invoice"
@@ -77,7 +86,8 @@ def test_missing_info_node_rebuilds_customer_id_instruction(monkeypatch) -> None
     assert result["customer_id"] == "5"
 
 
-def test_missing_info_node_preserves_invoice_unit_price_intent(monkeypatch) -> None:
+@pytest.mark.anyio
+async def test_missing_info_node_preserves_invoice_unit_price_intent(monkeypatch) -> None:
     def fake_interrupt_for_missing_info(missing_fields: list[str]) -> dict:
         assert missing_fields == ["customer_id"]
         return {"customer_id": "5"}
@@ -104,7 +114,7 @@ def test_missing_info_node_preserves_invoice_unit_price_intent(monkeypatch) -> N
         },
     }
 
-    result = nodes.missing_info_node(state)
+    result = await nodes.missing_info_node(state)
     task = result["planner_output"]["tasks"][0]
 
     assert task["intent"] == "invoices_by_unit_price"
@@ -115,7 +125,8 @@ def test_missing_info_node_preserves_invoice_unit_price_intent(monkeypatch) -> N
     assert result["customer_id"] == "5"
 
 
-def test_missing_info_node_rebuilds_music_artist_from_music_search_type(monkeypatch) -> None:
+@pytest.mark.anyio
+async def test_missing_info_node_rebuilds_music_artist_from_music_search_type(monkeypatch) -> None:
     def fake_interrupt_for_missing_info(missing_fields: list[str]) -> dict:
         assert missing_fields == ["music_search_type"]
         return {
@@ -145,7 +156,7 @@ def test_missing_info_node_rebuilds_music_artist_from_music_search_type(monkeypa
         },
     }
 
-    result = nodes.missing_info_node(state)
+    result = await nodes.missing_info_node(state)
     task = result["planner_output"]["tasks"][0]
 
     assert task["intent"] == "tracks_by_artist"
@@ -157,7 +168,8 @@ def test_missing_info_node_rebuilds_music_artist_from_music_search_type(monkeypa
     assert result["artist"] == "AC/DC"
 
 
-def test_missing_info_node_rebuilds_music_genre_from_music_search_type(monkeypatch) -> None:
+@pytest.mark.anyio
+async def test_missing_info_node_rebuilds_music_genre_from_music_search_type(monkeypatch) -> None:
     def fake_interrupt_for_missing_info(missing_fields: list[str]) -> dict:
         assert missing_fields == ["music_search_type"]
         return {
@@ -187,7 +199,7 @@ def test_missing_info_node_rebuilds_music_genre_from_music_search_type(monkeypat
         },
     }
 
-    result = nodes.missing_info_node(state)
+    result = await nodes.missing_info_node(state)
     task = result["planner_output"]["tasks"][0]
 
     assert task["intent"] == "songs_by_genre"
@@ -199,7 +211,8 @@ def test_missing_info_node_rebuilds_music_genre_from_music_search_type(monkeypat
     assert result["genre"] == "rock"
 
 
-def test_route_after_missing_info_goes_to_music() -> None:
+@pytest.mark.anyio
+async def test_route_after_missing_info_goes_to_music() -> None:
     from multi_agent_system.planner_app.edges import route_after_planner
 
     state = {
@@ -217,10 +230,11 @@ def test_route_after_missing_info_goes_to_music() -> None:
         },
     }
 
-    assert route_after_planner(state) == "music"
+    assert await route_after_planner(state) == "music"
 
-def test_final_response_node_returns_capabilities_for_empty_task_output() -> None:
-    result = nodes.final_response_node(
+@pytest.mark.anyio
+async def test_final_response_node_returns_capabilities_for_empty_task_output() -> None:
+    result = await nodes.final_response_node(
         {
             "user_input": "hello, what can you do?",
             "planner_output": {

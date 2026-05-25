@@ -43,7 +43,8 @@ Final answer
 - **Planner owns intent detection.** It converts user input into structured tasks.
 - **HITL owns missing information collection.** It resumes the same graph thread after the user replies.
 - **Task args are the source of truth.** `task["args"]` should drive execution.
-- **Instruction strings are compatibility output.** Instructions are generated from `intent + args` before calling the current text-based A2A services.
+- **Structured A2A payloads drive domain execution.** Payloads are generated from `intent + args` and sent as native A2A data parts.
+- **Instruction strings are compatibility output.** Instructions are included as text parts so legacy text-only A2A requests remain supported.
 - **Domain agents stay focused.** Invoice and music agents parse clean instructions, call MCP tools, and return structured responses.
 - **MCP tools only access data.** They should not own planning, routing, HITL, or aggregation logic.
 - **Aggregator formats results.** It combines one or more agent outputs into the final user-facing response.
@@ -185,11 +186,6 @@ LANGSMITH_API_KEY=
 LANGSMITH_ENDPOINT=https://api.smith.langchain.com
 LANGSMITH_TRACING=false
 LANGSMITH_PROJECT=multi-agent-system
-
-ACONTEXT_ENABLED=false
-ACONTEXT_API_KEY=
-ACONTEXT_BASE_URL=https://api.acontext.app/api/v1
-ACONTEXT_USER_IDENTIFIER=multi_agent_planner
 ```
 
 Security notes:
@@ -197,11 +193,6 @@ Security notes:
 - Do not hardcode API keys inside `config.py`.
 - Keep `.env` out of Git.
 - Commit `.env.example`, not `.env`.
-
-Optional Acontext runtime capture records planner user turns and visible assistant
-responses for later task memory analysis. Set `ACONTEXT_ENABLED=true` with an
-API key to enable it. Capture is fail-open, does not change planner responses,
-and does not inject stored memory back into planner decisions.
 
 ## Running the System
 
@@ -412,7 +403,7 @@ Recommended next improvements:
 - Improve graph-node error recovery for unavailable A2A/MCP services.
 - Parameterize all SQL queries.
 - Add persistent checkpointer for production usage.
-- Add structured A2A payload support so agents no longer need text instruction parsing.
+- Validate structured A2A execution against running MCP/A2A services and representative LLM planner prompts.
 - Add parallel task execution after the sequential path is stable.
 - Add deployment documentation for remote A2A service discovery.
 

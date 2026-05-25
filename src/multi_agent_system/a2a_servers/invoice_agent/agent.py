@@ -1,31 +1,18 @@
 import re
-from typing import Literal
-
-from pydantic import BaseModel
 
 from multi_agent_system.a2a_servers.invoice_agent.schemas import (
     InvoiceAgentResponse,
+    InvoiceIntent,
+    InvoiceRequest,
 )
 from multi_agent_system.common.mcp_tool_agent import MCPToolAgent
 
 
-InvoiceIntent = Literal[
-    "latest_invoice",
-    "all_invoices",
-    "latest_invoice_support_employee",
-    "invoices_by_unit_price",
-]
-
-
-class InvoiceRequest(BaseModel):
-    intent: InvoiceIntent
-    customer_id: str | None = None
-
-
 class InvoiceAgent(MCPToolAgent):
     async def ainvoke(self, query: str) -> InvoiceAgentResponse:
-        request = self._parse_request(query)
+        return await self.invoke_request(self._parse_request(query))
 
+    async def invoke_request(self, request: InvoiceRequest) -> InvoiceAgentResponse:
         if error := self._validate_request(request):
             return error
 

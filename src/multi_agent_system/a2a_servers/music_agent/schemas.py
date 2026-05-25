@@ -1,4 +1,36 @@
-from pydantic import BaseModel
+from typing import Literal
+
+from pydantic import BaseModel, Field
+
+
+MusicIntent = Literal[
+    "albums_by_artist",
+    "tracks_by_artist",
+    "songs_by_genre",
+    "check_song",
+]
+
+
+class MusicRequest(BaseModel):
+    intent: MusicIntent
+    artist: str | None = None
+    genre: str | None = None
+    song_title: str | None = None
+
+
+class MusicTaskPayload(BaseModel):
+    agent: Literal["music"]
+    intent: MusicIntent
+    args: dict[str, str] = Field(default_factory=dict)
+    instruction: str | None = None
+
+    def to_request(self) -> MusicRequest:
+        return MusicRequest(
+            intent=self.intent,
+            artist=self.args.get("artist"),
+            genre=self.args.get("genre"),
+            song_title=self.args.get("song_title"),
+        )
 
 
 class MusicAgentResponse(BaseModel):
