@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any
+import logging
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from langgraph.types import Command
@@ -8,12 +9,28 @@ from langgraph.types import Command
 from multi_agent_system.orchestrator.schemas import PlannerServiceResponse
 from multi_agent_system.planner_app.graph import planner_graph
 
+if TYPE_CHECKING:
+    from multi_agent_system.orchestrator.acontext_capture import PlannerInteractionCapture
+
+logger = logging.getLogger(__name__)
+
 
 class PlannerService:
     """Reusable runtime wrapper for planner graph invocation."""
 
-    def __init__(self, graph: Any | None = None) -> None:
+    def __init__(
+        self,
+        graph: Any | None = None,
+        capture: PlannerInteractionCapture | None = None,
+    ) -> None:
         self.graph = graph or planner_graph
+        if capture is None:
+            from multi_agent_system.orchestrator.acontext_capture import (
+                build_acontext_capture,
+            )
+
+            capture = build_acontext_capture()
+        self.capture = capture
 
     async def invoke(
         self,
@@ -48,29 +65,61 @@ class PlannerService:
         try:
             result = await self.graph.ainvoke(payload, config=config)
         except Exception as exc:
-            return PlannerServiceResponse(
+            response = PlannerServiceResponse(
                 status="failed",
                 thread_id=active_thread_id,
                 final_answer=f"System error: {exc}",
                 raw_result={},
             )
+        else:
+            if _has_interrupt(result):
+                response = PlannerServiceResponse(
+                    status="interrupted",
+                    thread_id=active_thread_id,
+                    interrupt_message=_extract_interrupt_message(result),
+                    needs_resume=True,
+                    raw_result=_safe_raw_result(result),
+                )
+            else:
+                response = PlannerServiceResponse(
+                    status="completed",
+                    thread_id=active_thread_id,
+                    final_answer=_extract_final_answer(result),
+                    needs_resume=False,
+                    raw_result=_safe_raw_result(result),
+                )
 
-        if _has_interrupt(result):
-            return PlannerServiceResponse(
-                status="interrupted",
-                thread_id=active_thread_id,
-                interrupt_message=_extract_interrupt_message(result),
-                needs_resume=True,
-                raw_result=_safe_raw_result(result),
-            )
-
-        return PlannerServiceResponse(
-            status="completed",
+        await self._capture_interaction(
+            user_input=user_input,
             thread_id=active_thread_id,
-            final_answer=_extract_final_answer(result),
-            needs_resume=False,
-            raw_result=_safe_raw_result(result),
+            resume=resume,
+            response=response,
         )
+        return response
+
+    async def _capture_interaction(
+        self,
+        *,
+        user_input: str,
+        thread_id: str,
+        resume: bool,
+        response: PlannerServiceResponse,
+    ) -> None:
+        if self.capture is None:
+            return
+
+        try:
+            await self.capture.capture(
+                user_input=user_input,
+                thread_id=thread_id,
+                resume=resume,
+                response=response,
+            )
+        except Exception:
+            logger.exception(
+                "Acontext capture failed for planner thread %s; continuing.",
+                thread_id,
+            )
 
 
 def _has_interrupt(result: dict[str, Any]) -> bool:

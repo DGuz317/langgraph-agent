@@ -185,6 +185,11 @@ LANGSMITH_API_KEY=
 LANGSMITH_ENDPOINT=https://api.smith.langchain.com
 LANGSMITH_TRACING=false
 LANGSMITH_PROJECT=multi-agent-system
+
+ACONTEXT_ENABLED=false
+ACONTEXT_API_KEY=
+ACONTEXT_BASE_URL=https://api.acontext.app/api/v1
+ACONTEXT_USER_IDENTIFIER=multi_agent_planner
 ```
 
 Security notes:
@@ -192,6 +197,11 @@ Security notes:
 - Do not hardcode API keys inside `config.py`.
 - Keep `.env` out of Git.
 - Commit `.env.example`, not `.env`.
+
+Optional Acontext runtime capture records planner user turns and visible assistant
+responses for later task memory analysis. Set `ACONTEXT_ENABLED=true` with an
+API key to enable it. Capture is fail-open, does not change planner responses,
+and does not inject stored memory back into planner decisions.
 
 ## Running the System
 
