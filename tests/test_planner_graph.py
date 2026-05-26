@@ -200,6 +200,45 @@ async def test_missing_info_node_preserves_invoice_summary_intent(monkeypatch) -
 
 
 @pytest.mark.anyio
+async def test_missing_info_node_preserves_customer_support_employee_intent(
+    monkeypatch,
+) -> None:
+    def fake_interrupt_for_missing_info(missing_fields: list[str]) -> dict:
+        assert missing_fields == ["customer_id"]
+        return {"customer_id": "5"}
+
+    monkeypatch.setattr(
+        nodes,
+        "interrupt_for_missing_info",
+        fake_interrupt_for_missing_info,
+    )
+
+    state = {
+        "user_input": "who is my support employee?",
+        "missing_fields": ["customer_id"],
+        "planner_output": {
+            "tasks": [
+                {
+                    "agent": "invoice",
+                    "intent": "customer_support_employee",
+                    "instruction": "Get support employee",
+                    "args": {},
+                    "missing_fields": ["customer_id"],
+                }
+            ]
+        },
+    }
+
+    result = await nodes.missing_info_node(state)
+    task = result["planner_output"]["tasks"][0]
+
+    assert task["intent"] == "customer_support_employee"
+    assert task["instruction"] == "Get support employee for customer_id=5"
+    assert task["args"] == {"customer_id": "5"}
+    assert task["missing_fields"] == []
+
+
+@pytest.mark.anyio
 async def test_missing_info_node_rebuilds_music_artist_from_music_search_type(monkeypatch) -> None:
     def fake_interrupt_for_missing_info(missing_fields: list[str]) -> dict:
         assert missing_fields == ["music_search_type"]

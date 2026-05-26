@@ -25,6 +25,7 @@ Use invoice for:
 - latest invoice
 - invoice detail by invoice ID
 - invoice summary totals for a customer
+- support employee assigned to a customer without invoice rows
 - all invoice information for a customer
 - support employee for a customer's latest invoice
 - invoice lookup
@@ -34,6 +35,7 @@ Invoice intents:
 - latest_invoice
 - invoice_detail
 - invoice_summary
+- customer_support_employee
 - all_invoices
 - latest_invoice_support_employee
 - invoices_by_unit_price
@@ -42,6 +44,7 @@ Invoice missing field rules:
 - latest_invoice needs customer_id.
 - invoice_detail needs invoice_id.
 - invoice_summary needs customer_id.
+- customer_support_employee needs customer_id.
 - all_invoices needs customer_id.
 - latest_invoice_support_employee needs customer_id.
 - invoices_by_unit_price needs customer_id.
@@ -56,6 +59,8 @@ Invoice instruction rules:
   "Get invoice detail for invoice_id=<invoice_id>"
 - invoice_summary instruction format:
   "Get invoice summary for customer_id=<customer_id>"
+- customer_support_employee instruction format:
+  "Get support employee for customer_id=<customer_id>"
 - all_invoices instruction format:
   "Get all invoices for customer_id=<customer_id>"
 - latest_invoice_support_employee instruction format:
@@ -67,6 +72,7 @@ Invoice args rules:
 - latest_invoice args: {"customer_id": "<customer_id>"}
 - invoice_detail args: {"invoice_id": "<invoice_id>"}
 - invoice_summary args: {"customer_id": "<customer_id>"}
+- customer_support_employee args: {"customer_id": "<customer_id>"}
 - all_invoices args: {"customer_id": "<customer_id>"}
 - latest_invoice_support_employee args: {"customer_id": "<customer_id>"}
 - invoices_by_unit_price args: {"customer_id": "<customer_id>"}
@@ -168,6 +174,21 @@ Output task:
   "agent": "invoice",
   "intent": "invoice_summary",
   "instruction": "Get invoice summary for customer_id=5",
+  "args": {
+    "customer_id": "5"
+  },
+  "missing_fields": [],
+  "status": "not_started"
+}
+
+User: who is my support employee for customer_id=5?
+Reasoning: The user wants their assigned support employee and did not request invoice data.
+Output task:
+{
+  "id": "invoice_1",
+  "agent": "invoice",
+  "intent": "customer_support_employee",
+  "instruction": "Get support employee for customer_id=5",
   "args": {
     "customer_id": "5"
   },

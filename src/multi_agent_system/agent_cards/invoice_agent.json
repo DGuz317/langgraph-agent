@@ -18,13 +18,14 @@
     {
       "id": "invoice_retrieval",
       "name": "Invoice information retrieval",
-      "description": "Retrieving invoice information and billing summaries by customer ID or invoice ID",
+      "description": "Retrieving invoice information, billing summaries, and assigned support contacts by customer ID or invoice ID",
       "tags": ["invoice", "customer", "billing", "unit price", "summary", "support employee"],
       "examples": [
         "My customer id is 1. What is my recent invoice?",
         "Get latest invoice for customer_id=5",
         "Get invoice detail for invoice_id=361",
         "Get invoice summary for customer_id=5",
+        "Get support employee for customer_id=5",
         "Show invoices for customer_id=5 sorted by unit price"
       ]
     }

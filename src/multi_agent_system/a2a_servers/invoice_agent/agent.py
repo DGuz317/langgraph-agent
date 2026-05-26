@@ -20,6 +20,7 @@ class InvoiceAgent(MCPToolAgent):
             "latest_invoice": self._get_latest_invoice,
             "invoice_detail": self._get_invoice_detail,
             "invoice_summary": self._get_invoice_summary,
+            "customer_support_employee": self._get_customer_support_employee,
             "all_invoices": self._get_all_invoices,
             "latest_invoice_support_employee": self._get_latest_invoice_support_employee,
             "invoices_by_unit_price": self._get_invoices_by_unit_price,
@@ -43,8 +44,10 @@ class InvoiceAgent(MCPToolAgent):
             intent: InvoiceIntent = "invoice_summary"
         elif self._is_invoice_detail_request(normalized):
             intent: InvoiceIntent = "invoice_detail"
-        elif self._is_support_employee_request(normalized):
+        elif self._is_latest_invoice_support_employee_request(normalized):
             intent: InvoiceIntent = "latest_invoice_support_employee"
+        elif self._is_support_employee_request(normalized):
+            intent: InvoiceIntent = "customer_support_employee"
         elif "unit price" in normalized or "highest price" in normalized:
             intent: InvoiceIntent = "invoices_by_unit_price"
         elif self._is_all_invoices_request(normalized):
@@ -148,6 +151,28 @@ class InvoiceAgent(MCPToolAgent):
             success=True,
             content=f"Invoice summary for customer_id={request.customer_id} found.",
             data=summary,
+        )
+
+    async def _get_customer_support_employee(
+        self,
+        request: InvoiceRequest,
+    ) -> InvoiceAgentResponse:
+        employee = await self.call_tool(
+            "get_employee_by_customer",
+            {"customer_id": request.customer_id},
+        )
+
+        if not employee:
+            return InvoiceAgentResponse(
+                success=True,
+                content=f"No support employee found for customer_id={request.customer_id}.",
+                data=[],
+            )
+
+        return InvoiceAgentResponse(
+            success=True,
+            content=f"Support employee for customer_id={request.customer_id} found.",
+            data={"support_employee": employee},
         )
 
     async def _get_invoices_by_unit_price(
@@ -289,6 +314,13 @@ class InvoiceAgent(MCPToolAgent):
             "employee",
         )
         return any(term in normalized for term in support_terms)
+
+    def _is_latest_invoice_support_employee_request(self, normalized: str) -> bool:
+        return (
+            self._is_support_employee_request(normalized)
+            and "invoice" in normalized
+            and any(term in normalized for term in ("latest", "recent", "newest", "current"))
+        )
 
     def _is_invoice_detail_request(self, normalized: str) -> bool:
         return (

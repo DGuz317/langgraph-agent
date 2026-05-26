@@ -35,6 +35,10 @@ def build_instruction_from_task(task: dict[str, Any]) -> str:
         customer_id = _require_arg(args, "customer_id", intent)
         return f"Get invoice summary for customer_id={customer_id}"
 
+    if intent == "customer_support_employee":
+        customer_id = _require_arg(args, "customer_id", intent)
+        return f"Get support employee for customer_id={customer_id}"
+
     if intent == "all_invoices":
         customer_id = _require_arg(args, "customer_id", intent)
         return f"Get all invoices for customer_id={customer_id}"

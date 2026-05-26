@@ -69,6 +69,19 @@ def test_planned_task_accepts_invoice_summary_task() -> None:
     assert task.args == {"customer_id": "5"}
 
 
+def test_planned_task_accepts_customer_support_employee_task() -> None:
+    task = PlannedTask(
+        id="task-1",
+        agent="invoice",
+        intent="customer_support_employee",
+        instruction="Get support employee for customer_id=5",
+        args={"customer_id": "5"},
+        missing_fields=[],
+    )
+
+    assert task.args == {"customer_id": "5"}
+
+
 def test_planned_task_accepts_all_invoices_task() -> None:
     task = PlannedTask(
         id="task-1",

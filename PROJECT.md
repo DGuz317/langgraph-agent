@@ -52,7 +52,7 @@ Completed:
 - Planner graph callbacks are asynchronous so API/CLI `ainvoke()` flows do not depend on thread-dispatched callbacks.
 - A2A client handles HTTP errors, timeouts, JSON-RPC errors, invalid JSON, missing result objects, and malformed response parts.
 - MCP tool agent handles tool loading, missing tools, invocation errors, invalid JSON payloads, and unsupported MCP result shapes.
-- Invoice agent supports `latest_invoice`, `invoice_detail`, `invoice_summary`, `all_invoices`, `latest_invoice_support_employee`, and `invoices_by_unit_price`.
+- Invoice agent supports `latest_invoice`, `invoice_detail`, `invoice_summary`, `customer_support_employee`, `all_invoices`, `latest_invoice_support_employee`, and `invoices_by_unit_price`.
 - Invoice MCP lookups use parameterized identifier queries, including summary totals and existing invoice/employee paths.
 - Music agent supports tracks by artist, albums by artist, songs by genre, and song existence checks.
 
@@ -69,10 +69,11 @@ all_invoices -> [{invoice, support_employee}, ...]
 invoices_by_unit_price -> [{invoice, support_employee}, ...]
 latest_invoice_support_employee -> {latest_invoice, support_employee}
 invoice_summary -> {CustomerId, InvoiceCount, TotalAmount}
+customer_support_employee -> {support_employee}
 ```
 
 This means a prompt such as `All my invoice information of customer id 5` should return all invoice rows for customer 5 and attach `support_employee` data to each row.
-Summary requests return aggregate totals only and therefore do not return invoice rows requiring enrichment.
+Summary requests return aggregate totals only and therefore do not return invoice rows requiring enrichment. Direct customer support lookup returns only the assigned `support_employee` and does not retrieve invoice rows.
 
 ## Runtime Commands
 
@@ -190,11 +191,11 @@ Invoice candidates:
 
 - Implemented: invoice detail by `invoice_id`, including support employee enrichment.
 - Implemented: customer invoice summary totals by `customer_id`.
-- employee/support lookup by customer without returning invoice rows
+- Implemented: employee/support lookup by `customer_id` without returning invoice rows.
 
 Music candidates:
 
-- tracks by album
+- Next: tracks by album
 - top tracks by genre
 - playlist-style recommendations with limits
 

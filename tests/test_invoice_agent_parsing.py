@@ -42,6 +42,11 @@ from multi_agent_system.a2a_servers.invoice_agent.agent import InvoiceAgent
             "5",
         ),
         (
+            "Get support employee for customer_id=5",
+            "customer_support_employee",
+            "5",
+        ),
+        (
             "Get invoice summary for customer_id=5",
             "invoice_summary",
             "5",
@@ -431,6 +436,53 @@ async def test_invoice_agent_returns_no_invoice_for_support_employee_request() -
 
     assert response.success is True
     assert response.content == "No invoices found for customer_id=999999."
+    assert response.data == []
+
+
+@pytest.mark.anyio
+async def test_invoice_agent_returns_customer_support_employee_without_invoice_lookup() -> None:
+    class StubInvoiceAgent(InvoiceAgent):
+        def __init__(self) -> None:
+            super().__init__()
+            self.calls: list[tuple[str, dict]] = []
+
+        async def call_tool(self, tool_name: str, args: dict):
+            self.calls.append((tool_name, args))
+            assert tool_name == "get_employee_by_customer"
+            return {
+                "FirstName": "Jane",
+                "Title": "Sales Support Agent",
+                "Email": "jane@example.com",
+            }
+
+    agent = StubInvoiceAgent()
+    response = await agent.ainvoke("Get support employee for customer_id=5")
+
+    assert response.success is True
+    assert response.data == {
+        "support_employee": {
+            "FirstName": "Jane",
+            "Title": "Sales Support Agent",
+            "Email": "jane@example.com",
+        }
+    }
+    assert agent.calls == [("get_employee_by_customer", {"customer_id": "5"})]
+
+
+@pytest.mark.anyio
+async def test_invoice_agent_returns_no_direct_support_employee_for_unknown_customer() -> None:
+    class StubInvoiceAgent(InvoiceAgent):
+        async def call_tool(self, tool_name: str, args: dict):
+            assert tool_name == "get_employee_by_customer"
+            assert args == {"customer_id": "999999"}
+            return {}
+
+    response = await StubInvoiceAgent().ainvoke(
+        "Get support employee for customer_id=999999"
+    )
+
+    assert response.success is True
+    assert response.content == "No support employee found for customer_id=999999."
     assert response.data == []
 
 

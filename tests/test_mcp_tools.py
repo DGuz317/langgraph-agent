@@ -142,6 +142,7 @@ def test_all_expected_tools_are_registered(mcp_server) -> None:
         "get_invoice_summary_by_customer",
         "get_invoices_sorted_by_unit_price",
         "get_employee_by_invoice_and_customer",
+        "get_employee_by_customer",
         "get_albums_by_artist",
         "get_tracks_by_artist",
         "get_songs_by_genre",
@@ -254,11 +255,17 @@ def test_invoice_customer_queries_do_not_treat_input_as_sql(mcp_server) -> None:
             "customer_id": injected_customer_id,
         },
     )
+    assigned_employee = _call_tool(
+        mcp_server,
+        "get_employee_by_customer",
+        {"customer_id": injected_customer_id},
+    )
 
     assert invoices == []
     assert summary == {}
     assert unit_price_invoices == []
     assert "error" in employee
+    assert assigned_employee == {}
 
 
 def test_get_invoices_sorted_by_unit_price_returns_customer_invoice_lines(mcp_server) -> None:
@@ -323,6 +330,29 @@ def test_get_employee_by_invoice_and_customer_returns_error_for_invalid_pair(mcp
     assert isinstance(result, dict)
     assert "error" in result
     assert "No employee found" in result["error"]
+
+
+def test_get_employee_by_customer_returns_assigned_support_employee(mcp_server) -> None:
+    result = _call_tool(
+        mcp_server,
+        "get_employee_by_customer",
+        {"customer_id": "5"},
+    )
+
+    assert isinstance(result, dict)
+    assert result["FirstName"]
+    assert result["Title"]
+    assert "@" in result["Email"]
+
+
+def test_get_employee_by_customer_returns_empty_dict_for_unknown_customer(mcp_server) -> None:
+    result = _call_tool(
+        mcp_server,
+        "get_employee_by_customer",
+        {"customer_id": "999999"},
+    )
+
+    assert result == {}
 
 
 # ---------------------------------------------------------------------------

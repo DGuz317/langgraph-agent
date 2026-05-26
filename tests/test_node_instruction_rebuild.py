@@ -163,6 +163,54 @@ async def test_invoice_node_rebuilds_invoice_summary_payload_from_args(
 
 
 @pytest.mark.anyio
+async def test_invoice_node_rebuilds_customer_support_employee_payload_from_args(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, dict] = {}
+
+    class FakeInvoiceClient:
+        async def ask_payload(self, payload: dict) -> str:
+            captured["payload"] = payload
+            return '{"success": true, "content": "ok", "data": {}}'
+
+    monkeypatch.setattr(
+        "multi_agent_system.planner_app.nodes.InvoiceA2AClient",
+        FakeInvoiceClient,
+    )
+
+    state = {
+        "user_input": "Who is my support employee for customer_id=5?",
+        "planner_output": {
+            "status": "completed",
+            "confidence": 1.0,
+            "requires_aggregation": False,
+            "missing_fields": [],
+            "tasks": [
+                {
+                    "id": "task-1",
+                    "agent": "invoice",
+                    "intent": "customer_support_employee",
+                    "instruction": "stale instruction should not be used",
+                    "args": {"customer_id": "5"},
+                    "missing_fields": [],
+                    "status": "not_started",
+                }
+            ],
+        },
+    }
+
+    result = await invoice_node(state)
+
+    assert captured["payload"] == {
+        "agent": "invoice",
+        "intent": "customer_support_employee",
+        "args": {"customer_id": "5"},
+        "instruction": "Get support employee for customer_id=5",
+    }
+    assert result["planner_output"]["tasks"][0]["a2a_payload"] == captured["payload"]
+
+
+@pytest.mark.anyio
 async def test_invoice_node_rebuilds_unit_price_instruction_from_args(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

@@ -217,6 +217,30 @@ async def test_planner_e2e_invoice_summary_uses_structured_customer_id(
 
 
 @pytest.mark.anyio
+async def test_planner_e2e_customer_support_employee_uses_structured_customer_id(
+    monkeypatch: pytest.MonkeyPatch,
+    fake_a2a_clients: dict[str, list[str]],
+) -> None:
+    _set_planner_output(
+        monkeypatch,
+        tasks=[
+            _task(
+                agent="invoice",
+                intent="customer_support_employee",
+                args={"customer_id": "5"},
+            )
+        ],
+    )
+
+    result = await _invoke_graph("Who is my support employee for customer_id=5?")
+
+    assert fake_a2a_clients["invoice"] == [
+        "Get support employee for customer_id=5"
+    ]
+    assert "Found latest invoice." in result["final_answer"]
+
+
+@pytest.mark.anyio
 async def test_planner_e2e_support_employee_query_uses_args_first_instruction(
     monkeypatch: pytest.MonkeyPatch,
     fake_a2a_clients: dict[str, list[str]],

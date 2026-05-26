@@ -142,6 +142,19 @@ async def test_invoice_a2a_returns_support_employee_for_latest_invoice() -> None
 
 
 @pytest.mark.anyio
+async def test_invoice_a2a_returns_direct_customer_support_employee_without_invoice_rows() -> None:
+    from multi_agent_system.a2a_client.invoice_client import InvoiceA2AClient
+
+    result = await InvoiceA2AClient().ask(
+        "Get support employee for customer_id=5"
+    )
+
+    data = _response_data(result)
+    assert set(data) == {"support_employee"}
+    _assert_support_employee(data["support_employee"])
+
+
+@pytest.mark.anyio
 async def test_real_planner_api_returns_support_employee_for_latest_invoice() -> None:
     from multi_agent_system.orchestrator.server import create_app
 

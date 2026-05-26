@@ -7,6 +7,7 @@ InvoiceIntent = Literal[
     "latest_invoice",
     "invoice_detail",
     "invoice_summary",
+    "customer_support_employee",
     "all_invoices",
     "latest_invoice_support_employee",
     "invoices_by_unit_price",

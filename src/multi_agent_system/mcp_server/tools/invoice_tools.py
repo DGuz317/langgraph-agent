@@ -132,3 +132,25 @@ def register_invoice_tools(mcp: FastMCP, db: SQLDatabase) -> None:
 
         parsed = ast.literal_eval(result)
         return parsed[0] if isinstance(parsed, list) else parsed
+
+    @mcp.tool()
+    def get_employee_by_customer(customer_id: str) -> dict:
+        """
+        Return the support employee assigned to a customer.
+        """
+        result = db.run(
+            """
+            SELECT Employee.FirstName, Employee.Title, Employee.Email
+            FROM Employee
+            JOIN Customer ON Customer.SupportRepId = Employee.EmployeeId
+            WHERE Customer.CustomerId = :customer_id;
+            """,
+            parameters={"customer_id": customer_id},
+            include_columns=True,
+        )
+
+        if not result:
+            return {}
+
+        parsed = ast.literal_eval(result)
+        return parsed[0] if isinstance(parsed, list) else parsed

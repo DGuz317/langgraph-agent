@@ -18,6 +18,9 @@ class InvoiceA2AClient(BaseA2AClient):
     async def get_invoice_summary(self, customer_id: str) -> str:
         return await self.ask(f"Get invoice summary for customer_id={customer_id}")
 
+    async def get_customer_support_employee(self, customer_id: str) -> str:
+        return await self.ask(f"Get support employee for customer_id={customer_id}")
+
     async def get_invoices_by_unit_price(self, customer_id: str) -> str:
         return await self.ask(
             f"Show invoices for customer_id={customer_id} sorted by unit price"

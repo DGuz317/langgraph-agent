@@ -61,6 +61,21 @@ def test_build_invoice_summary_payload() -> None:
     }
 
 
+def test_build_customer_support_employee_payload() -> None:
+    task = {
+        "agent": "invoice",
+        "intent": "customer_support_employee",
+        "args": {"customer_id": "5"},
+    }
+
+    assert build_a2a_payload_from_task(task) == {
+        "agent": "invoice",
+        "intent": "customer_support_employee",
+        "args": {"customer_id": "5"},
+        "instruction": "Get support employee for customer_id=5",
+    }
+
+
 def test_build_all_invoices_instruction() -> None:
     task = {
         "intent": "all_invoices",
