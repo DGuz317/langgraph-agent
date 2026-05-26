@@ -9,6 +9,7 @@ class PlannerAppState(TypedDict, total=False):
     missing_fields: list[str]
 
     customer_id: str | None
+    invoice_id: str | None
     artist: str | None
     genre: str | None
     song_title: str | None

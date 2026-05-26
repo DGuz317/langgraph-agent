@@ -26,6 +26,25 @@ async def test_invoice_client_get_latest_invoice_builds_expected_instruction(mon
 
 
 @pytest.mark.anyio
+async def test_invoice_client_get_invoice_detail_builds_expected_instruction(monkeypatch) -> None:
+    from multi_agent_system.a2a_client.invoice_client import InvoiceA2AClient
+
+    captured: dict[str, str] = {}
+
+    async def fake_ask(self, instruction: str) -> str:
+        captured["instruction"] = instruction
+        return "invoice-ok"
+
+    monkeypatch.setattr(InvoiceA2AClient, "ask", fake_ask)
+
+    client = object.__new__(InvoiceA2AClient)
+    result = await client.get_invoice_detail("361")
+
+    assert result == "invoice-ok"
+    assert captured["instruction"] == "Get invoice detail for invoice_id=361"
+
+
+@pytest.mark.anyio
 async def test_music_client_get_tracks_by_artist_builds_expected_instruction(monkeypatch) -> None:
     from multi_agent_system.a2a_client.music_client import MusicA2AClient
 

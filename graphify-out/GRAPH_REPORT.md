@@ -1,16 +1,16 @@
-# Graph Report - langgraph-agent  (2026-05-25)
+# Graph Report - langgraph-agent  (2026-05-26)
 
 ## Corpus Check
-- 94 files · ~22,641 words
+- 94 files · ~24,011 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 853 nodes · 1247 edges · 86 communities (74 shown, 12 thin omitted)
-- Extraction: 77% EXTRACTED · 23% INFERRED · 0% AMBIGUOUS · INFERRED: 291 edges (avg confidence: 0.79)
+- 876 nodes · 1294 edges · 85 communities (73 shown, 12 thin omitted)
+- Extraction: 77% EXTRACTED · 23% INFERRED · 0% AMBIGUOUS · INFERRED: 303 edges (avg confidence: 0.79)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `04e4ae45`
+- Built from commit: `66db576a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -24,7 +24,6 @@
 - [[_COMMUNITY_Community 6|Community 6]]
 - [[_COMMUNITY_Community 7|Community 7]]
 - [[_COMMUNITY_Community 8|Community 8]]
-- [[_COMMUNITY_Community 9|Community 9]]
 - [[_COMMUNITY_Community 10|Community 10]]
 - [[_COMMUNITY_Community 11|Community 11]]
 - [[_COMMUNITY_Community 12|Community 12]]
@@ -69,15 +68,15 @@
 
 ## God Nodes (most connected - your core abstractions)
 1. `MusicAgent` - 27 edges
-2. `PlannerService` - 22 edges
-3. `InvoiceAgent` - 22 edges
-4. `PlannerServiceResponse` - 19 edges
-5. `MCPToolAgent` - 18 edges
-6. `_call_tool()` - 17 edges
-7. `invoice_node()` - 15 edges
-8. `Multi-Agent System with LangGraph, A2A, and MCP` - 15 edges
-9. `build_instruction_from_task()` - 14 edges
-10. `PlannedTask` - 14 edges
+2. `InvoiceAgent` - 26 edges
+3. `PlannerService` - 22 edges
+4. `_call_tool()` - 19 edges
+5. `PlannerServiceResponse` - 19 edges
+6. `MCPToolAgent` - 18 edges
+7. `invoice_node()` - 16 edges
+8. `PlannedTask` - 16 edges
+9. `extract_missing_fields()` - 15 edges
+10. `Multi-Agent System with LangGraph, A2A, and MCP` - 15 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Graphify PreToolUse Hook Check` --implements--> `Graphify Workflow`  [INFERRED]
@@ -107,11 +106,11 @@
 - **Music Clarification Before Execution Flow** — test_planner_repair_music_clarification, test_planner_schema_clarify_music_search, test_planner_hitl_music_search_clarification, test_task_instructions_clarify_non_executable [INFERRED 0.92]
 - **Structured Task to A2A Payload Contract** — test_planner_schema_planned_task_validation, test_task_instructions_instruction_builder, test_task_instructions_a2a_payload [INFERRED 0.88]
 
-## Communities (86 total, 12 thin omitted)
+## Communities (85 total, 12 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.10
-Nodes (23): create_app(), PlannerServiceProtocol, _extract_final_answer(), _extract_interrupt_message(), _has_interrupt(), PlannerService, Return result as-is when possible.      Kept as a helper so future API layers ca, Reusable runtime wrapper for planner graph invocation. (+15 more)
+Cohesion: 0.09
+Nodes (24): create_app(), PlannerServiceProtocol, _extract_final_answer(), _extract_interrupt_message(), _has_interrupt(), PlannerService, Return result as-is when possible.      Kept as a helper so future API layers ca, Reusable runtime wrapper for planner graph invocation. (+16 more)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.05
@@ -123,55 +122,51 @@ Nodes (14): BaseA2AClient, Send structured task data while retaining text compat
 
 ### Community 3 - "Community 3"
 Cohesion: 0.10
-Nodes (32): get_db(), create_mcp_server(), main(), _assert_non_empty_list_of_dicts(), _call_tool(), _call_tool_async(), db(), _extract_tool_data() (+24 more)
+Nodes (34): get_db(), create_mcp_server(), main(), _assert_non_empty_list_of_dicts(), _call_tool(), _call_tool_async(), db(), _extract_tool_data() (+26 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.12
-Nodes (18): MCPToolError, MultiAgentSystemError, Raised when an MCP tool call fails., Base error for application-level failures., MCPToolAgent, Base class for agents that call tools exposed by the MCP server., RuntimeError, FakeClient (+10 more)
+Nodes (17): MCPToolError, MultiAgentSystemError, Raised when an MCP tool call fails., Base error for application-level failures., MCPToolAgent, Base class for agents that call tools exposed by the MCP server., RuntimeError, FakeClient (+9 more)
 
 ### Community 5 - "Community 5"
-Cohesion: 0.10
-Nodes (21): get_llm(), PlannerAgent, PlannedTask, PlannerOutput, test_normalize_output_adds_task_id_and_sets_status(), test_normalize_output_preserves_task_args(), test_planned_task_accepts_all_invoices_task(), test_planned_task_accepts_clarify_music_search_with_missing_search_type() (+13 more)
+Cohesion: 0.11
+Nodes (22): PlannerAgent, PlannedTask, PlannerOutput, test_normalize_output_adds_task_id_and_sets_status(), test_normalize_output_preserves_task_args(), test_planned_task_accepts_all_invoices_task(), test_planned_task_accepts_clarify_music_search_with_missing_search_type(), test_planned_task_accepts_complete_invoice_task() (+14 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.10
-Nodes (9): InvoiceAgent, InvoiceRequest, InvoiceAgentResponse, InvoiceRequest, InvoiceTaskPayload, MCPToolAgent, test_invoice_agent_does_not_treat_invoice_id_as_customer_id(), test_invoice_agent_missing_customer_id_fails_validation() (+1 more)
+Cohesion: 0.09
+Nodes (9): InvoiceAgent, InvoiceRequest, InvoiceAgentResponse, MCPToolAgent, test_invoice_agent_does_not_treat_invoice_id_as_customer_id(), test_invoice_agent_missing_customer_id_fails_validation(), test_invoice_agent_missing_invoice_id_fails_validation(), test_invoice_agent_parse_request() (+1 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.14
-Nodes (8): MusicAgent, MusicRequest, MusicAgentResponse, test_music_agent_missing_artist_fails_validation(), test_music_agent_parses_artist_requests(), test_music_agent_parses_genre_requests(), test_music_agent_parses_song_check_requests(), test_song_title_with_genre_word_does_not_become_genre_request()
+Cohesion: 0.11
+Nodes (10): MusicAgent, MusicRequest, MusicAgentResponse, MusicRequest, MusicTaskPayload, test_music_agent_missing_artist_fails_validation(), test_music_agent_parses_artist_requests(), test_music_agent_parses_genre_requests() (+2 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.14
-Nodes (22): _attach_a2a_payload(), _copy_planner_output(), _failure_result(), final_response_node(), _get_next_task_for_agent(), invoice_node(), _mark_task_failed(), missing_info_node() (+14 more)
-
-### Community 9 - "Community 9"
-Cohesion: 0.11
-Nodes (16): PlannerInvokeRequest, API request for invoking or resuming the planner., _user_input_must_not_be_blank(), _has_arg_value(), _instruction_must_not_be_blank(), _validate_agent_intent_and_required_fields(), _validate_output_consistency(), PlannerAgent (+8 more)
+Cohesion: 0.06
+Nodes (37): get_llm(), _user_input_must_not_be_blank(), _attach_a2a_payload(), _copy_planner_output(), _failure_result(), _get_next_task_for_agent(), invoice_node(), _mark_task_failed() (+29 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.16
-Nodes (23): build_a2a_payload_from_task(), build_instruction_from_task(), Raised when a planner task cannot be converted into an executable instruction., _require_arg(), _require_task_field(), TaskInstructionError, test_build_a2a_payload_copies_args(), test_build_a2a_payload_from_all_invoices_task() (+15 more)
+Cohesion: 0.15
+Nodes (24): build_a2a_payload_from_task(), build_instruction_from_task(), Raised when a planner task cannot be converted into an executable instruction., _require_arg(), _require_task_field(), TaskInstructionError, test_build_a2a_payload_copies_args(), test_build_a2a_payload_from_all_invoices_task() (+16 more)
 
 ### Community 11 - "Community 11"
-Cohesion: 0.14
-Nodes (17): AggregatorAgent, AgentResult, AggregatorInput, AggregatorOutput, BaseModel, MusicRequest, MusicTaskPayload, aggregate() (+9 more)
+Cohesion: 0.12
+Nodes (20): AggregatorAgent, AgentResult, AggregatorInput, AggregatorOutput, BaseModel, InvoiceRequest, InvoiceTaskPayload, PlannerInvokeRequest (+12 more)
 
 ### Community 12 - "Community 12"
 Cohesion: 0.09
-Nodes (16): AgentExecutor, load_agent_card(), Invoice Agent Card, InvoiceAgentExecutor, create_app(), main(), Music Agent Card, MusicAgentExecutor (+8 more)
+Nodes (17): AgentExecutor, load_agent_card(), Invoice Agent Card, InvoiceAgentExecutor, create_app(), main(), Music Agent Card, MusicAgentExecutor (+9 more)
 
 ### Community 13 - "Community 13"
 Cohesion: 0.12
 Nodes (21): Task Args Are the Source of Executable Instructions, build_a2a_payload_from_task, build_instruction_from_task, TaskInstructionError, Typed A2A Client Instruction Construction Tests, Planner A2A Payload Integration Tests, Aggregator Result Formatting and Ordering Tests, Planner Checkpointer Backend Tests (+13 more)
 
 ### Community 14 - "Community 14"
-Cohesion: 0.25
-Nodes (15): FakePlanner, FakePlannerOutput, _invoke_graph(), _set_planner_output(), _task(), test_planner_e2e_all_invoices_query_uses_args_first_instruction(), test_planner_e2e_ambiguous_music_can_choose_artist_after_hitl(), test_planner_e2e_ambiguous_music_defaults_to_genre_after_hitl() (+7 more)
+Cohesion: 0.24
+Nodes (16): FakePlanner, FakePlannerOutput, _invoke_graph(), _set_planner_output(), _task(), test_planner_e2e_all_invoices_query_uses_args_first_instruction(), test_planner_e2e_ambiguous_music_can_choose_artist_after_hitl(), test_planner_e2e_ambiguous_music_defaults_to_genre_after_hitl() (+8 more)
 
 ### Community 15 - "Community 15"
-Cohesion: 0.18
-Nodes (18): ask_for_missing_info(), _extract_labeled_value(), extract_missing_fields(), interrupt_for_missing_info(), test_ask_for_missing_artist(), test_ask_for_missing_genre(), test_ask_for_missing_music_search_type(), test_ask_for_missing_song_title() (+10 more)
+Cohesion: 0.16
+Nodes (21): ask_for_missing_info(), _extract_labeled_value(), extract_missing_fields(), interrupt_for_missing_info(), test_ask_for_missing_artist(), test_ask_for_missing_genre(), test_ask_for_missing_invoice_id(), test_ask_for_missing_music_search_type() (+13 more)
 
 ### Community 16 - "Community 16"
 Cohesion: 0.16
@@ -258,8 +253,8 @@ Cohesion: 0.67
 Nodes (3): code:bash (uv sync), code:env (MODEL_PROVIDER=ollama), Setup
 
 ### Community 84 - "Community 84"
-Cohesion: 0.24
-Nodes (7): InvoiceA2AClient, _assert_support_employee(), _response_data(), test_invoice_a2a_all_invoices_include_support_employee(), test_invoice_a2a_latest_invoice_includes_support_employee(), test_invoice_a2a_returns_support_employee_for_latest_invoice(), test_invoice_a2a_unit_price_invoices_include_support_employee()
+Cohesion: 0.22
+Nodes (8): InvoiceA2AClient, _assert_support_employee(), _response_data(), test_invoice_a2a_all_invoices_include_support_employee(), test_invoice_a2a_detail_includes_support_employee(), test_invoice_a2a_latest_invoice_includes_support_employee(), test_invoice_a2a_returns_support_employee_for_latest_invoice(), test_invoice_a2a_unit_price_invoices_include_support_employee()
 
 ### Community 85 - "Community 85"
 Cohesion: 0.50
@@ -273,17 +268,17 @@ Nodes (4): 5. Or run Planner API, code:http (POST http://localhost:12000/planner
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `PlannerServiceResponse` connect `Community 73` to `Community 0`, `Community 9`, `Community 11`?**
-  _High betweenness centrality (0.074) - this node is a cross-community bridge._
+- **Why does `PlannerServiceResponse` connect `Community 73` to `Community 8`, `Community 0`, `Community 11`?**
+  _High betweenness centrality (0.073) - this node is a cross-community bridge._
 - **Why does `MCPToolAgent` connect `Community 4` to `Community 6`, `Community 7`?**
-  _High betweenness centrality (0.038) - this node is a cross-community bridge._
-- **Why does `PlannerService` connect `Community 0` to `Community 73`, `Community 18`, `Community 4`?**
+  _High betweenness centrality (0.039) - this node is a cross-community bridge._
+- **Why does `PlannerOutput` connect `Community 5` to `Community 8`, `Community 11`?**
   _High betweenness centrality (0.036) - this node is a cross-community bridge._
 - **Are the 7 inferred relationships involving `MusicAgent` (e.g. with `MCPToolAgent` and `test_music_agent_parses_artist_requests()`) actually correct?**
   _`MusicAgent` has 7 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 7 inferred relationships involving `InvoiceAgent` (e.g. with `MCPToolAgent` and `test_invoice_agent_parse_request()`) actually correct?**
+  _`InvoiceAgent` has 7 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 16 inferred relationships involving `PlannerService` (e.g. with `FakeGraph` and `FakeInterrupt`) actually correct?**
   _`PlannerService` has 16 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 5 inferred relationships involving `InvoiceAgent` (e.g. with `MCPToolAgent` and `test_invoice_agent_parse_request()`) actually correct?**
-  _`InvoiceAgent` has 5 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 16 inferred relationships involving `PlannerServiceResponse` (e.g. with `FakePlannerService` and `PlannerService`) actually correct?**
   _`PlannerServiceResponse` has 16 INFERRED edges - model-reasoned connections that need verification._

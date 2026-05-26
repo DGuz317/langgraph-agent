@@ -18,6 +18,7 @@ class InvoiceAgent(MCPToolAgent):
 
         handlers = {
             "latest_invoice": self._get_latest_invoice,
+            "invoice_detail": self._get_invoice_detail,
             "all_invoices": self._get_all_invoices,
             "latest_invoice_support_employee": self._get_latest_invoice_support_employee,
             "invoices_by_unit_price": self._get_invoices_by_unit_price,
@@ -32,8 +33,14 @@ class InvoiceAgent(MCPToolAgent):
             query,
             ["customer_id", "customer id"],
         )
+        invoice_id = self._extract_number(
+            query,
+            ["invoice_id", "invoice id"],
+        )
 
-        if self._is_support_employee_request(normalized):
+        if self._is_invoice_detail_request(normalized):
+            intent: InvoiceIntent = "invoice_detail"
+        elif self._is_support_employee_request(normalized):
             intent: InvoiceIntent = "latest_invoice_support_employee"
         elif "unit price" in normalized or "highest price" in normalized:
             intent: InvoiceIntent = "invoices_by_unit_price"
@@ -45,12 +52,22 @@ class InvoiceAgent(MCPToolAgent):
         return InvoiceRequest(
             intent=intent,
             customer_id=customer_id,
+            invoice_id=invoice_id,
         )
 
     def _validate_request(
         self,
         request: InvoiceRequest,
     ) -> InvoiceAgentResponse | None:
+        if request.intent == "invoice_detail":
+            if not request.invoice_id:
+                return InvoiceAgentResponse(
+                    success=False,
+                    content="Missing required field: invoice_id.",
+                )
+
+            return None
+
         if not request.customer_id:
             return InvoiceAgentResponse(
                 success=False,
@@ -66,6 +83,46 @@ class InvoiceAgent(MCPToolAgent):
         return await self._get_latest_invoice_with_support_employee(
             request,
             support_focused=False,
+        )
+
+    async def _get_invoice_detail(
+        self,
+        request: InvoiceRequest,
+    ) -> InvoiceAgentResponse:
+        invoice = await self.call_tool(
+            "get_invoice_by_id",
+            {"invoice_id": request.invoice_id},
+        )
+
+        if not invoice:
+            return InvoiceAgentResponse(
+                success=True,
+                content=f"No invoice found for invoice_id={request.invoice_id}.",
+                data=[],
+            )
+
+        employee = await self._get_support_employee_for_invoice(invoice, request)
+
+        if isinstance(employee, dict) and employee.get("error"):
+            return InvoiceAgentResponse(
+                success=False,
+                content=employee["error"],
+                data={
+                    "invoice": invoice,
+                    "support_employee": employee,
+                },
+            )
+
+        return InvoiceAgentResponse(
+            success=True,
+            content=(
+                f"Invoice detail for invoice_id={request.invoice_id} found. "
+                "Support employee included."
+            ),
+            data={
+                "invoice": invoice,
+                "support_employee": employee,
+            },
         )
 
     async def _get_invoices_by_unit_price(
@@ -208,6 +265,12 @@ class InvoiceAgent(MCPToolAgent):
         )
         return any(term in normalized for term in support_terms)
 
+    def _is_invoice_detail_request(self, normalized: str) -> bool:
+        return (
+            "invoice detail" in normalized
+            or "invoice details" in normalized
+        )
+
     def _is_all_invoices_request(self, normalized: str) -> bool:
         all_terms = (
             "all invoice",
@@ -234,11 +297,21 @@ class InvoiceAgent(MCPToolAgent):
         if employee_cache is not None and invoice_id in employee_cache:
             return employee_cache[invoice_id]
 
+        customer_id = (
+            request.customer_id
+            or str(invoice.get("CustomerId", "")).strip()
+        )
+
+        if not customer_id:
+            return {
+                "error": "Invoice did not include a CustomerId."
+            }
+
         employee = await self.call_tool(
             "get_employee_by_invoice_and_customer",
             {
                 "invoice_id": invoice_id,
-                "customer_id": request.customer_id,
+                "customer_id": customer_id,
             },
         )
 

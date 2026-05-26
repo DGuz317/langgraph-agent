@@ -64,6 +64,16 @@ def test_invoice_agent_does_not_treat_invoice_id_as_customer_id() -> None:
     assert request.customer_id is None
 
 
+def test_invoice_agent_parses_invoice_detail_by_invoice_id() -> None:
+    agent = InvoiceAgent()
+
+    request = agent._parse_request("Get invoice detail for invoice_id=361")
+
+    assert request.intent == "invoice_detail"
+    assert request.invoice_id == "361"
+    assert request.customer_id is None
+
+
 def test_invoice_agent_missing_customer_id_fails_validation() -> None:
     agent = InvoiceAgent()
 
@@ -74,6 +84,18 @@ def test_invoice_agent_missing_customer_id_fails_validation() -> None:
     assert error is not None
     assert error.success is False
     assert error.content == "Missing required field: customer_id."
+
+
+def test_invoice_agent_missing_invoice_id_fails_validation() -> None:
+    agent = InvoiceAgent()
+
+    request = agent._parse_request("Get invoice detail")
+
+    error = agent._validate_request(request)
+
+    assert error is not None
+    assert error.success is False
+    assert error.content == "Missing required field: invoice_id."
 
 
 @pytest.fixture
@@ -400,3 +422,95 @@ async def test_invoice_agent_returns_no_invoice_for_support_employee_request() -
     assert response.success is True
     assert response.content == "No invoices found for customer_id=999999."
     assert response.data == []
+
+
+@pytest.mark.anyio
+async def test_invoice_agent_returns_invoice_detail_with_support_employee() -> None:
+    class StubInvoiceAgent(InvoiceAgent):
+        def __init__(self) -> None:
+            super().__init__()
+            self.calls: list[tuple[str, dict]] = []
+
+        async def call_tool(self, tool_name: str, args: dict):
+            self.calls.append((tool_name, args))
+
+            if tool_name == "get_invoice_by_id":
+                return {
+                    "InvoiceId": 361,
+                    "CustomerId": 5,
+                    "Total": 8.91,
+                }
+
+            if tool_name == "get_employee_by_invoice_and_customer":
+                return {
+                    "FirstName": "Margaret",
+                    "Title": "Sales Support Agent",
+                    "Email": "margaret@example.com",
+                }
+
+            raise AssertionError(f"Unexpected tool: {tool_name}")
+
+    agent = StubInvoiceAgent()
+
+    response = await agent.ainvoke("Get invoice detail for invoice_id=361")
+
+    assert response.success is True
+    assert response.data == {
+        "invoice": {
+            "InvoiceId": 361,
+            "CustomerId": 5,
+            "Total": 8.91,
+        },
+        "support_employee": {
+            "FirstName": "Margaret",
+            "Title": "Sales Support Agent",
+            "Email": "margaret@example.com",
+        },
+    }
+    assert agent.calls == [
+        ("get_invoice_by_id", {"invoice_id": "361"}),
+        (
+            "get_employee_by_invoice_and_customer",
+            {"invoice_id": "361", "customer_id": "5"},
+        ),
+    ]
+
+
+@pytest.mark.anyio
+async def test_invoice_agent_returns_no_result_for_unknown_invoice_detail() -> None:
+    class StubInvoiceAgent(InvoiceAgent):
+        async def call_tool(self, tool_name: str, args: dict):
+            assert tool_name == "get_invoice_by_id"
+            assert args == {"invoice_id": "999999"}
+            return {}
+
+    response = await StubInvoiceAgent().ainvoke(
+        "Get invoice detail for invoice_id=999999"
+    )
+
+    assert response.success is True
+    assert response.content == "No invoice found for invoice_id=999999."
+    assert response.data == []
+
+
+@pytest.mark.anyio
+async def test_invoice_agent_returns_detail_with_employee_error_on_failed_enrichment() -> None:
+    class StubInvoiceAgent(InvoiceAgent):
+        async def call_tool(self, tool_name: str, args: dict):
+            if tool_name == "get_invoice_by_id":
+                return {"InvoiceId": 361, "CustomerId": 5}
+
+            if tool_name == "get_employee_by_invoice_and_customer":
+                return {"error": "No employee found."}
+
+            raise AssertionError(f"Unexpected tool: {tool_name}")
+
+    response = await StubInvoiceAgent().ainvoke(
+        "Get invoice detail for invoice_id=361"
+    )
+
+    assert response.success is False
+    assert response.data == {
+        "invoice": {"InvoiceId": 361, "CustomerId": 5},
+        "support_employee": {"error": "No employee found."},
+    }

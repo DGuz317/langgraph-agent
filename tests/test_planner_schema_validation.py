@@ -30,6 +30,32 @@ def test_planned_task_accepts_latest_invoice_support_employee_task() -> None:
     assert task.args == {"customer_id": "5"}
 
 
+def test_planned_task_accepts_invoice_detail_task() -> None:
+    task = PlannedTask(
+        id="task-1",
+        agent="invoice",
+        intent="invoice_detail",
+        instruction="Get invoice detail for invoice_id=361",
+        args={"invoice_id": "361"},
+        missing_fields=[],
+    )
+
+    assert task.args == {"invoice_id": "361"}
+
+
+def test_planned_task_allows_missing_invoice_id_when_declared() -> None:
+    task = PlannedTask(
+        id="task-1",
+        agent="invoice",
+        intent="invoice_detail",
+        instruction="Ask for invoice_id",
+        args={},
+        missing_fields=["invoice_id"],
+    )
+
+    assert task.missing_fields == ["invoice_id"]
+
+
 def test_planned_task_accepts_all_invoices_task() -> None:
     task = PlannedTask(
         id="task-1",

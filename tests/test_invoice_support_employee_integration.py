@@ -94,6 +94,21 @@ async def test_invoice_a2a_latest_invoice_includes_support_employee() -> None:
 
 
 @pytest.mark.anyio
+async def test_invoice_a2a_detail_includes_support_employee() -> None:
+    from multi_agent_system.a2a_client.invoice_client import InvoiceA2AClient
+
+    result = await InvoiceA2AClient().ask(
+        "Get invoice detail for invoice_id=361"
+    )
+
+    assert "invoice detail" in result.lower()
+    assert "support employee" in result.lower()
+    data = _response_data(result)
+    assert str(data["invoice"]["InvoiceId"]) == "361"
+    _assert_support_employee(data["support_employee"])
+
+
+@pytest.mark.anyio
 async def test_invoice_a2a_returns_support_employee_for_latest_invoice() -> None:
     from multi_agent_system.a2a_client.invoice_client import InvoiceA2AClient
 

@@ -29,6 +29,12 @@ def test_ask_for_missing_music_search_type() -> None:
     assert "genre" in question
 
 
+def test_ask_for_missing_invoice_id() -> None:
+    question = ask_for_missing_info(["invoice_id"])
+
+    assert question == "Could you provide the invoice ID?"
+
+
 def test_extract_song_title_from_plain_answer() -> None:
     result = extract_missing_fields(
         user_response="Ligia",
@@ -105,6 +111,25 @@ def test_extract_customer_id_from_sentence() -> None:
     )
 
     assert result == {"customer_id": "5"}
+
+
+def test_extract_invoice_id_from_plain_number() -> None:
+    result = extract_missing_fields(
+        user_response="361",
+        missing_fields=["invoice_id"],
+    )
+
+    assert result == {"invoice_id": "361"}
+
+
+def test_extract_invoice_id_from_sentence() -> None:
+    result = extract_missing_fields(
+        user_response="invoice id is 361",
+        missing_fields=["invoice_id"],
+    )
+
+    assert result == {"invoice_id": "361"}
+
 
 def test_extract_music_search_type_genre_without_colon() -> None:
     result = extract_missing_fields(

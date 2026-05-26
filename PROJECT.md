@@ -52,17 +52,18 @@ Completed:
 - Planner graph callbacks are asynchronous so API/CLI `ainvoke()` flows do not depend on thread-dispatched callbacks.
 - A2A client handles HTTP errors, timeouts, JSON-RPC errors, invalid JSON, missing result objects, and malformed response parts.
 - MCP tool agent handles tool loading, missing tools, invocation errors, invalid JSON payloads, and unsupported MCP result shapes.
-- Invoice agent supports `latest_invoice`, `all_invoices`, `latest_invoice_support_employee`, and `invoices_by_unit_price`.
+- Invoice agent supports `latest_invoice`, `invoice_detail`, `all_invoices`, `latest_invoice_support_employee`, and `invoices_by_unit_price`.
 - Music agent supports tracks by artist, albums by artist, songs by genre, and song existence checks.
 
 ## Current Invoice Rule
 
-Any invoice information returned for a customer must include the support employee for the corresponding invoice.
+Any returned invoice information must include the support employee for the corresponding invoice.
 
 Current invoice response shapes:
 
 ```text
 latest_invoice -> {latest_invoice, support_employee}
+invoice_detail -> {invoice, support_employee}
 all_invoices -> [{invoice, support_employee}, ...]
 invoices_by_unit_price -> [{invoice, support_employee}, ...]
 latest_invoice_support_employee -> {latest_invoice, support_employee}
@@ -152,7 +153,7 @@ RUN_LLM_TESTS=1 uv run pytest tests/test_llm_planner.py -q
 Priority: high.
 
 - Completed in automated coverage: invoice response-shape tests verify support employee enrichment for latest, all, and unit-price-sorted invoice flows.
-- Remaining validation gate: run real-service smoke prompts through `scripts/run_planner.py` and `/planner/invoke` with the selected LLM provider running.
+- Completed live validation on May 26, 2026: `scripts/run_planner.py` and the focused `/planner/invoke` integration flow completed through local Ollama `gpt-oss`, A2A, MCP, and Chinook.
 - Keep `task["args"]` and `a2a_payload` as the execution contract.
 
 ### Phase 2: Replace Domain Text Parsing With Structured Inputs
@@ -184,7 +185,7 @@ Priority: medium.
 
 Invoice candidates:
 
-- invoice detail by `invoice_id`
+- Implemented: invoice detail by `invoice_id`, including support employee enrichment.
 - customer invoice summary totals
 - employee/support lookup by customer without returning invoice rows
 

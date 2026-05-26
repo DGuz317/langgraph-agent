@@ -50,6 +50,38 @@ async def test_real_planner_api_records_invoice_a2a_payload() -> None:
 
 
 @pytest.mark.anyio
+async def test_real_planner_api_records_invoice_detail_payload() -> None:
+    from multi_agent_system.orchestrator.server import create_app
+
+    transport = httpx.ASGITransport(app=create_app())
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+        response = await client.post(
+            "/planner/invoke",
+            json={
+                "user_input": "Show invoice detail for invoice_id=361",
+                "thread_id": "integration-a2a-payload-invoice-detail-thread",
+            },
+        )
+
+    body = response.json()
+
+    assert response.status_code == 200, body
+    assert body["status"] == "completed", body
+    assert body["final_answer"]
+    assert "failed" not in body["final_answer"].lower()
+    assert "support employee" in body["final_answer"].lower()
+
+    task = body["raw_result"]["planner_output"]["tasks"][0]
+
+    assert task["a2a_payload"] == {
+        "agent": "invoice",
+        "intent": "invoice_detail",
+        "args": {"invoice_id": "361"},
+        "instruction": "Get invoice detail for invoice_id=361",
+    }
+
+
+@pytest.mark.anyio
 async def test_real_planner_api_records_music_a2a_payload() -> None:
     from multi_agent_system.orchestrator.server import create_app
 

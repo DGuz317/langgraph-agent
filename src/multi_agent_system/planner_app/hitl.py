@@ -8,6 +8,9 @@ def ask_for_missing_info(missing_fields: list[str]) -> str:
     if "customer_id" in missing_fields:
         return "Could you provide your customer ID?"
 
+    if "invoice_id" in missing_fields:
+        return "Could you provide the invoice ID?"
+
     if "music_search_type" in missing_fields:
         return (
             "Do you want to search by artist or by genre? "
@@ -44,6 +47,18 @@ def extract_missing_fields(
             extracted["customer_id"] = match.group(1)
         elif cleaned.isdigit():
             extracted["customer_id"] = cleaned
+
+    if "invoice_id" in missing_fields:
+        match = re.search(
+            r"\b(?:invoice_id|invoice id|id)\s*(?:=|:|is)?\s*(\d+)",
+            user_response,
+            flags=re.IGNORECASE,
+        )
+
+        if match:
+            extracted["invoice_id"] = match.group(1)
+        elif cleaned.isdigit():
+            extracted["invoice_id"] = cleaned
 
     if "music_search_type" in missing_fields:
         artist = _extract_labeled_value(user_response, ["artist", "by artist"])

@@ -67,6 +67,54 @@ async def test_invoice_node_rebuilds_instruction_from_args(
 
 
 @pytest.mark.anyio
+async def test_invoice_node_rebuilds_invoice_detail_payload_from_args(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, dict] = {}
+
+    class FakeInvoiceClient:
+        async def ask_payload(self, payload: dict) -> str:
+            captured["payload"] = payload
+            return '{"success": true, "content": "ok", "data": {}}'
+
+    monkeypatch.setattr(
+        "multi_agent_system.planner_app.nodes.InvoiceA2AClient",
+        FakeInvoiceClient,
+    )
+
+    state = {
+        "user_input": "Show invoice detail for invoice_id=361",
+        "planner_output": {
+            "status": "completed",
+            "confidence": 1.0,
+            "requires_aggregation": False,
+            "missing_fields": [],
+            "tasks": [
+                {
+                    "id": "task-1",
+                    "agent": "invoice",
+                    "intent": "invoice_detail",
+                    "instruction": "stale instruction should not be used",
+                    "args": {"invoice_id": "361"},
+                    "missing_fields": [],
+                    "status": "not_started",
+                }
+            ],
+        },
+    }
+
+    result = await invoice_node(state)
+
+    assert captured["payload"] == {
+        "agent": "invoice",
+        "intent": "invoice_detail",
+        "args": {"invoice_id": "361"},
+        "instruction": "Get invoice detail for invoice_id=361",
+    }
+    assert result["planner_output"]["tasks"][0]["a2a_payload"] == captured["payload"]
+
+
+@pytest.mark.anyio
 async def test_invoice_node_rebuilds_unit_price_instruction_from_args(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

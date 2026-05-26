@@ -6,6 +6,27 @@ from langchain_community.utilities import SQLDatabase
 
 def register_invoice_tools(mcp: FastMCP, db: SQLDatabase) -> None:
     @mcp.tool()
+    def get_invoice_by_id(invoice_id: str) -> dict:
+        """
+        Look up a single invoice by its ID.
+        """
+        result = db.run(
+            """
+            SELECT *
+            FROM Invoice
+            WHERE InvoiceId = :invoice_id;
+            """,
+            parameters={"invoice_id": invoice_id},
+            include_columns=True,
+        )
+
+        if not result:
+            return {}
+
+        parsed = ast.literal_eval(result)
+        return parsed[0] if isinstance(parsed, list) else parsed
+
+    @mcp.tool()
     def get_invoices_by_customer_sorted_by_date(customer_id: str) -> list[dict]:
         """
         Look up all invoices for a customer using their ID.

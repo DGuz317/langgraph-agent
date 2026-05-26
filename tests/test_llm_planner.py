@@ -29,6 +29,13 @@ async def test_llm_planner_returns_structured_tasks_for_core_cases() -> None:
             "args": {"customer_id": "5"},
         },
         {
+            "user_input": "Show invoice detail for invoice_id=361",
+            "agent": "invoice",
+            "intent": "invoice_detail",
+            "missing_fields": [],
+            "args": {"invoice_id": "361"},
+        },
+        {
             "user_input": "What is my latest invoice?",
             "agent": "invoice",
             "intent": "latest_invoice",

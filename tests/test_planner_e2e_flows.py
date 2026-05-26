@@ -169,6 +169,30 @@ async def test_planner_e2e_direct_invoice_query_uses_args_first_instruction(
 
 
 @pytest.mark.anyio
+async def test_planner_e2e_invoice_detail_uses_structured_invoice_id(
+    monkeypatch: pytest.MonkeyPatch,
+    fake_a2a_clients: dict[str, list[str]],
+) -> None:
+    _set_planner_output(
+        monkeypatch,
+        tasks=[
+            _task(
+                agent="invoice",
+                intent="invoice_detail",
+                args={"invoice_id": "361"},
+            )
+        ],
+    )
+
+    result = await _invoke_graph("Show invoice detail for invoice_id=361")
+
+    assert fake_a2a_clients["invoice"] == [
+        "Get invoice detail for invoice_id=361"
+    ]
+    assert "Found latest invoice." in result["final_answer"]
+
+
+@pytest.mark.anyio
 async def test_planner_e2e_support_employee_query_uses_args_first_instruction(
     monkeypatch: pytest.MonkeyPatch,
     fake_a2a_clients: dict[str, list[str]],

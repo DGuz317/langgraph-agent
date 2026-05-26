@@ -34,6 +34,12 @@ async def missing_info_node(state: PlannerAppState) -> dict:
     tasks = planner_output.get("tasks", [])
 
     for task in tasks:
+        if task["agent"] == "invoice" and extracted.get("invoice_id"):
+            task["args"] = {"invoice_id": extracted["invoice_id"]}
+            _attach_a2a_payload(task)
+            task["missing_fields"] = []
+            continue
+
         if task["agent"] == "invoice" and extracted.get("customer_id"):
             task["args"] = {"customer_id": extracted["customer_id"]}
             _attach_a2a_payload(task)
@@ -164,6 +170,7 @@ async def final_response_node(state: PlannerAppState) -> dict:
                     "I can help with invoice and music tasks.\n\n"
                     "Examples:\n"
                     "- Get latest invoice for customer_id=5\n"
+                    "- Get invoice detail for invoice_id=361\n"
                     "- Show invoices sorted by unit price for customer_id=5\n"
                     "- Find tracks by artist AC/DC\n"
                     "- Recommend songs by genre rock\n"

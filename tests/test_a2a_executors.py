@@ -70,6 +70,40 @@ async def test_invoice_executor_prefers_structured_request_data() -> None:
 
 
 @pytest.mark.anyio
+async def test_invoice_executor_dispatches_structured_invoice_detail() -> None:
+    captured = {}
+
+    class FakeInvoiceAgent:
+        async def invoke_request(self, request):
+            captured["request"] = request
+            return InvoiceAgentResponse(success=True, content="invoice detail")
+
+        async def ainvoke(self, query: str):
+            raise AssertionError("text fallback must not be used")
+
+    executor = InvoiceAgentExecutor()
+    executor.agent = FakeInvoiceAgent()
+    queue = FakeEventQueue()
+
+    await executor.execute(
+        FakeContext(
+            new_data_message(
+                {
+                    "agent": "invoice",
+                    "intent": "invoice_detail",
+                    "args": {"invoice_id": "361"},
+                },
+                role=Role.ROLE_USER,
+            )
+        ),
+        queue,
+    )
+
+    assert captured["request"].intent == "invoice_detail"
+    assert captured["request"].invoice_id == "361"
+
+
+@pytest.mark.anyio
 async def test_invoice_executor_falls_back_to_text_without_data_part() -> None:
     captured = {}
 

@@ -137,6 +137,7 @@ def test_all_expected_tools_are_registered(mcp_server) -> None:
     tool_names = _list_tool_names(mcp_server)
 
     assert {
+        "get_invoice_by_id",
         "get_invoices_by_customer_sorted_by_date",
         "get_invoices_sorted_by_unit_price",
         "get_employee_by_invoice_and_customer",
@@ -150,6 +151,30 @@ def test_all_expected_tools_are_registered(mcp_server) -> None:
 # ---------------------------------------------------------------------------
 # Invoice tools
 # ---------------------------------------------------------------------------
+
+
+def test_get_invoice_by_id_returns_invoice_row(mcp_server, db) -> None:
+    invoice_id = _latest_invoice_id_for_customer(db, "5")
+
+    result = _call_tool(
+        mcp_server,
+        "get_invoice_by_id",
+        {"invoice_id": invoice_id},
+    )
+
+    assert isinstance(result, dict)
+    assert str(result["InvoiceId"]) == invoice_id
+    assert str(result["CustomerId"]) == "5"
+
+
+def test_get_invoice_by_id_returns_empty_dict_for_unknown_invoice(mcp_server) -> None:
+    result = _call_tool(
+        mcp_server,
+        "get_invoice_by_id",
+        {"invoice_id": "999999"},
+    )
+
+    assert result == {}
 
 
 def test_get_invoices_by_customer_sorted_by_date_returns_customer_invoices(mcp_server) -> None:
