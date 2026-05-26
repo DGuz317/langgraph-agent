@@ -12,6 +12,7 @@ The current implementation is past the initial demo stage. It has a tested plann
 User input
 -> Planner CLI or POST /planner/invoke
 -> PlannerService
+-> optional Acontext visible-chat capture and skill learning
 -> PlannerAgent structured PlannerOutput
 -> LangGraph planner_app
 -> optional HITL interrupt/resume
@@ -43,6 +44,7 @@ Completed:
 - Planner retries invalid structured LLM output once before returning a safe failed output.
 - Planner structured LLM initialization is lazy for easier unit testing.
 - `PlannerService` wraps graph invocation, thread ids, HITL resume, interrupt extraction, and final-answer extraction.
+- Optional Acontext capture records user-visible planner turns in a shared learning space and flushes terminal sessions for skill generation.
 - `scripts/run_planner.py` uses `PlannerService` and configurable memory or SQLite checkpointing.
 - `src/multi_agent_system/orchestrator/server.py` exposes `POST /planner/invoke`.
 - Graph nodes rebuild execution instructions from structured `task["args"]`, not stale planner instruction text.
@@ -103,6 +105,19 @@ Run the planner API:
 uv run python scripts/run_orchestrator_api.py --host localhost --port 12000
 ```
 
+Optional local skill memory:
+
+```bash
+# Acontext SDK API endpoint, distinct from the sandbox worker on port 8788.
+curl -fsS http://localhost:8029/health
+```
+
+Set `ACONTEXT_ENABLED=true`, `ACONTEXT_API_KEY`, and
+`ACONTEXT_BASE_URL=http://localhost:8029/api/v1` to capture planner-visible
+conversation turns. The current memory phase generates reviewable skills; it
+does not yet inject those skills back into planning. For slow local models,
+set `ACONTEXT_TIMEOUT=360` so terminal flush processing can finish.
+
 Invoke the planner API:
 
 ```http
@@ -140,6 +155,7 @@ RUN_ORCHESTRATOR_API_INTEGRATION_TESTS=1 uv run pytest tests/test_orchestrator_a
 RUN_A2A_INTEGRATION_TESTS=1 uv run pytest tests/test_invoice_a2a_client.py tests/test_music_a2a_client.py -q
 RUN_MCP_INTEGRATION_TESTS=1 uv run pytest tests/test_mcp_tools.py -q
 RUN_LLM_TESTS=1 uv run pytest tests/test_llm_planner.py -q
+RUN_ACONTEXT_INTEGRATION_TESTS=1 uv run pytest tests/test_acontext_capture_integration.py -q
 ```
 
 ## Configuration Notes
@@ -148,6 +164,7 @@ RUN_LLM_TESTS=1 uv run pytest tests/test_llm_planner.py -q
 - `SQLITE_DB` has no default and must point at the Chinook SQLite database.
 - Default LLM provider is Ollama: `MODEL_PROVIDER=ollama`, `LLM_MODEL=gpt-oss`.
 - OpenAI, Google, and Anthropic require their matching API key.
+- Acontext is optional and fails open if its local API is unavailable; its SDK API defaults to port `8029`, not the sandbox worker on `8788`.
 - `langgraph.json` is empty; use the scripts above instead of assuming LangGraph dev-server config.
 
 ## Roadmap

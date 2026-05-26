@@ -157,6 +157,7 @@ multi-agent-system/
 - `uv`
 - Ollama, OpenAI, Google Gemini, or Anthropic as the LLM provider
 - SQLite Chinook database included in the project
+- Optional: a local Acontext server for skill-memory capture and learning
 
 ## Setup
 
@@ -189,6 +190,12 @@ LANGSMITH_API_KEY=
 LANGSMITH_ENDPOINT=https://api.smith.langchain.com
 LANGSMITH_TRACING=false
 LANGSMITH_PROJECT=multi-agent-system
+
+ACONTEXT_ENABLED=false
+ACONTEXT_API_KEY=sk-ac-your-local-root-api-bearer-token
+ACONTEXT_BASE_URL=http://localhost:8029/api/v1
+ACONTEXT_USER_IDENTIFIER=multi-agent-system
+ACONTEXT_TIMEOUT=360
 ```
 
 Security notes:
@@ -196,10 +203,78 @@ Security notes:
 - Do not hardcode API keys inside `config.py`.
 - Keep `.env` out of Git.
 - Commit `.env.example`, not `.env`.
+- Keep the local `acontext_server/` directory out of Git because it contains
+  service credentials and persisted memory data.
 
 ## Running the System
 
 Start each service in a separate terminal.
+
+### Optional: Start Local Acontext Skill Memory
+
+Enable Acontext only when its local API is healthy. The Acontext API used by
+this application is `http://localhost:8029/api/v1`; a response from port
+`8788` is the separate sandbox worker and is not a valid `ACONTEXT_BASE_URL`.
+
+Create/run the Acontext server outside tracked project source:
+
+```bash
+mkdir -p acontext_server
+cd acontext_server
+acontext server up
+curl -fsS http://localhost:8029/health
+```
+
+To keep Acontext learning local with Ollama, configure its server `.env`
+before starting the server:
+
+```env
+LLM_API_KEY=dummy-key-not-required
+LLM_SDK=openai
+LLM_SIMPLE_MODEL=ministral-3:3b
+LLM_BASE_URL=http://host.docker.internal:11434/v1
+LLM_RESPONSE_TIMEOUT=300
+
+BLOCK_EMBEDDING_PROVIDER=openai
+BLOCK_EMBEDDING_API_KEY=dummy-key
+BLOCK_EMBEDDING_BASE_URL=http://host.docker.internal:11434/v1
+BLOCK_EMBEDDING_MODEL=nomic-embed-text
+BLOCK_EMBEDDING_DIM=768
+```
+
+The Acontext containers must be able to reach Ollama and the sandbox worker on
+the host. On Linux, configure the local Acontext compose environment with a
+`host.docker.internal:host-gateway` mapping when that hostname is not already
+available. Ollama must also listen on a Docker-reachable address rather than
+only `127.0.0.1`, for example by starting it with
+`OLLAMA_HOST=0.0.0.0:11434 ollama serve` on a trusted local machine. Apply the
+equivalent reachability requirement to the sandbox worker URL. Also ensure
+Acontext's `config.yaml` mount refers to a file, not a directory.
+
+If the CLI-generated Compose setup cannot resolve `host.docker.internal` on
+Linux, use the Acontext Core container network gateway instead. Obtain it while
+the stack is running:
+
+```bash
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.Gateway}}{{end}}' \
+  acontext-server-core
+```
+
+For a gateway such as `172.18.0.1`, set the Acontext server `.env` values to
+`http://172.18.0.1:11434/v1` for `LLM_BASE_URL` and
+`BLOCK_EMBEDDING_BASE_URL`, and `http://172.18.0.1:8788` for
+`CLOUDFLARE_WORKER_URL`. Run its sandbox worker with
+`wrangler dev --ip 0.0.0.0 --port 8788`; the CLI-created worker otherwise
+listens only on host loopback.
+
+When `ACONTEXT_ENABLED=true`, `PlannerService` stores visible user and
+assistant turns only, reuses a single learning space, and submits completed or
+failed sessions for skill generation. V1 does not inject learned skills back
+into planner routing or domain results. For a self-hosted local server, set the
+application `ACONTEXT_API_KEY` to `sk-ac-` followed by the
+`ROOT_API_BEARER_TOKEN` value in the ignored Acontext server `.env`. Keep
+`ACONTEXT_TIMEOUT` above the local model's worst-case response time; `360`
+seconds is suitable when the Acontext Core `LLM_RESPONSE_TIMEOUT` is `300`.
 
 ### 1. Start MCP server
 
@@ -352,6 +427,13 @@ Run latest-invoice support employee integration tests after configuring `.env` a
 RUN_INVOICE_SUPPORT_INTEGRATION_TESTS=1 uv run pytest tests/test_invoice_support_employee_integration.py -q
 ```
 
+Run Acontext skill-memory integration tests after starting its local API and
+Ollama-backed learning service:
+
+```bash
+RUN_ACONTEXT_INTEGRATION_TESTS=1 uv run pytest tests/test_acontext_capture_integration.py -q
+```
+
 ## Development Workflow
 
 Recommended workflow before adding features:
@@ -409,6 +491,7 @@ Recommended next improvements:
 - Improve graph-node error recovery for unavailable A2A/MCP services.
 - Parameterize all SQL queries.
 - Add persistent checkpointer for production usage.
+- Add Acontext skill recall only after captured skill content has been reviewed.
 - Add music tracks-by-album capability.
 - Add parallel task execution after the sequential path is stable.
 - Add deployment documentation for remote A2A service discovery.

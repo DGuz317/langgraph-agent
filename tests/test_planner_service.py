@@ -28,6 +28,17 @@ class FakeInterrupt:
         self.value = value
 
 
+class FakeCapture:
+    def __init__(self, error: Exception | None = None) -> None:
+        self.error = error
+        self.calls = []
+
+    async def capture(self, **kwargs) -> None:
+        self.calls.append(kwargs)
+        if self.error is not None:
+            raise self.error
+
+
 @pytest.fixture
 def anyio_backend() -> str:
     return "asyncio"
@@ -40,7 +51,7 @@ async def test_planner_service_returns_completed_response() -> None:
             "final_answer": "Done.",
         }
     )
-    service = PlannerService(graph=graph)
+    service = PlannerService(graph=graph, capture=None)
 
     response = await service.invoke(
         "hello",
@@ -66,7 +77,7 @@ async def test_planner_service_generates_thread_id_when_missing() -> None:
             "final_answer": "Done.",
         }
     )
-    service = PlannerService(graph=graph)
+    service = PlannerService(graph=graph, capture=None)
 
     response = await service.invoke("hello")
 
@@ -88,7 +99,7 @@ async def test_planner_service_returns_interrupt_response() -> None:
             ]
         }
     )
-    service = PlannerService(graph=graph)
+    service = PlannerService(graph=graph, capture=None)
 
     response = await service.invoke(
         "latest invoice",
@@ -109,7 +120,7 @@ async def test_planner_service_resumes_with_command() -> None:
             "final_answer": "Latest invoice found.",
         }
     )
-    service = PlannerService(graph=graph)
+    service = PlannerService(graph=graph, capture=None)
 
     response = await service.invoke(
         "5",
@@ -128,7 +139,7 @@ async def test_planner_service_resumes_with_command() -> None:
 @pytest.mark.anyio
 async def test_planner_service_returns_failed_response_when_graph_raises() -> None:
     graph = FakeGraph(error=RuntimeError("graph exploded"))
-    service = PlannerService(graph=graph)
+    service = PlannerService(graph=graph, capture=None)
 
     response = await service.invoke(
         "hello",
@@ -143,7 +154,7 @@ async def test_planner_service_returns_failed_response_when_graph_raises() -> No
 @pytest.mark.anyio
 async def test_planner_service_uses_fallback_answer_when_final_answer_missing() -> None:
     graph = FakeGraph(result={})
-    service = PlannerService(graph=graph)
+    service = PlannerService(graph=graph, capture=None)
 
     response = await service.invoke(
         "hello",
@@ -152,3 +163,33 @@ async def test_planner_service_uses_fallback_answer_when_final_answer_missing() 
 
     assert response.status == "completed"
     assert response.final_answer == "I could not complete the request."
+
+
+@pytest.mark.anyio
+async def test_planner_service_captures_user_visible_interaction() -> None:
+    graph = FakeGraph(result={"final_answer": "Done."})
+    capture = FakeCapture()
+    service = PlannerService(graph=graph, capture=capture)
+
+    response = await service.invoke("hello", thread_id="thread-capture")
+
+    assert capture.calls == [
+        {
+            "user_input": "hello",
+            "thread_id": "thread-capture",
+            "resume": False,
+            "response": response,
+        }
+    ]
+
+
+@pytest.mark.anyio
+async def test_planner_service_capture_failure_does_not_change_response() -> None:
+    graph = FakeGraph(result={"final_answer": "Done."})
+    capture = FakeCapture(error=RuntimeError("capture offline"))
+    service = PlannerService(graph=graph, capture=capture)
+
+    response = await service.invoke("hello", thread_id="thread-capture")
+
+    assert response.status == "completed"
+    assert response.final_answer == "Done."

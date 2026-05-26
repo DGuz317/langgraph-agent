@@ -33,6 +33,22 @@ http-server = [
 ]
 
 [[package]]
+name = "acontext"
+version = "0.1.22"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anthropic" },
+    { name = "httpx" },
+    { name = "openai" },
+    { name = "pydantic" },
+    { name = "urllib3" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/26/b6/6c1f6e49d30064878da04742bd80893ec65d320e1e09e1f84a1bd266b120/acontext-0.1.22.tar.gz", hash = "sha256:04390bc930937e7df0501b81de300b85698c274a752c824fd6c4033faad3eda7", size = 49745, upload-time = "2026-04-01T06:53:45.059Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/96/98/6a3b14f0e5dd67ed91d55cd09a2de08ca8fb68e69eea2b082f0f02b19e14/acontext-0.1.22-py3-none-any.whl", hash = "sha256:559b18b493fd2c768b4554a0d4311ddbc6c1aec9e239f15cd267c82c280b37ea", size = 73112, upload-time = "2026-04-01T06:53:45.825Z" },
+]
+
+[[package]]
 name = "aiofile"
 version = "3.11.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1490,6 +1506,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "a2a-sdk", extra = ["http-server"] },
+    { name = "acontext" },
     { name = "click" },
     { name = "fastapi" },
     { name = "fastmcp" },
@@ -1518,6 +1535,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "a2a-sdk", extras = ["http-server"], specifier = ">=0.3.25" },
+    { name = "acontext", specifier = ">=0.1.22" },
     { name = "click", specifier = ">=8.0.0" },
     { name = "fastapi", specifier = ">=0.135.1" },
     { name = "fastmcp", specifier = ">=3.2.0" },

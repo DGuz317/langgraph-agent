@@ -198,3 +198,6 @@ AGENTS.md
 data/
 *.sqlite
 *.sqlite3
+
+# Local Acontext server state and secrets
+/acontext_server/

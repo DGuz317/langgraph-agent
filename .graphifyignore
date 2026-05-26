@@ -1,2 +1,4 @@
 .cursor/
 .opencode/
+test_v1.py
+acontext_server/
