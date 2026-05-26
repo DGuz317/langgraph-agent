@@ -56,6 +56,19 @@ def test_planned_task_allows_missing_invoice_id_when_declared() -> None:
     assert task.missing_fields == ["invoice_id"]
 
 
+def test_planned_task_accepts_invoice_summary_task() -> None:
+    task = PlannedTask(
+        id="task-1",
+        agent="invoice",
+        intent="invoice_summary",
+        instruction="Get invoice summary for customer_id=5",
+        args={"customer_id": "5"},
+        missing_fields=[],
+    )
+
+    assert task.args == {"customer_id": "5"}
+
+
 def test_planned_task_accepts_all_invoices_task() -> None:
     task = PlannedTask(
         id="task-1",

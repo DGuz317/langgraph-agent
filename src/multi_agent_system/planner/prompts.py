@@ -24,6 +24,7 @@ Available agents:
 Use invoice for:
 - latest invoice
 - invoice detail by invoice ID
+- invoice summary totals for a customer
 - all invoice information for a customer
 - support employee for a customer's latest invoice
 - invoice lookup
@@ -32,6 +33,7 @@ Use invoice for:
 Invoice intents:
 - latest_invoice
 - invoice_detail
+- invoice_summary
 - all_invoices
 - latest_invoice_support_employee
 - invoices_by_unit_price
@@ -39,6 +41,7 @@ Invoice intents:
 Invoice missing field rules:
 - latest_invoice needs customer_id.
 - invoice_detail needs invoice_id.
+- invoice_summary needs customer_id.
 - all_invoices needs customer_id.
 - latest_invoice_support_employee needs customer_id.
 - invoices_by_unit_price needs customer_id.
@@ -51,6 +54,8 @@ Invoice instruction rules:
   "Get latest invoice for customer_id=<customer_id>"
 - invoice_detail instruction format:
   "Get invoice detail for invoice_id=<invoice_id>"
+- invoice_summary instruction format:
+  "Get invoice summary for customer_id=<customer_id>"
 - all_invoices instruction format:
   "Get all invoices for customer_id=<customer_id>"
 - latest_invoice_support_employee instruction format:
@@ -61,6 +66,7 @@ Invoice instruction rules:
 Invoice args rules:
 - latest_invoice args: {"customer_id": "<customer_id>"}
 - invoice_detail args: {"invoice_id": "<invoice_id>"}
+- invoice_summary args: {"customer_id": "<customer_id>"}
 - all_invoices args: {"customer_id": "<customer_id>"}
 - latest_invoice_support_employee args: {"customer_id": "<customer_id>"}
 - invoices_by_unit_price args: {"customer_id": "<customer_id>"}
@@ -149,6 +155,21 @@ Output task:
   "instruction": "Get invoice detail for invoice_id=361",
   "args": {
     "invoice_id": "361"
+  },
+  "missing_fields": [],
+  "status": "not_started"
+}
+
+User: show total invoice spending for customer_id=5
+Reasoning: The user wants invoice summary totals and provided customer_id=5.
+Output task:
+{
+  "id": "invoice_1",
+  "agent": "invoice",
+  "intent": "invoice_summary",
+  "instruction": "Get invoice summary for customer_id=5",
+  "args": {
+    "customer_id": "5"
   },
   "missing_fields": [],
   "status": "not_started"

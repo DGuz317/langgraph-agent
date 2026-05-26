@@ -171,6 +171,7 @@ async def final_response_node(state: PlannerAppState) -> dict:
                     "Examples:\n"
                     "- Get latest invoice for customer_id=5\n"
                     "- Get invoice detail for invoice_id=361\n"
+                    "- Get invoice summary for customer_id=5\n"
                     "- Show invoices sorted by unit price for customer_id=5\n"
                     "- Find tracks by artist AC/DC\n"
                     "- Recommend songs by genre rock\n"

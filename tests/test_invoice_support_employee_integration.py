@@ -109,6 +109,22 @@ async def test_invoice_a2a_detail_includes_support_employee() -> None:
 
 
 @pytest.mark.anyio
+async def test_invoice_a2a_summary_returns_totals_without_invoice_rows() -> None:
+    from multi_agent_system.a2a_client.invoice_client import InvoiceA2AClient
+
+    result = await InvoiceA2AClient().ask(
+        "Get invoice summary for customer_id=5"
+    )
+
+    data = _response_data(result)
+    assert data["CustomerId"] == 5
+    assert data["InvoiceCount"] > 0
+    assert data["TotalAmount"] > 0
+    assert "invoice" not in data
+    assert "support_employee" not in data
+
+
+@pytest.mark.anyio
 async def test_invoice_a2a_returns_support_employee_for_latest_invoice() -> None:
     from multi_agent_system.a2a_client.invoice_client import InvoiceA2AClient
 

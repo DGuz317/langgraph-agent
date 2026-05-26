@@ -19,6 +19,7 @@ class InvoiceAgent(MCPToolAgent):
         handlers = {
             "latest_invoice": self._get_latest_invoice,
             "invoice_detail": self._get_invoice_detail,
+            "invoice_summary": self._get_invoice_summary,
             "all_invoices": self._get_all_invoices,
             "latest_invoice_support_employee": self._get_latest_invoice_support_employee,
             "invoices_by_unit_price": self._get_invoices_by_unit_price,
@@ -38,7 +39,9 @@ class InvoiceAgent(MCPToolAgent):
             ["invoice_id", "invoice id"],
         )
 
-        if self._is_invoice_detail_request(normalized):
+        if self._is_invoice_summary_request(normalized):
+            intent: InvoiceIntent = "invoice_summary"
+        elif self._is_invoice_detail_request(normalized):
             intent: InvoiceIntent = "invoice_detail"
         elif self._is_support_employee_request(normalized):
             intent: InvoiceIntent = "latest_invoice_support_employee"
@@ -123,6 +126,28 @@ class InvoiceAgent(MCPToolAgent):
                 "invoice": invoice,
                 "support_employee": employee,
             },
+        )
+
+    async def _get_invoice_summary(
+        self,
+        request: InvoiceRequest,
+    ) -> InvoiceAgentResponse:
+        summary = await self.call_tool(
+            "get_invoice_summary_by_customer",
+            {"customer_id": request.customer_id},
+        )
+
+        if not summary:
+            return InvoiceAgentResponse(
+                success=True,
+                content=f"No invoices found for customer_id={request.customer_id}.",
+                data=[],
+            )
+
+        return InvoiceAgentResponse(
+            success=True,
+            content=f"Invoice summary for customer_id={request.customer_id} found.",
+            data=summary,
         )
 
     async def _get_invoices_by_unit_price(
@@ -270,6 +295,16 @@ class InvoiceAgent(MCPToolAgent):
             "invoice detail" in normalized
             or "invoice details" in normalized
         )
+
+    def _is_invoice_summary_request(self, normalized: str) -> bool:
+        summary_terms = (
+            "invoice summary",
+            "invoice total",
+            "total invoice",
+            "total spent",
+            "total spending",
+        )
+        return any(term in normalized for term in summary_terms)
 
     def _is_all_invoices_request(self, normalized: str) -> bool:
         all_terms = (

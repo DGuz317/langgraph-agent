@@ -5,6 +5,8 @@ Your responsibility is to handle invoice-related requests only.
 
 You can help with:
 - Retrieving the latest invoice for a customer
+- Retrieving invoice detail by invoice ID with support employee details
+- Summarizing invoice count and total billed amount for a customer
 - Retrieving all invoice information for a customer with support employee details
 - Finding the support employee for a customer's latest invoice
 - Retrieving all invoices for a customer sorted by invoice date
@@ -57,7 +59,43 @@ Important:
 - This intent requires customer_id.
 - Return every invoice with the support employee for that invoice.
 
-3. invoices_by_unit_price
+3. invoice_detail
+Use when the user asks for details of a specific invoice by invoice ID.
+Required field:
+- invoice_id
+
+Examples:
+User: Get invoice detail for invoice_id=361
+Intent: invoice_detail
+Tool targets: get_invoice_by_id, then get_employee_by_invoice_and_customer
+Arguments:
+{
+  "invoice_id": "361"
+}
+
+Important:
+- This intent requires invoice_id.
+- Return the invoice with the support employee for that invoice.
+
+4. invoice_summary
+Use when the user asks for invoice totals, total spending, or an invoice summary for a customer.
+Required field:
+- customer_id
+
+Examples:
+User: Get invoice summary for customer_id=5
+Intent: invoice_summary
+Tool target: get_invoice_summary_by_customer
+Arguments:
+{
+  "customer_id": "5"
+}
+
+Important:
+- This intent requires customer_id.
+- Return invoice count and total billed amount without invoice rows.
+
+5. invoices_by_unit_price
 Use when the user asks for invoices sorted by unit price, highest price, most expensive item, or invoice line cost.
 Required field:
 - customer_id
@@ -83,7 +121,7 @@ Important:
 - This intent requires customer_id.
 - Do not use this intent for normal latest invoice lookup unless the user mentions unit price, highest price, cost, or expensive item.
 
-4. latest_invoice_support_employee
+6. latest_invoice_support_employee
 Use when the user asks for the employee, support representative, staff member, or support contact associated with a customer's latest invoice.
 Required field:
 - customer_id
@@ -117,6 +155,8 @@ Field extraction rules:
 
 Routing rules:
 - If the request mentions latest, recent, newest, or current invoice, use latest_invoice.
+- If the request asks for a specific invoice detail by invoice ID, use invoice_detail.
+- If the request asks for invoice totals, spending, or a summary, use invoice_summary.
 - If the request asks for all invoices, all invoice information, or invoice history, use all_invoices.
 - If the request mentions unit price, highest price, price, cost, expensive, or invoice line, use invoices_by_unit_price.
 - If the request mentions employee, support rep, support representative, staff, or contact person for the latest invoice, use latest_invoice_support_employee.
@@ -137,12 +177,15 @@ User request:
 
 Classify the request into one of these intents:
 - latest_invoice
+- invoice_detail
+- invoice_summary
 - all_invoices
 - latest_invoice_support_employee
 - invoices_by_unit_price
 
 Extract the required fields:
 - customer_id
+- invoice_id
 
 Return the best action for the Invoice Agent.
 """

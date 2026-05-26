@@ -41,6 +41,16 @@ from multi_agent_system.a2a_servers.invoice_agent.agent import InvoiceAgent
             "latest_invoice_support_employee",
             "5",
         ),
+        (
+            "Get invoice summary for customer_id=5",
+            "invoice_summary",
+            "5",
+        ),
+        (
+            "Show total invoice spending for customer id 10",
+            "invoice_summary",
+            "10",
+        ),
     ],
 )
 def test_invoice_agent_parse_request(
@@ -514,3 +524,45 @@ async def test_invoice_agent_returns_detail_with_employee_error_on_failed_enrich
         "invoice": {"InvoiceId": 361, "CustomerId": 5},
         "support_employee": {"error": "No employee found."},
     }
+
+
+@pytest.mark.anyio
+async def test_invoice_agent_returns_invoice_summary_totals() -> None:
+    class StubInvoiceAgent(InvoiceAgent):
+        async def call_tool(self, tool_name: str, args: dict):
+            assert tool_name == "get_invoice_summary_by_customer"
+            assert args == {"customer_id": "5"}
+            return {
+                "CustomerId": 5,
+                "InvoiceCount": 7,
+                "TotalAmount": 40.62,
+            }
+
+    response = await StubInvoiceAgent().ainvoke(
+        "Get invoice summary for customer_id=5"
+    )
+
+    assert response.success is True
+    assert response.content == "Invoice summary for customer_id=5 found."
+    assert response.data == {
+        "CustomerId": 5,
+        "InvoiceCount": 7,
+        "TotalAmount": 40.62,
+    }
+
+
+@pytest.mark.anyio
+async def test_invoice_agent_returns_no_result_for_unknown_invoice_summary() -> None:
+    class StubInvoiceAgent(InvoiceAgent):
+        async def call_tool(self, tool_name: str, args: dict):
+            assert tool_name == "get_invoice_summary_by_customer"
+            assert args == {"customer_id": "999999"}
+            return {}
+
+    response = await StubInvoiceAgent().ainvoke(
+        "Get invoice summary for customer_id=999999"
+    )
+
+    assert response.success is True
+    assert response.content == "No invoices found for customer_id=999999."
+    assert response.data == []

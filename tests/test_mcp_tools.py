@@ -139,6 +139,7 @@ def test_all_expected_tools_are_registered(mcp_server) -> None:
     assert {
         "get_invoice_by_id",
         "get_invoices_by_customer_sorted_by_date",
+        "get_invoice_summary_by_customer",
         "get_invoices_sorted_by_unit_price",
         "get_employee_by_invoice_and_customer",
         "get_albums_by_artist",
@@ -202,6 +203,62 @@ def test_get_invoices_by_customer_sorted_by_date_returns_empty_list_for_unknown_
     )
 
     assert result == []
+
+
+def test_get_invoice_summary_by_customer_returns_totals(mcp_server) -> None:
+    result = _call_tool(
+        mcp_server,
+        "get_invoice_summary_by_customer",
+        {"customer_id": "5"},
+    )
+
+    assert isinstance(result, dict)
+    assert str(result["CustomerId"]) == "5"
+    assert int(result["InvoiceCount"]) > 0
+    assert float(result["TotalAmount"]) > 0
+
+
+def test_get_invoice_summary_by_customer_returns_empty_dict_for_unknown_customer(mcp_server) -> None:
+    result = _call_tool(
+        mcp_server,
+        "get_invoice_summary_by_customer",
+        {"customer_id": "999999"},
+    )
+
+    assert result == {}
+
+
+def test_invoice_customer_queries_do_not_treat_input_as_sql(mcp_server) -> None:
+    injected_customer_id = "5 OR 1=1"
+
+    invoices = _call_tool(
+        mcp_server,
+        "get_invoices_by_customer_sorted_by_date",
+        {"customer_id": injected_customer_id},
+    )
+    summary = _call_tool(
+        mcp_server,
+        "get_invoice_summary_by_customer",
+        {"customer_id": injected_customer_id},
+    )
+    unit_price_invoices = _call_tool(
+        mcp_server,
+        "get_invoices_sorted_by_unit_price",
+        {"customer_id": injected_customer_id},
+    )
+    employee = _call_tool(
+        mcp_server,
+        "get_employee_by_invoice_and_customer",
+        {
+            "invoice_id": "361 OR 1=1",
+            "customer_id": injected_customer_id,
+        },
+    )
+
+    assert invoices == []
+    assert summary == {}
+    assert unit_price_invoices == []
+    assert "error" in employee
 
 
 def test_get_invoices_sorted_by_unit_price_returns_customer_invoice_lines(mcp_server) -> None:

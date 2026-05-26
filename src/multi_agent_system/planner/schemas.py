@@ -10,6 +10,7 @@ TaskStatus = Literal["not_started", "completed", "failed"]
 TaskIntent = Literal[
     "latest_invoice",
     "invoice_detail",
+    "invoice_summary",
     "all_invoices",
     "latest_invoice_support_employee",
     "invoices_by_unit_price",
@@ -24,6 +25,7 @@ TaskIntent = Literal[
 INVOICE_INTENTS = {
     "latest_invoice",
     "invoice_detail",
+    "invoice_summary",
     "all_invoices",
     "latest_invoice_support_employee",
     "invoices_by_unit_price",
@@ -40,6 +42,7 @@ MUSIC_INTENTS = {
 REQUIRED_ARGS_BY_INTENT = {
     "latest_invoice": "customer_id",
     "invoice_detail": "invoice_id",
+    "invoice_summary": "customer_id",
     "all_invoices": "customer_id",
     "latest_invoice_support_employee": "customer_id",
     "invoices_by_unit_price": "customer_id",

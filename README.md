@@ -8,6 +8,7 @@ The system can:
 
 - Get the latest invoice for a customer.
 - Get invoice detail by invoice ID, including its support employee.
+- Get invoice summary totals for a customer.
 - Get the support employee for a customer's latest invoice.
 - Get a customer's invoices sorted by invoice line unit price.
 - Find tracks by artist.
@@ -250,6 +251,7 @@ Direct invoice queries:
 ```text
 Get latest invoice for customer_id=5
 Get invoice detail for invoice_id=361
+Get invoice summary for customer_id=5
 Who is the support employee for latest invoice of customer id 5?
 Show invoices for customer_id=5 sorted by unit price
 ```
@@ -405,7 +407,7 @@ Recommended next improvements:
 - Improve graph-node error recovery for unavailable A2A/MCP services.
 - Parameterize all SQL queries.
 - Add persistent checkpointer for production usage.
-- Add customer invoice summary totals and customer-level support lookup capabilities.
+- Add customer-level support lookup without returning invoice rows.
 - Add parallel task execution after the sequential path is stable.
 - Add deployment documentation for remote A2A service discovery.
 
