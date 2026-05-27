@@ -1,6 +1,9 @@
+import asyncio
+
 import pytest
 
 from multi_agent_system.common.errors import MCPToolError
+from multi_agent_system.common.execution_evidence import collect_execution_evidence
 from multi_agent_system.common.mcp_tool_agent import MCPToolAgent
 
 
@@ -58,6 +61,59 @@ async def test_call_tool_returns_parsed_text_payload() -> None:
 
     assert result == [{"id": 1}]
     assert tool.last_args == {"customer_id": "5"}
+
+
+@pytest.mark.anyio
+async def test_call_tool_records_sanitized_execution_evidence() -> None:
+    tool = FakeTool(
+        name="get_items",
+        result=[{"type": "text", "text": "[{\"private\": \"value\"}]"}],
+    )
+    agent = MCPToolAgent(client=FakeClient(tools=[tool]))
+    agent.evidence_agent = "invoice"
+
+    with collect_execution_evidence() as evidence:
+        await agent.call_tool("get_items", {"customer_id": "5"})
+
+    assert [item.kind for item in evidence] == ["mcp_tool_call", "mcp_tool_result"]
+    assert evidence[0].fields == ["customer_id"]
+    assert "5" not in evidence[0].summary
+    assert "private" not in evidence[1].summary
+
+
+@pytest.mark.anyio
+async def test_call_tool_records_sanitized_failure_evidence() -> None:
+    tool = FakeTool(name="get_items", error=RuntimeError("private failure details"))
+    agent = MCPToolAgent(client=FakeClient(tools=[tool]))
+    agent.evidence_agent = "invoice"
+
+    with collect_execution_evidence() as evidence:
+        with pytest.raises(MCPToolError):
+            await agent.call_tool("get_items", {"customer_id": "5"})
+
+    assert evidence[-1].status == "failed"
+    assert "private failure details" not in evidence[-1].summary
+
+
+@pytest.mark.anyio
+async def test_evidence_collection_is_isolated_for_concurrent_calls() -> None:
+    async def collect_for(field: str) -> list[str]:
+        agent = MCPToolAgent(
+            client=FakeClient(
+                tools=[FakeTool(name="get_items", result=[])],
+            )
+        )
+        with collect_execution_evidence() as evidence:
+            await agent.call_tool("get_items", {field: "private"})
+        return evidence[0].fields
+
+    first, second = await asyncio.gather(
+        collect_for("customer_id"),
+        collect_for("invoice_id"),
+    )
+
+    assert first == ["customer_id"]
+    assert second == ["invoice_id"]
 
 
 @pytest.mark.anyio

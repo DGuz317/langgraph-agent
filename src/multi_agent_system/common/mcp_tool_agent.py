@@ -1,14 +1,22 @@
 import json
 from typing import Any
+from uuid import uuid4
 
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
 from multi_agent_system.common.errors import MCPToolError
+from multi_agent_system.common.execution_evidence import (
+    EvidenceAgent,
+    ExecutionEvidence,
+    record_execution_evidence,
+)
 from multi_agent_system.config import settings
 
 
 class MCPToolAgent:
     """Base class for agents that call tools exposed by the MCP server."""
+
+    evidence_agent: EvidenceAgent = "planner"
 
     def __init__(self, client: MultiServerMCPClient | None = None) -> None:
         self._client = client
@@ -38,16 +46,50 @@ class MCPToolAgent:
         tool_name: str,
         args: dict[str, Any],
     ) -> Any:
-        tool = await self._find_tool(tool_name)
-
+        call_id = str(uuid4())
+        record_execution_evidence(
+            ExecutionEvidence(
+                kind="mcp_tool_call",
+                agent=self.evidence_agent,
+                operation=tool_name,
+                status="started",
+                call_id=call_id,
+                fields=sorted(str(key) for key in args),
+                summary=f"Invoked {tool_name}; supplied values omitted from memory.",
+            )
+        )
         try:
+            tool = await self._find_tool(tool_name)
             raw_result = await tool.ainvoke(args)
+            result = self._unwrap_mcp_result(raw_result, tool_name=tool_name)
         except Exception as exc:
+            record_execution_evidence(
+                ExecutionEvidence(
+                    kind="mcp_tool_result",
+                    agent=self.evidence_agent,
+                    operation=tool_name,
+                    status="failed",
+                    call_id=call_id,
+                    summary=f"{tool_name} failed; failure details omitted from memory.",
+                )
+            )
+            if isinstance(exc, MCPToolError):
+                raise
             raise MCPToolError(
                 f"MCP tool '{tool_name}' invocation failed: {exc}"
             ) from exc
 
-        return self._unwrap_mcp_result(raw_result, tool_name=tool_name)
+        record_execution_evidence(
+            ExecutionEvidence(
+                kind="mcp_tool_result",
+                agent=self.evidence_agent,
+                operation=tool_name,
+                status="completed",
+                call_id=call_id,
+                summary=_summarize_tool_result(tool_name, result),
+            )
+        )
+        return result
 
     async def _find_tool(self, tool_name: str) -> Any:
         tools = await self.get_tools()
@@ -159,3 +201,16 @@ class MCPToolAgent:
             raise MCPToolError(
                 f"MCP tool '{tool_name}' returned invalid JSON text."
             ) from exc
+
+
+def _summarize_tool_result(tool_name: str, result: Any) -> str:
+    if not result:
+        return f"{tool_name} completed; no matching records returned."
+
+    if isinstance(result, list):
+        return (
+            f"{tool_name} completed; {len(result)} record(s) returned, "
+            "with values omitted from memory."
+        )
+
+    return f"{tool_name} completed; returned values omitted from memory."

@@ -1,9 +1,11 @@
+import json
 from types import SimpleNamespace
 
 import pytest
 
 from acontext.errors import APIError
 
+from multi_agent_system.common.execution_evidence import ExecutionEvidence
 from multi_agent_system.config import settings
 from multi_agent_system.orchestrator.acontext_capture import (
     AcontextCapture,
@@ -114,7 +116,7 @@ async def test_completed_interaction_creates_learning_space_and_flushes() -> Non
             "limit": 1,
             "filter_by_meta": {
                 "source": "multi_agent_system.planner",
-                "memory_scope": "visible-chat-v1",
+                "memory_scope": "sanitized-execution-v1",
             },
         }
     ]
@@ -123,7 +125,7 @@ async def test_completed_interaction_creates_learning_space_and_flushes() -> Non
             "user": "planner-service",
             "meta": {
                 "source": "multi_agent_system.planner",
-                "memory_scope": "visible-chat-v1",
+                "memory_scope": "sanitized-execution-v1",
             },
         }
     ]
@@ -133,8 +135,8 @@ async def test_completed_interaction_creates_learning_space_and_flushes() -> Non
             "user": "planner-service",
             "configs": {
                 "source": "multi_agent_system.planner",
-                "planner_thread_id": "thread-1",
-                "memory_scope": "visible-chat-v1",
+                "memory_scope": "sanitized-execution-v1",
+                "capture_policy": "sanitized-execution-v1",
             },
             "use_uuid": session_id,
         }
@@ -143,19 +145,28 @@ async def test_completed_interaction_creates_learning_space_and_flushes() -> Non
         (
             session_id,
             {
-                "blob": {"role": "user", "content": "hello"},
+                "blob": {
+                    "role": "user",
+                    "content": "Submitted a planner request. User content omitted from memory.",
+                },
                 "format": "openai",
-                "meta": {"planner_thread_id": "thread-1", "resume": False},
+                "meta": {
+                    "resume": False,
+                    "capture_policy": "sanitized-execution-v1",
+                },
             },
         ),
         (
             session_id,
             {
-                "blob": {"role": "assistant", "content": "Done."},
+                "blob": {
+                    "role": "assistant",
+                    "content": "Planner workflow completed. Returned content omitted from memory.",
+                },
                 "format": "openai",
                 "meta": {
-                    "planner_thread_id": "thread-1",
                     "planner_status": "completed",
+                    "capture_policy": "sanitized-execution-v1",
                 },
             },
         ),
@@ -221,7 +232,7 @@ async def test_interrupt_and_resume_share_learning_session_and_flush_at_end() ->
         session_id,
     ]
     assert client.learning_spaces.learn_calls == [("created-space", session_id)]
-    assert len(client.sessions.store_calls) == 4
+    assert len(client.sessions.store_calls) == 5
     assert client.sessions.flush_calls == [session_id]
 
 
@@ -245,6 +256,115 @@ async def test_failed_interaction_is_stored_and_flushed() -> None:
     session_id = acontext_session_id("thread-failed")
     assert client.sessions.store_calls[1][1]["meta"]["planner_status"] == "failed"
     assert client.sessions.flush_calls == [session_id]
+
+
+@pytest.mark.anyio
+async def test_execution_evidence_is_stored_without_raw_business_values() -> None:
+    client = FakeClient()
+    capture = _capture(client)
+    call_id = "tool-call-1"
+    response = PlannerServiceResponse(
+        status="completed",
+        thread_id="sensitive-thread",
+        final_answer="customer_id=5 BillingAddress=Example email=support@example.com",
+        raw_result={
+            "execution_evidence": [
+                ExecutionEvidence(
+                    kind="planner_decision",
+                    agent="planner",
+                    operation="latest_invoice",
+                    status="completed",
+                    fields=["customer_id"],
+                    summary="Planner selected an executable workflow; values omitted from memory.",
+                ).model_dump(),
+                ExecutionEvidence(
+                    kind="mcp_tool_call",
+                    agent="invoice",
+                    operation="get_invoices_by_customer_sorted_by_date",
+                    status="started",
+                    call_id=call_id,
+                    fields=["customer_id"],
+                    summary="Invoked invoice lookup; supplied values omitted from memory.",
+                ).model_dump(),
+                ExecutionEvidence(
+                    kind="mcp_tool_result",
+                    agent="invoice",
+                    operation="get_invoices_by_customer_sorted_by_date",
+                    status="completed",
+                    call_id=call_id,
+                    summary="Invoice lookup completed; returned values omitted from memory.",
+                ).model_dump(),
+                ExecutionEvidence(
+                    kind="agent_result",
+                    agent="invoice",
+                    operation="latest_invoice",
+                    status="completed",
+                    summary="Domain workflow completed; returned values omitted from memory.",
+                ).model_dump(),
+            ]
+        },
+    )
+
+    await capture.capture(
+        user_input="Get latest invoice for customer_id=5",
+        thread_id="sensitive-thread",
+        resume=False,
+        response=response,
+    )
+
+    blobs = [kwargs["blob"] for _, kwargs in client.sessions.store_calls]
+    captured_json = json.dumps(blobs)
+
+    assert "customer_id=5" not in captured_json
+    assert "BillingAddress" not in captured_json
+    assert "support@example.com" not in captured_json
+    assert blobs[0]["content"].startswith("Requested workflow: latest_invoice")
+    assert any(blob.get("tool_calls") for blob in blobs)
+    assert any(blob.get("role") == "tool" for blob in blobs)
+
+
+@pytest.mark.anyio
+async def test_resume_does_not_store_repeated_execution_evidence() -> None:
+    client = FakeClient()
+    capture = _capture(client)
+    decision = ExecutionEvidence(
+        kind="planner_decision",
+        agent="planner",
+        operation="latest_invoice",
+        status="interrupted",
+        fields=["customer_id"],
+        summary="Planner selected a workflow requiring additional fields.",
+    ).model_dump()
+
+    await capture.capture(
+        user_input="Get latest invoice",
+        thread_id="resume-evidence",
+        resume=False,
+        response=PlannerServiceResponse(
+            status="interrupted",
+            thread_id="resume-evidence",
+            interrupt_message="Provide a customer identifier.",
+            raw_result={"execution_evidence": [decision]},
+        ),
+    )
+    await capture.capture(
+        user_input="5",
+        thread_id="resume-evidence",
+        resume=True,
+        response=PlannerServiceResponse(
+            status="completed",
+            thread_id="resume-evidence",
+            final_answer="Sensitive response",
+            raw_result={"execution_evidence": [decision]},
+        ),
+    )
+
+    evidence_messages = [
+        kwargs
+        for _, kwargs in client.sessions.store_calls
+        if kwargs["meta"].get("evidence_kind") == "planner_decision"
+    ]
+    assert len(evidence_messages) == 1
 
 
 def test_session_identifier_is_stable_for_existing_thread_ids() -> None:

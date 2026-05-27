@@ -1003,7 +1003,7 @@
       "source_file": "tests/test_planner_error_recovery.py",
       "source_location": "L1",
       "id": "tests_test_planner_error_recovery_py",
-      "community": 8,
+      "community": 7,
       "norm_label": "test_planner_error_recovery.py"
     },
     {
@@ -1012,7 +1012,7 @@
       "source_file": "tests/test_planner_error_recovery.py",
       "source_location": "L10",
       "id": "tests_test_planner_error_recovery_test_invoice_node_returns_readable_failure_when_a2a_client_fails",
-      "community": 8,
+      "community": 7,
       "norm_label": "test_invoice_node_returns_readable_failure_when_a2a_client_fails()"
     },
     {
@@ -1021,7 +1021,7 @@
       "source_file": "tests/test_planner_error_recovery.py",
       "source_location": "L51",
       "id": "tests_test_planner_error_recovery_test_music_node_returns_readable_failure_when_a2a_client_fails",
-      "community": 8,
+      "community": 7,
       "norm_label": "test_music_node_returns_readable_failure_when_a2a_client_fails()"
     },
     {
@@ -1030,7 +1030,7 @@
       "source_file": "tests/test_planner_error_recovery.py",
       "source_location": "L92",
       "id": "tests_test_planner_error_recovery_test_invoice_node_returns_readable_failure_when_no_pending_task",
-      "community": 8,
+      "community": 7,
       "norm_label": "test_invoice_node_returns_readable_failure_when_no_pending_task()"
     },
     {
@@ -1039,7 +1039,7 @@
       "source_file": "tests/test_planner_error_recovery.py",
       "source_location": "L121",
       "id": "tests_test_planner_error_recovery_test_music_node_returns_readable_failure_when_no_pending_task",
-      "community": 8,
+      "community": 7,
       "norm_label": "test_music_node_returns_readable_failure_when_no_pending_task()"
     },
     {
@@ -1048,7 +1048,7 @@
       "source_file": "tests/test_planner_error_recovery.py",
       "source_location": "L150",
       "id": "tests_test_planner_error_recovery_test_invoice_node_fails_readably_when_instruction_building_fails",
-      "community": 8,
+      "community": 7,
       "norm_label": "test_invoice_node_fails_readably_when_instruction_building_fails()"
     },
     {
@@ -1550,7 +1550,7 @@
       "label": "FakeTool",
       "file_type": "code",
       "source_file": "tests/test_mcp_tool_agent_error_handling.py",
-      "source_location": "L7",
+      "source_location": "L10",
       "id": "tests_test_mcp_tool_agent_error_handling_faketool",
       "community": 2,
       "norm_label": "faketool"
@@ -1559,7 +1559,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "tests/test_mcp_tool_agent_error_handling.py",
-      "source_location": "L8",
+      "source_location": "L11",
       "id": "tests_test_mcp_tool_agent_error_handling_faketool_init",
       "community": 2,
       "norm_label": ".__init__()"
@@ -1568,7 +1568,7 @@
       "label": ".ainvoke()",
       "file_type": "code",
       "source_file": "tests/test_mcp_tool_agent_error_handling.py",
-      "source_location": "L19",
+      "source_location": "L22",
       "id": "tests_test_mcp_tool_agent_error_handling_faketool_ainvoke",
       "community": 2,
       "norm_label": ".ainvoke()"
@@ -1577,7 +1577,7 @@
       "label": "FakeClient",
       "file_type": "code",
       "source_file": "tests/test_mcp_tool_agent_error_handling.py",
-      "source_location": "L28",
+      "source_location": "L31",
       "id": "tests_test_mcp_tool_agent_error_handling_fakeclient",
       "community": 2,
       "norm_label": "fakeclient"
@@ -1586,7 +1586,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "tests/test_mcp_tool_agent_error_handling.py",
-      "source_location": "L29",
+      "source_location": "L32",
       "id": "tests_test_mcp_tool_agent_error_handling_fakeclient_init",
       "community": 2,
       "norm_label": ".__init__()"
@@ -1595,7 +1595,7 @@
       "label": ".get_tools()",
       "file_type": "code",
       "source_file": "tests/test_mcp_tool_agent_error_handling.py",
-      "source_location": "L37",
+      "source_location": "L40",
       "id": "tests_test_mcp_tool_agent_error_handling_fakeclient_get_tools",
       "community": 2,
       "norm_label": ".get_tools()"
@@ -1604,7 +1604,7 @@
       "label": "anyio_backend()",
       "file_type": "code",
       "source_file": "tests/test_mcp_tool_agent_error_handling.py",
-      "source_location": "L45",
+      "source_location": "L48",
       "id": "tests_test_mcp_tool_agent_error_handling_anyio_backend",
       "community": 2,
       "norm_label": "anyio_backend()"
@@ -1613,16 +1613,43 @@
       "label": "test_call_tool_returns_parsed_text_payload()",
       "file_type": "code",
       "source_file": "tests/test_mcp_tool_agent_error_handling.py",
-      "source_location": "L50",
+      "source_location": "L53",
       "id": "tests_test_mcp_tool_agent_error_handling_test_call_tool_returns_parsed_text_payload",
       "community": 2,
       "norm_label": "test_call_tool_returns_parsed_text_payload()"
     },
     {
+      "label": "test_call_tool_records_sanitized_execution_evidence()",
+      "file_type": "code",
+      "source_file": "tests/test_mcp_tool_agent_error_handling.py",
+      "source_location": "L67",
+      "id": "tests_test_mcp_tool_agent_error_handling_test_call_tool_records_sanitized_execution_evidence",
+      "community": 2,
+      "norm_label": "test_call_tool_records_sanitized_execution_evidence()"
+    },
+    {
+      "label": "test_call_tool_records_sanitized_failure_evidence()",
+      "file_type": "code",
+      "source_file": "tests/test_mcp_tool_agent_error_handling.py",
+      "source_location": "L85",
+      "id": "tests_test_mcp_tool_agent_error_handling_test_call_tool_records_sanitized_failure_evidence",
+      "community": 2,
+      "norm_label": "test_call_tool_records_sanitized_failure_evidence()"
+    },
+    {
+      "label": "test_evidence_collection_is_isolated_for_concurrent_calls()",
+      "file_type": "code",
+      "source_file": "tests/test_mcp_tool_agent_error_handling.py",
+      "source_location": "L99",
+      "id": "tests_test_mcp_tool_agent_error_handling_test_evidence_collection_is_isolated_for_concurrent_calls",
+      "community": 2,
+      "norm_label": "test_evidence_collection_is_isolated_for_concurrent_calls()"
+    },
+    {
       "label": "test_call_tool_returns_empty_list_payload()",
       "file_type": "code",
       "source_file": "tests/test_mcp_tool_agent_error_handling.py",
-      "source_location": "L64",
+      "source_location": "L120",
       "id": "tests_test_mcp_tool_agent_error_handling_test_call_tool_returns_empty_list_payload",
       "community": 2,
       "norm_label": "test_call_tool_returns_empty_list_payload()"
@@ -1631,7 +1658,7 @@
       "label": "test_call_tool_returns_structured_content()",
       "file_type": "code",
       "source_file": "tests/test_mcp_tool_agent_error_handling.py",
-      "source_location": "L77",
+      "source_location": "L133",
       "id": "tests_test_mcp_tool_agent_error_handling_test_call_tool_returns_structured_content",
       "community": 2,
       "norm_label": "test_call_tool_returns_structured_content()"
@@ -1640,7 +1667,7 @@
       "label": "test_call_tool_raises_when_tool_loader_fails()",
       "file_type": "code",
       "source_file": "tests/test_mcp_tool_agent_error_handling.py",
-      "source_location": "L94",
+      "source_location": "L150",
       "id": "tests_test_mcp_tool_agent_error_handling_test_call_tool_raises_when_tool_loader_fails",
       "community": 2,
       "norm_label": "test_call_tool_raises_when_tool_loader_fails()"
@@ -1649,7 +1676,7 @@
       "label": "test_call_tool_raises_when_tool_not_found()",
       "file_type": "code",
       "source_file": "tests/test_mcp_tool_agent_error_handling.py",
-      "source_location": "L102",
+      "source_location": "L158",
       "id": "tests_test_mcp_tool_agent_error_handling_test_call_tool_raises_when_tool_not_found",
       "community": 2,
       "norm_label": "test_call_tool_raises_when_tool_not_found()"
@@ -1658,7 +1685,7 @@
       "label": "test_call_tool_raises_when_tool_invocation_fails()",
       "file_type": "code",
       "source_file": "tests/test_mcp_tool_agent_error_handling.py",
-      "source_location": "L116",
+      "source_location": "L172",
       "id": "tests_test_mcp_tool_agent_error_handling_test_call_tool_raises_when_tool_invocation_fails",
       "community": 2,
       "norm_label": "test_call_tool_raises_when_tool_invocation_fails()"
@@ -1667,7 +1694,7 @@
       "label": "test_call_tool_raises_when_text_payload_is_invalid_json()",
       "file_type": "code",
       "source_file": "tests/test_mcp_tool_agent_error_handling.py",
-      "source_location": "L128",
+      "source_location": "L184",
       "id": "tests_test_mcp_tool_agent_error_handling_test_call_tool_raises_when_text_payload_is_invalid_json",
       "community": 2,
       "norm_label": "test_call_tool_raises_when_text_payload_is_invalid_json()"
@@ -1676,7 +1703,7 @@
       "label": "test_call_tool_raises_when_result_type_is_unsupported()",
       "file_type": "code",
       "source_file": "tests/test_mcp_tool_agent_error_handling.py",
-      "source_location": "L140",
+      "source_location": "L196",
       "id": "tests_test_mcp_tool_agent_error_handling_test_call_tool_raises_when_result_type_is_unsupported",
       "community": 2,
       "norm_label": "test_call_tool_raises_when_result_type_is_unsupported()"
@@ -1694,7 +1721,7 @@
       "label": "anyio_backend()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture_integration.py",
-      "source_location": "L28",
+      "source_location": "L29",
       "id": "tests_test_acontext_capture_integration_anyio_backend",
       "community": 73,
       "norm_label": "anyio_backend()"
@@ -1703,19 +1730,19 @@
       "label": "test_direct_acontext_learning_after_flush()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture_integration.py",
-      "source_location": "L33",
+      "source_location": "L34",
       "id": "tests_test_acontext_capture_integration_test_direct_acontext_learning_after_flush",
       "community": 73,
       "norm_label": "test_direct_acontext_learning_after_flush()"
     },
     {
-      "label": "test_visible_chat_session_reaches_learning_terminal_state()",
+      "label": "test_sanitized_execution_session_reaches_learning_terminal_state()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture_integration.py",
-      "source_location": "L114",
-      "id": "tests_test_acontext_capture_integration_test_visible_chat_session_reaches_learning_terminal_state",
+      "source_location": "L115",
+      "id": "tests_test_acontext_capture_integration_test_sanitized_execution_session_reaches_learning_terminal_state",
       "community": 73,
-      "norm_label": "test_visible_chat_session_reaches_learning_terminal_state()"
+      "norm_label": "test_sanitized_execution_session_reaches_learning_terminal_state()"
     },
     {
       "label": "test_a2a_payload_integration.py",
@@ -1829,7 +1856,7 @@
       "label": "FakeSessions",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L16",
+      "source_location": "L18",
       "id": "tests_test_acontext_capture_fakesessions",
       "community": 73,
       "norm_label": "fakesessions"
@@ -1838,7 +1865,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L17",
+      "source_location": "L19",
       "id": "tests_test_acontext_capture_fakesessions_init",
       "community": 73,
       "norm_label": ".__init__()"
@@ -1847,7 +1874,7 @@
       "label": ".create()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L23",
+      "source_location": "L25",
       "id": "tests_test_acontext_capture_fakesessions_create",
       "community": 73,
       "norm_label": ".create()"
@@ -1856,7 +1883,7 @@
       "label": ".store_message()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L30",
+      "source_location": "L32",
       "id": "tests_test_acontext_capture_fakesessions_store_message",
       "community": 73,
       "norm_label": ".store_message()"
@@ -1865,7 +1892,7 @@
       "label": ".flush()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L33",
+      "source_location": "L35",
       "id": "tests_test_acontext_capture_fakesessions_flush",
       "community": 73,
       "norm_label": ".flush()"
@@ -1874,7 +1901,7 @@
       "label": "FakeLearningSpaces",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L37",
+      "source_location": "L39",
       "id": "tests_test_acontext_capture_fakelearningspaces",
       "community": 73,
       "norm_label": "fakelearningspaces"
@@ -1883,7 +1910,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L38",
+      "source_location": "L40",
       "id": "tests_test_acontext_capture_fakelearningspaces_init",
       "community": 73,
       "norm_label": ".__init__()"
@@ -1892,7 +1919,7 @@
       "label": ".list()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L46",
+      "source_location": "L48",
       "id": "tests_test_acontext_capture_fakelearningspaces_list",
       "community": 73,
       "norm_label": ".list()"
@@ -1901,7 +1928,7 @@
       "label": ".create()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L51",
+      "source_location": "L53",
       "id": "tests_test_acontext_capture_fakelearningspaces_create",
       "community": 73,
       "norm_label": ".create()"
@@ -1910,7 +1937,7 @@
       "label": ".get_session()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L56",
+      "source_location": "L58",
       "id": "tests_test_acontext_capture_fakelearningspaces_get_session",
       "community": 73,
       "norm_label": ".get_session()"
@@ -1919,7 +1946,7 @@
       "label": ".learn()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L62",
+      "source_location": "L64",
       "id": "tests_test_acontext_capture_fakelearningspaces_learn",
       "community": 73,
       "norm_label": ".learn()"
@@ -1928,7 +1955,7 @@
       "label": "FakeClient",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L67",
+      "source_location": "L69",
       "id": "tests_test_acontext_capture_fakeclient",
       "community": 73,
       "norm_label": "fakeclient"
@@ -1937,7 +1964,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L68",
+      "source_location": "L70",
       "id": "tests_test_acontext_capture_fakeclient_init",
       "community": 73,
       "norm_label": ".__init__()"
@@ -1946,7 +1973,7 @@
       "label": ".__aenter__()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L72",
+      "source_location": "L74",
       "id": "tests_test_acontext_capture_fakeclient_aenter",
       "community": 73,
       "norm_label": ".__aenter__()"
@@ -1955,7 +1982,7 @@
       "label": ".__aexit__()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L75",
+      "source_location": "L77",
       "id": "tests_test_acontext_capture_fakeclient_aexit",
       "community": 73,
       "norm_label": ".__aexit__()"
@@ -1964,7 +1991,7 @@
       "label": "anyio_backend()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L80",
+      "source_location": "L82",
       "id": "tests_test_acontext_capture_anyio_backend",
       "community": 73,
       "norm_label": "anyio_backend()"
@@ -1973,7 +2000,7 @@
       "label": "_capture()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L84",
+      "source_location": "L86",
       "id": "tests_test_acontext_capture_capture",
       "community": 73,
       "norm_label": "_capture()"
@@ -1982,7 +2009,7 @@
       "label": "test_completed_interaction_creates_learning_space_and_flushes()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L94",
+      "source_location": "L96",
       "id": "tests_test_acontext_capture_test_completed_interaction_creates_learning_space_and_flushes",
       "community": 73,
       "norm_label": "test_completed_interaction_creates_learning_space_and_flushes()"
@@ -1991,7 +2018,7 @@
       "label": "test_existing_learning_space_is_reused()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L167",
+      "source_location": "L178",
       "id": "tests_test_acontext_capture_test_existing_learning_space_is_reused",
       "community": 73,
       "norm_label": "test_existing_learning_space_is_reused()"
@@ -2000,7 +2027,7 @@
       "label": "test_interrupt_and_resume_share_learning_session_and_flush_at_end()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L190",
+      "source_location": "L201",
       "id": "tests_test_acontext_capture_test_interrupt_and_resume_share_learning_session_and_flush_at_end",
       "community": 73,
       "norm_label": "test_interrupt_and_resume_share_learning_session_and_flush_at_end()"
@@ -2009,16 +2036,34 @@
       "label": "test_failed_interaction_is_stored_and_flushed()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L229",
+      "source_location": "L240",
       "id": "tests_test_acontext_capture_test_failed_interaction_is_stored_and_flushed",
       "community": 73,
       "norm_label": "test_failed_interaction_is_stored_and_flushed()"
     },
     {
+      "label": "test_execution_evidence_is_stored_without_raw_business_values()",
+      "file_type": "code",
+      "source_file": "tests/test_acontext_capture.py",
+      "source_location": "L262",
+      "id": "tests_test_acontext_capture_test_execution_evidence_is_stored_without_raw_business_values",
+      "community": 73,
+      "norm_label": "test_execution_evidence_is_stored_without_raw_business_values()"
+    },
+    {
+      "label": "test_resume_does_not_store_repeated_execution_evidence()",
+      "file_type": "code",
+      "source_file": "tests/test_acontext_capture.py",
+      "source_location": "L327",
+      "id": "tests_test_acontext_capture_test_resume_does_not_store_repeated_execution_evidence",
+      "community": 73,
+      "norm_label": "test_resume_does_not_store_repeated_execution_evidence()"
+    },
+    {
       "label": "test_session_identifier_is_stable_for_existing_thread_ids()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L250",
+      "source_location": "L370",
       "id": "tests_test_acontext_capture_test_session_identifier_is_stable_for_existing_thread_ids",
       "community": 73,
       "norm_label": "test_session_identifier_is_stable_for_existing_thread_ids()"
@@ -2027,7 +2072,7 @@
       "label": "test_build_capture_requires_enabled_configuration()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L255",
+      "source_location": "L375",
       "id": "tests_test_acontext_capture_test_build_capture_requires_enabled_configuration",
       "community": 73,
       "norm_label": "test_build_capture_requires_enabled_configuration()"
@@ -2036,7 +2081,7 @@
       "label": "test_build_capture_skips_missing_api_key_when_enabled()",
       "file_type": "code",
       "source_file": "tests/test_acontext_capture.py",
-      "source_location": "L262",
+      "source_location": "L382",
       "id": "tests_test_acontext_capture_test_build_capture_skips_missing_api_key_when_enabled",
       "community": 73,
       "norm_label": "test_build_capture_skips_missing_api_key_when_enabled()"
@@ -2227,7 +2272,7 @@
       "source_file": "tests/test_node_instruction_rebuild.py",
       "source_location": "L1",
       "id": "tests_test_node_instruction_rebuild_py",
-      "community": 8,
+      "community": 7,
       "norm_label": "test_node_instruction_rebuild.py"
     },
     {
@@ -2236,7 +2281,7 @@
       "source_file": "tests/test_node_instruction_rebuild.py",
       "source_location": "L10",
       "id": "tests_test_node_instruction_rebuild_anyio_backend",
-      "community": 8,
+      "community": 7,
       "norm_label": "anyio_backend()"
     },
     {
@@ -2245,98 +2290,107 @@
       "source_file": "tests/test_node_instruction_rebuild.py",
       "source_location": "L15",
       "id": "tests_test_node_instruction_rebuild_test_invoice_node_rebuilds_instruction_from_args",
-      "community": 8,
+      "community": 7,
       "norm_label": "test_invoice_node_rebuilds_instruction_from_args()"
     },
     {
       "label": "test_invoice_node_rebuilds_invoice_detail_payload_from_args()",
       "file_type": "code",
       "source_file": "tests/test_node_instruction_rebuild.py",
-      "source_location": "L70",
+      "source_location": "L90",
       "id": "tests_test_node_instruction_rebuild_test_invoice_node_rebuilds_invoice_detail_payload_from_args",
-      "community": 8,
+      "community": 7,
       "norm_label": "test_invoice_node_rebuilds_invoice_detail_payload_from_args()"
     },
     {
       "label": "test_invoice_node_rebuilds_invoice_summary_payload_from_args()",
       "file_type": "code",
       "source_file": "tests/test_node_instruction_rebuild.py",
-      "source_location": "L118",
+      "source_location": "L138",
       "id": "tests_test_node_instruction_rebuild_test_invoice_node_rebuilds_invoice_summary_payload_from_args",
-      "community": 8,
+      "community": 7,
       "norm_label": "test_invoice_node_rebuilds_invoice_summary_payload_from_args()"
     },
     {
       "label": "test_invoice_node_rebuilds_customer_support_employee_payload_from_args()",
       "file_type": "code",
       "source_file": "tests/test_node_instruction_rebuild.py",
-      "source_location": "L166",
+      "source_location": "L186",
       "id": "tests_test_node_instruction_rebuild_test_invoice_node_rebuilds_customer_support_employee_payload_from_args",
-      "community": 8,
+      "community": 7,
       "norm_label": "test_invoice_node_rebuilds_customer_support_employee_payload_from_args()"
     },
     {
       "label": "test_invoice_node_rebuilds_unit_price_instruction_from_args()",
       "file_type": "code",
       "source_file": "tests/test_node_instruction_rebuild.py",
-      "source_location": "L214",
+      "source_location": "L234",
       "id": "tests_test_node_instruction_rebuild_test_invoice_node_rebuilds_unit_price_instruction_from_args",
-      "community": 8,
+      "community": 7,
       "norm_label": "test_invoice_node_rebuilds_unit_price_instruction_from_args()"
     },
     {
       "label": "test_invoice_node_rebuilds_all_invoices_instruction_from_args()",
       "file_type": "code",
       "source_file": "tests/test_node_instruction_rebuild.py",
-      "source_location": "L263",
+      "source_location": "L283",
       "id": "tests_test_node_instruction_rebuild_test_invoice_node_rebuilds_all_invoices_instruction_from_args",
-      "community": 8,
+      "community": 7,
       "norm_label": "test_invoice_node_rebuilds_all_invoices_instruction_from_args()"
     },
     {
       "label": "test_invoice_node_rebuilds_support_employee_instruction_from_args()",
       "file_type": "code",
       "source_file": "tests/test_node_instruction_rebuild.py",
-      "source_location": "L311",
+      "source_location": "L331",
       "id": "tests_test_node_instruction_rebuild_test_invoice_node_rebuilds_support_employee_instruction_from_args",
-      "community": 8,
+      "community": 7,
       "norm_label": "test_invoice_node_rebuilds_support_employee_instruction_from_args()"
     },
     {
       "label": "test_music_node_rebuilds_genre_instruction_from_args()",
       "file_type": "code",
       "source_file": "tests/test_node_instruction_rebuild.py",
-      "source_location": "L362",
+      "source_location": "L382",
       "id": "tests_test_node_instruction_rebuild_test_music_node_rebuilds_genre_instruction_from_args",
-      "community": 8,
+      "community": 7,
       "norm_label": "test_music_node_rebuilds_genre_instruction_from_args()"
     },
     {
       "label": "test_music_node_rebuilds_artist_instruction_from_args()",
       "file_type": "code",
       "source_file": "tests/test_node_instruction_rebuild.py",
-      "source_location": "L415",
+      "source_location": "L435",
       "id": "tests_test_node_instruction_rebuild_test_music_node_rebuilds_artist_instruction_from_args",
-      "community": 8,
+      "community": 7,
       "norm_label": "test_music_node_rebuilds_artist_instruction_from_args()"
     },
     {
       "label": "test_music_node_rebuilds_song_check_instruction_from_args()",
       "file_type": "code",
       "source_file": "tests/test_node_instruction_rebuild.py",
-      "source_location": "L461",
+      "source_location": "L481",
       "id": "tests_test_node_instruction_rebuild_test_music_node_rebuilds_song_check_instruction_from_args",
-      "community": 8,
+      "community": 7,
       "norm_label": "test_music_node_rebuilds_song_check_instruction_from_args()"
     },
     {
       "label": "test_node_instruction_rebuild_does_not_mutate_original_state()",
       "file_type": "code",
       "source_file": "tests/test_node_instruction_rebuild.py",
-      "source_location": "L507",
+      "source_location": "L527",
       "id": "tests_test_node_instruction_rebuild_test_node_instruction_rebuild_does_not_mutate_original_state",
-      "community": 8,
+      "community": 7,
       "norm_label": "test_node_instruction_rebuild_does_not_mutate_original_state()"
+    },
+    {
+      "label": "test_invoice_node_merges_sanitized_remote_tool_evidence()",
+      "file_type": "code",
+      "source_file": "tests/test_node_instruction_rebuild.py",
+      "source_location": "L568",
+      "id": "tests_test_node_instruction_rebuild_test_invoice_node_merges_sanitized_remote_tool_evidence",
+      "community": 7,
+      "norm_label": "test_invoice_node_merges_sanitized_remote_tool_evidence()"
     },
     {
       "label": "test_a2a_client_response_extraction.py",
@@ -2675,7 +2729,7 @@
       "label": "FakeContext",
       "file_type": "code",
       "source_file": "tests/test_a2a_executors.py",
-      "source_location": "L18",
+      "source_location": "L22",
       "id": "tests_test_a2a_executors_fakecontext",
       "community": 12,
       "norm_label": "fakecontext"
@@ -2684,7 +2738,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "tests/test_a2a_executors.py",
-      "source_location": "L19",
+      "source_location": "L23",
       "id": "tests_test_a2a_executors_fakecontext_init",
       "community": 12,
       "norm_label": ".__init__()"
@@ -2693,7 +2747,7 @@
       "label": ".get_user_input()",
       "file_type": "code",
       "source_file": "tests/test_a2a_executors.py",
-      "source_location": "L22",
+      "source_location": "L26",
       "id": "tests_test_a2a_executors_fakecontext_get_user_input",
       "community": 12,
       "norm_label": ".get_user_input()"
@@ -2702,7 +2756,7 @@
       "label": "FakeEventQueue",
       "file_type": "code",
       "source_file": "tests/test_a2a_executors.py",
-      "source_location": "L26",
+      "source_location": "L30",
       "id": "tests_test_a2a_executors_fakeeventqueue",
       "community": 12,
       "norm_label": "fakeeventqueue"
@@ -2711,7 +2765,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "tests/test_a2a_executors.py",
-      "source_location": "L27",
+      "source_location": "L31",
       "id": "tests_test_a2a_executors_fakeeventqueue_init",
       "community": 12,
       "norm_label": ".__init__()"
@@ -2720,7 +2774,7 @@
       "label": ".enqueue_event()",
       "file_type": "code",
       "source_file": "tests/test_a2a_executors.py",
-      "source_location": "L30",
+      "source_location": "L34",
       "id": "tests_test_a2a_executors_fakeeventqueue_enqueue_event",
       "community": 12,
       "norm_label": ".enqueue_event()"
@@ -2729,7 +2783,7 @@
       "label": "anyio_backend()",
       "file_type": "code",
       "source_file": "tests/test_a2a_executors.py",
-      "source_location": "L35",
+      "source_location": "L39",
       "id": "tests_test_a2a_executors_anyio_backend",
       "community": 12,
       "norm_label": "anyio_backend()"
@@ -2738,16 +2792,25 @@
       "label": "test_invoice_executor_prefers_structured_request_data()",
       "file_type": "code",
       "source_file": "tests/test_a2a_executors.py",
-      "source_location": "L40",
+      "source_location": "L44",
       "id": "tests_test_a2a_executors_test_invoice_executor_prefers_structured_request_data",
       "community": 12,
       "norm_label": "test_invoice_executor_prefers_structured_request_data()"
     },
     {
+      "label": "test_invoice_executor_returns_collected_sanitized_evidence()",
+      "file_type": "code",
+      "source_file": "tests/test_a2a_executors.py",
+      "source_location": "L77",
+      "id": "tests_test_a2a_executors_test_invoice_executor_returns_collected_sanitized_evidence",
+      "community": 12,
+      "norm_label": "test_invoice_executor_returns_collected_sanitized_evidence()"
+    },
+    {
       "label": "test_invoice_executor_dispatches_structured_invoice_detail()",
       "file_type": "code",
       "source_file": "tests/test_a2a_executors.py",
-      "source_location": "L73",
+      "source_location": "L114",
       "id": "tests_test_a2a_executors_test_invoice_executor_dispatches_structured_invoice_detail",
       "community": 12,
       "norm_label": "test_invoice_executor_dispatches_structured_invoice_detail()"
@@ -2756,7 +2819,7 @@
       "label": "test_invoice_executor_dispatches_structured_invoice_summary()",
       "file_type": "code",
       "source_file": "tests/test_a2a_executors.py",
-      "source_location": "L107",
+      "source_location": "L148",
       "id": "tests_test_a2a_executors_test_invoice_executor_dispatches_structured_invoice_summary",
       "community": 12,
       "norm_label": "test_invoice_executor_dispatches_structured_invoice_summary()"
@@ -2765,7 +2828,7 @@
       "label": "test_invoice_executor_dispatches_structured_customer_support_employee()",
       "file_type": "code",
       "source_file": "tests/test_a2a_executors.py",
-      "source_location": "L141",
+      "source_location": "L182",
       "id": "tests_test_a2a_executors_test_invoice_executor_dispatches_structured_customer_support_employee",
       "community": 12,
       "norm_label": "test_invoice_executor_dispatches_structured_customer_support_employee()"
@@ -2774,7 +2837,7 @@
       "label": "test_invoice_executor_falls_back_to_text_without_data_part()",
       "file_type": "code",
       "source_file": "tests/test_a2a_executors.py",
-      "source_location": "L175",
+      "source_location": "L216",
       "id": "tests_test_a2a_executors_test_invoice_executor_falls_back_to_text_without_data_part",
       "community": 12,
       "norm_label": "test_invoice_executor_falls_back_to_text_without_data_part()"
@@ -2783,7 +2846,7 @@
       "label": "test_invoice_executor_rejects_invalid_structured_data_without_text_fallback()",
       "file_type": "code",
       "source_file": "tests/test_a2a_executors.py",
-      "source_location": "L205",
+      "source_location": "L246",
       "id": "tests_test_a2a_executors_test_invoice_executor_rejects_invalid_structured_data_without_text_fallback",
       "community": 12,
       "norm_label": "test_invoice_executor_rejects_invalid_structured_data_without_text_fallback()"
@@ -2792,7 +2855,7 @@
       "label": "test_music_executor_dispatches_structured_request_data()",
       "file_type": "code",
       "source_file": "tests/test_a2a_executors.py",
-      "source_location": "L237",
+      "source_location": "L278",
       "id": "tests_test_a2a_executors_test_music_executor_dispatches_structured_request_data",
       "community": 12,
       "norm_label": "test_music_executor_dispatches_structured_request_data()"
@@ -2801,7 +2864,7 @@
       "label": "test_jsonrpc_route_preserves_structured_a2a_payload()",
       "file_type": "code",
       "source_file": "tests/test_a2a_executors.py",
-      "source_location": "L272",
+      "source_location": "L313",
       "id": "tests_test_a2a_executors_test_jsonrpc_route_preserves_structured_a2a_payload",
       "community": 12,
       "norm_label": "test_jsonrpc_route_preserves_structured_a2a_payload()"
@@ -3037,7 +3100,7 @@
       "source_file": "tests/test_music_agent_parsing.py",
       "source_location": "L1",
       "id": "tests_test_music_agent_parsing_py",
-      "community": 7,
+      "community": 8,
       "norm_label": "test_music_agent_parsing.py"
     },
     {
@@ -3046,7 +3109,7 @@
       "source_file": "tests/test_music_agent_parsing.py",
       "source_location": "L15",
       "id": "tests_test_music_agent_parsing_test_music_agent_parses_artist_requests",
-      "community": 7,
+      "community": 8,
       "norm_label": "test_music_agent_parses_artist_requests()"
     },
     {
@@ -3055,7 +3118,7 @@
       "source_file": "tests/test_music_agent_parsing.py",
       "source_location": "L38",
       "id": "tests_test_music_agent_parsing_test_music_agent_parses_genre_requests",
-      "community": 7,
+      "community": 8,
       "norm_label": "test_music_agent_parses_genre_requests()"
     },
     {
@@ -3064,7 +3127,7 @@
       "source_file": "tests/test_music_agent_parsing.py",
       "source_location": "L60",
       "id": "tests_test_music_agent_parsing_test_music_agent_parses_song_check_requests",
-      "community": 7,
+      "community": 8,
       "norm_label": "test_music_agent_parses_song_check_requests()"
     },
     {
@@ -3073,7 +3136,7 @@
       "source_file": "tests/test_music_agent_parsing.py",
       "source_location": "L72",
       "id": "tests_test_music_agent_parsing_test_song_title_with_genre_word_does_not_become_genre_request",
-      "community": 7,
+      "community": 8,
       "norm_label": "test_song_title_with_genre_word_does_not_become_genre_request()"
     },
     {
@@ -3082,7 +3145,7 @@
       "source_file": "tests/test_music_agent_parsing.py",
       "source_location": "L82",
       "id": "tests_test_music_agent_parsing_test_music_agent_missing_artist_fails_validation",
-      "community": 7,
+      "community": 8,
       "norm_label": "test_music_agent_missing_artist_fails_validation()"
     },
     {
@@ -3640,50 +3703,50 @@
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
       "source_location": "L1",
       "id": "src_multi_agent_system_planner_app_nodes_py",
-      "community": 8,
+      "community": 7,
       "norm_label": "nodes.py"
     },
     {
       "label": "planner_node()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L20",
+      "source_location": "L22",
       "id": "planner_app_nodes_planner_node",
-      "community": 8,
+      "community": 7,
       "norm_label": "planner_node()"
     },
     {
       "label": "missing_info_node()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L29",
+      "source_location": "L32",
       "id": "planner_app_nodes_missing_info_node",
-      "community": 8,
+      "community": 7,
       "norm_label": "missing_info_node()"
     },
     {
       "label": "invoice_node()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L77",
+      "source_location": "L91",
       "id": "planner_app_nodes_invoice_node",
-      "community": 8,
+      "community": 7,
       "norm_label": "invoice_node()"
     },
     {
       "label": "music_node()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L109",
+      "source_location": "L138",
       "id": "planner_app_nodes_music_node",
-      "community": 8,
+      "community": 7,
       "norm_label": "music_node()"
     },
     {
       "label": "final_response_node()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L141",
+      "source_location": "L185",
       "id": "planner_app_nodes_final_response_node",
       "community": 7,
       "norm_label": "final_response_node()"
@@ -3692,46 +3755,91 @@
       "label": "_copy_planner_output()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L201",
+      "source_location": "L275",
       "id": "planner_app_nodes_copy_planner_output",
-      "community": 8,
+      "community": 7,
       "norm_label": "_copy_planner_output()"
     },
     {
       "label": "_get_next_task_for_agent()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L212",
+      "source_location": "L286",
       "id": "planner_app_nodes_get_next_task_for_agent",
-      "community": 8,
+      "community": 7,
       "norm_label": "_get_next_task_for_agent()"
     },
     {
       "label": "_attach_a2a_payload()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L226",
+      "source_location": "L300",
       "id": "planner_app_nodes_attach_a2a_payload",
-      "community": 8,
+      "community": 7,
       "norm_label": "_attach_a2a_payload()"
     },
     {
       "label": "_mark_task_failed()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L233",
+      "source_location": "L307",
       "id": "planner_app_nodes_mark_task_failed",
-      "community": 8,
+      "community": 7,
       "norm_label": "_mark_task_failed()"
     },
     {
       "label": "_failure_result()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
-      "source_location": "L238",
+      "source_location": "L312",
       "id": "planner_app_nodes_failure_result",
-      "community": 8,
+      "community": 7,
       "norm_label": "_failure_result()"
+    },
+    {
+      "label": "_planner_decision_evidence()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L316",
+      "id": "planner_app_nodes_planner_decision_evidence",
+      "community": 7,
+      "norm_label": "_planner_decision_evidence()"
+    },
+    {
+      "label": "_with_evidence()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L350",
+      "id": "planner_app_nodes_with_evidence",
+      "community": 7,
+      "norm_label": "_with_evidence()"
+    },
+    {
+      "label": "_dispatch_evidence()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L360",
+      "id": "planner_app_nodes_dispatch_evidence",
+      "community": 7,
+      "norm_label": "_dispatch_evidence()"
+    },
+    {
+      "label": "_agent_result_evidence()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L371",
+      "id": "planner_app_nodes_agent_result_evidence",
+      "community": 7,
+      "norm_label": "_agent_result_evidence()"
+    },
+    {
+      "label": "_extract_remote_evidence()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L390",
+      "id": "planner_app_nodes_extract_remote_evidence",
+      "community": 7,
+      "norm_label": "_extract_remote_evidence()"
     },
     {
       "label": "edges.py",
@@ -4315,7 +4423,7 @@
       "source_file": "src/multi_agent_system/orchestrator/schemas.py",
       "source_location": "L9",
       "id": "orchestrator_schemas_plannerinvokerequest",
-      "community": 7,
+      "community": 5,
       "norm_label": "plannerinvokerequest"
     },
     {
@@ -4351,7 +4459,7 @@
       "source_file": "src/multi_agent_system/orchestrator/schemas.py",
       "source_location": "L10",
       "id": "orchestrator_schemas_rationale_10",
-      "community": 7,
+      "community": 5,
       "norm_label": "api request for invoking or resuming the planner."
     },
     {
@@ -4387,7 +4495,7 @@
       "source_file": "",
       "source_location": "",
       "id": "protocol",
-      "community": 73,
+      "community": 0,
       "norm_label": "protocol"
     },
     {
@@ -4439,25 +4547,25 @@
       "label": "PlannerInteractionCapture",
       "file_type": "code",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
-      "source_location": "L24",
+      "source_location": "L27",
       "id": "orchestrator_acontext_capture_plannerinteractioncapture",
-      "community": 73,
+      "community": 0,
       "norm_label": "plannerinteractioncapture"
     },
     {
       "label": ".capture()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
-      "source_location": "L25",
+      "source_location": "L28",
       "id": "orchestrator_acontext_capture_plannerinteractioncapture_capture",
-      "community": 73,
+      "community": 0,
       "norm_label": ".capture()"
     },
     {
       "label": "AcontextCapture",
       "file_type": "code",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
-      "source_location": "L36",
+      "source_location": "L39",
       "id": "orchestrator_acontext_capture_acontextcapture",
       "community": 73,
       "norm_label": "acontextcapture"
@@ -4466,7 +4574,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
-      "source_location": "L39",
+      "source_location": "L42",
       "id": "orchestrator_acontext_capture_acontextcapture_init",
       "community": 73,
       "norm_label": ".__init__()"
@@ -4475,16 +4583,25 @@
       "label": ".capture()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
-      "source_location": "L58",
+      "source_location": "L62",
       "id": "orchestrator_acontext_capture_acontextcapture_capture",
       "community": 73,
       "norm_label": ".capture()"
     },
     {
+      "label": "._store_new_evidence()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L122",
+      "id": "orchestrator_acontext_capture_acontextcapture_store_new_evidence",
+      "community": 73,
+      "norm_label": "._store_new_evidence()"
+    },
+    {
       "label": "._get_or_create_learning_space()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
-      "source_location": "L109",
+      "source_location": "L143",
       "id": "orchestrator_acontext_capture_acontextcapture_get_or_create_learning_space",
       "community": 73,
       "norm_label": "._get_or_create_learning_space()"
@@ -4493,7 +4610,7 @@
       "label": "._session_lock()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
-      "source_location": "L134",
+      "source_location": "L168",
       "id": "orchestrator_acontext_capture_acontextcapture_session_lock",
       "community": 73,
       "norm_label": "._session_lock()"
@@ -4502,7 +4619,7 @@
       "label": "._build_client()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
-      "source_location": "L141",
+      "source_location": "L175",
       "id": "orchestrator_acontext_capture_acontextcapture_build_client",
       "community": 73,
       "norm_label": "._build_client()"
@@ -4511,7 +4628,7 @@
       "label": "build_acontext_capture()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
-      "source_location": "L149",
+      "source_location": "L183",
       "id": "orchestrator_acontext_capture_build_acontext_capture",
       "community": 73,
       "norm_label": "build_acontext_capture()"
@@ -4520,7 +4637,7 @@
       "label": "acontext_session_id()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
-      "source_location": "L169",
+      "source_location": "L203",
       "id": "orchestrator_acontext_capture_acontext_session_id",
       "community": 73,
       "norm_label": "acontext_session_id()"
@@ -4529,7 +4646,7 @@
       "label": "_ensure_session()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
-      "source_location": "L174",
+      "source_location": "L208",
       "id": "orchestrator_acontext_capture_ensure_session",
       "community": 73,
       "norm_label": "_ensure_session()"
@@ -4538,26 +4655,98 @@
       "label": "_ensure_learning_session()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
-      "source_location": "L196",
+      "source_location": "L229",
       "id": "orchestrator_acontext_capture_ensure_learning_session",
       "community": 73,
       "norm_label": "_ensure_learning_session()"
     },
     {
+      "label": "_extract_execution_evidence()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L249",
+      "id": "orchestrator_acontext_capture_extract_execution_evidence",
+      "community": 73,
+      "norm_label": "_extract_execution_evidence()"
+    },
+    {
+      "label": "_summarize_user_turn()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L265",
+      "id": "orchestrator_acontext_capture_summarize_user_turn",
+      "community": 73,
+      "norm_label": "_summarize_user_turn()"
+    },
+    {
+      "label": "_interaction_evidence()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L288",
+      "id": "orchestrator_acontext_capture_interaction_evidence",
+      "community": 73,
+      "norm_label": "_interaction_evidence()"
+    },
+    {
+      "label": "_summarize_assistant_turn()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L308",
+      "id": "orchestrator_acontext_capture_summarize_assistant_turn",
+      "community": 73,
+      "norm_label": "_summarize_assistant_turn()"
+    },
+    {
+      "label": "_field_names()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L331",
+      "id": "orchestrator_acontext_capture_field_names",
+      "community": 73,
+      "norm_label": "_field_names()"
+    },
+    {
+      "label": "_operations()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L341",
+      "id": "orchestrator_acontext_capture_operations",
+      "community": 73,
+      "norm_label": "_operations()"
+    },
+    {
+      "label": "_store_evidence_message()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L355",
+      "id": "orchestrator_acontext_capture_store_evidence_message",
+      "community": 73,
+      "norm_label": "_store_evidence_message()"
+    },
+    {
+      "label": "_safe_tool_name()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L409",
+      "id": "orchestrator_acontext_capture_safe_tool_name",
+      "community": 73,
+      "norm_label": "_safe_tool_name()"
+    },
+    {
       "label": "Store one user-visible planner interaction.",
       "file_type": "rationale",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
-      "source_location": "L33",
-      "id": "orchestrator_acontext_capture_rationale_33",
-      "community": 73,
+      "source_location": "L36",
+      "id": "orchestrator_acontext_capture_rationale_36",
+      "community": 0,
       "norm_label": "store one user-visible planner interaction."
     },
     {
       "label": "Store planner conversations and attach them to one learning space.",
       "file_type": "rationale",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
-      "source_location": "L37",
-      "id": "orchestrator_acontext_capture_rationale_37",
+      "source_location": "L40",
+      "id": "orchestrator_acontext_capture_rationale_40",
       "community": 73,
       "norm_label": "store planner conversations and attach them to one learning space."
     },
@@ -4565,8 +4754,8 @@
       "label": "Build capture only when explicitly enabled and configured.",
       "file_type": "rationale",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
-      "source_location": "L150",
-      "id": "orchestrator_acontext_capture_rationale_150",
+      "source_location": "L184",
+      "id": "orchestrator_acontext_capture_rationale_184",
       "community": 73,
       "norm_label": "build capture only when explicitly enabled and configured."
     },
@@ -4574,8 +4763,8 @@
       "label": "Map a LangGraph thread id into a stable Acontext UUID.",
       "file_type": "rationale",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
-      "source_location": "L170",
-      "id": "orchestrator_acontext_capture_rationale_170",
+      "source_location": "L204",
+      "id": "orchestrator_acontext_capture_rationale_204",
       "community": 73,
       "norm_label": "map a langgraph thread id into a stable acontext uuid."
     },
@@ -4596,6 +4785,69 @@
       "id": "common_agent_card_loader_load_agent_card",
       "community": 12,
       "norm_label": "load_agent_card()"
+    },
+    {
+      "label": "execution_evidence.py",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/common/execution_evidence.py",
+      "source_location": "L1",
+      "id": "src_multi_agent_system_common_execution_evidence_py",
+      "community": 2,
+      "norm_label": "execution_evidence.py"
+    },
+    {
+      "label": "ExecutionEvidence",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/common/execution_evidence.py",
+      "source_location": "L24",
+      "id": "common_execution_evidence_executionevidence",
+      "community": 7,
+      "norm_label": "executionevidence"
+    },
+    {
+      "label": "collect_execution_evidence()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/common/execution_evidence.py",
+      "source_location": "L43",
+      "id": "common_execution_evidence_collect_execution_evidence",
+      "community": 2,
+      "norm_label": "collect_execution_evidence()"
+    },
+    {
+      "label": "record_execution_evidence()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/common/execution_evidence.py",
+      "source_location": "L53",
+      "id": "common_execution_evidence_record_execution_evidence",
+      "community": 2,
+      "norm_label": "record_execution_evidence()"
+    },
+    {
+      "label": "Sanitized workflow evidence eligible for long-lived memory storage.",
+      "file_type": "rationale",
+      "source_file": "src/multi_agent_system/common/execution_evidence.py",
+      "source_location": "L25",
+      "id": "common_execution_evidence_rationale_25",
+      "community": 7,
+      "norm_label": "sanitized workflow evidence eligible for long-lived memory storage."
+    },
+    {
+      "label": "Collect evidence for one request without leaking across concurrent tasks.",
+      "file_type": "rationale",
+      "source_file": "src/multi_agent_system/common/execution_evidence.py",
+      "source_location": "L44",
+      "id": "common_execution_evidence_rationale_44",
+      "community": 2,
+      "norm_label": "collect evidence for one request without leaking across concurrent tasks."
+    },
+    {
+      "label": "Append evidence when a collection scope is active.",
+      "file_type": "rationale",
+      "source_file": "src/multi_agent_system/common/execution_evidence.py",
+      "source_location": "L54",
+      "id": "common_execution_evidence_rationale_54",
+      "community": 2,
+      "norm_label": "append evidence when a collection scope is active."
     },
     {
       "label": "errors.py",
@@ -4718,7 +4970,7 @@
       "label": "MCPToolAgent",
       "file_type": "code",
       "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
-      "source_location": "L10",
+      "source_location": "L16",
       "id": "common_mcp_tool_agent_mcptoolagent",
       "community": 2,
       "norm_label": "mcptoolagent"
@@ -4727,7 +4979,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
-      "source_location": "L13",
+      "source_location": "L21",
       "id": "common_mcp_tool_agent_mcptoolagent_init",
       "community": 2,
       "norm_label": ".__init__()"
@@ -4736,7 +4988,7 @@
       "label": "._build_client()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
-      "source_location": "L16",
+      "source_location": "L24",
       "id": "common_mcp_tool_agent_mcptoolagent_build_client",
       "community": 2,
       "norm_label": "._build_client()"
@@ -4745,7 +4997,7 @@
       "label": ".get_tools()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
-      "source_location": "L26",
+      "source_location": "L34",
       "id": "common_mcp_tool_agent_mcptoolagent_get_tools",
       "community": 2,
       "norm_label": ".get_tools()"
@@ -4754,7 +5006,7 @@
       "label": ".call_tool()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
-      "source_location": "L36",
+      "source_location": "L44",
       "id": "common_mcp_tool_agent_mcptoolagent_call_tool",
       "community": 2,
       "norm_label": ".call_tool()"
@@ -4763,7 +5015,7 @@
       "label": "._find_tool()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
-      "source_location": "L52",
+      "source_location": "L94",
       "id": "common_mcp_tool_agent_mcptoolagent_find_tool",
       "community": 2,
       "norm_label": "._find_tool()"
@@ -4772,7 +5024,7 @@
       "label": "._unwrap_mcp_result()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
-      "source_location": "L73",
+      "source_location": "L115",
       "id": "common_mcp_tool_agent_mcptoolagent_unwrap_mcp_result",
       "community": 2,
       "norm_label": "._unwrap_mcp_result()"
@@ -4781,7 +5033,7 @@
       "label": "._unwrap_dict_result()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
-      "source_location": "L96",
+      "source_location": "L138",
       "id": "common_mcp_tool_agent_mcptoolagent_unwrap_dict_result",
       "community": 2,
       "norm_label": "._unwrap_dict_result()"
@@ -4790,7 +5042,7 @@
       "label": "._unwrap_list_result()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
-      "source_location": "L120",
+      "source_location": "L162",
       "id": "common_mcp_tool_agent_mcptoolagent_unwrap_list_result",
       "community": 2,
       "norm_label": "._unwrap_list_result()"
@@ -4799,17 +5051,26 @@
       "label": "._parse_json_text()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
-      "source_location": "L145",
+      "source_location": "L187",
       "id": "common_mcp_tool_agent_mcptoolagent_parse_json_text",
       "community": 2,
       "norm_label": "._parse_json_text()"
     },
     {
+      "label": "_summarize_tool_result()",
+      "file_type": "code",
+      "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
+      "source_location": "L206",
+      "id": "common_mcp_tool_agent_summarize_tool_result",
+      "community": 2,
+      "norm_label": "_summarize_tool_result()"
+    },
+    {
       "label": "Base class for agents that call tools exposed by the MCP server.",
       "file_type": "rationale",
       "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
-      "source_location": "L11",
-      "id": "common_mcp_tool_agent_rationale_11",
+      "source_location": "L17",
+      "id": "common_mcp_tool_agent_rationale_17",
       "community": 2,
       "norm_label": "base class for agents that call tools exposed by the mcp server."
     },
@@ -5215,41 +5476,41 @@
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/schemas.py",
       "source_location": "L1",
       "id": "src_multi_agent_system_a2a_servers_invoice_agent_schemas_py",
-      "community": 6,
+      "community": 7,
       "norm_label": "schemas.py"
     },
     {
       "label": "InvoiceRequest",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/schemas.py",
-      "source_location": "L17",
+      "source_location": "L19",
       "id": "invoice_agent_schemas_invoicerequest",
-      "community": 6,
+      "community": 7,
       "norm_label": "invoicerequest"
     },
     {
       "label": "InvoiceTaskPayload",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/schemas.py",
-      "source_location": "L23",
+      "source_location": "L25",
       "id": "invoice_agent_schemas_invoicetaskpayload",
-      "community": 6,
+      "community": 7,
       "norm_label": "invoicetaskpayload"
     },
     {
       "label": ".to_request()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/schemas.py",
-      "source_location": "L29",
+      "source_location": "L31",
       "id": "invoice_agent_schemas_invoicetaskpayload_to_request",
-      "community": 6,
+      "community": 7,
       "norm_label": ".to_request()"
     },
     {
       "label": "InvoiceAgentResponse",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/schemas.py",
-      "source_location": "L37",
+      "source_location": "L39",
       "id": "invoice_agent_schemas_invoiceagentresponse",
       "community": 6,
       "norm_label": "invoiceagentresponse"
@@ -5278,14 +5539,14 @@
       "source_file": "",
       "source_location": "",
       "id": "mcptoolagent",
-      "community": 6,
+      "community": 8,
       "norm_label": "mcptoolagent"
     },
     {
       "label": ".ainvoke()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L12",
+      "source_location": "L14",
       "id": "invoice_agent_agent_invoiceagent_ainvoke",
       "community": 6,
       "norm_label": ".ainvoke()"
@@ -5294,7 +5555,7 @@
       "label": ".invoke_request()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L15",
+      "source_location": "L17",
       "id": "invoice_agent_agent_invoiceagent_invoke_request",
       "community": 6,
       "norm_label": ".invoke_request()"
@@ -5303,7 +5564,7 @@
       "label": "._parse_request()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L31",
+      "source_location": "L33",
       "id": "invoice_agent_agent_invoiceagent_parse_request",
       "community": 6,
       "norm_label": "._parse_request()"
@@ -5312,7 +5573,7 @@
       "label": "._validate_request()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L64",
+      "source_location": "L66",
       "id": "invoice_agent_agent_invoiceagent_validate_request",
       "community": 6,
       "norm_label": "._validate_request()"
@@ -5321,7 +5582,7 @@
       "label": "._get_latest_invoice()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L85",
+      "source_location": "L87",
       "id": "invoice_agent_agent_invoiceagent_get_latest_invoice",
       "community": 6,
       "norm_label": "._get_latest_invoice()"
@@ -5330,7 +5591,7 @@
       "label": "._get_invoice_detail()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L94",
+      "source_location": "L96",
       "id": "invoice_agent_agent_invoiceagent_get_invoice_detail",
       "community": 6,
       "norm_label": "._get_invoice_detail()"
@@ -5339,7 +5600,7 @@
       "label": "._get_invoice_summary()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L134",
+      "source_location": "L136",
       "id": "invoice_agent_agent_invoiceagent_get_invoice_summary",
       "community": 6,
       "norm_label": "._get_invoice_summary()"
@@ -5348,7 +5609,7 @@
       "label": "._get_customer_support_employee()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L156",
+      "source_location": "L158",
       "id": "invoice_agent_agent_invoiceagent_get_customer_support_employee",
       "community": 6,
       "norm_label": "._get_customer_support_employee()"
@@ -5357,7 +5618,7 @@
       "label": "._get_invoices_by_unit_price()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L178",
+      "source_location": "L180",
       "id": "invoice_agent_agent_invoiceagent_get_invoices_by_unit_price",
       "community": 6,
       "norm_label": "._get_invoices_by_unit_price()"
@@ -5366,7 +5627,7 @@
       "label": "._get_all_invoices()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L208",
+      "source_location": "L210",
       "id": "invoice_agent_agent_invoiceagent_get_all_invoices",
       "community": 6,
       "norm_label": "._get_all_invoices()"
@@ -5375,7 +5636,7 @@
       "label": "._get_latest_invoice_support_employee()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L238",
+      "source_location": "L240",
       "id": "invoice_agent_agent_invoiceagent_get_latest_invoice_support_employee",
       "community": 6,
       "norm_label": "._get_latest_invoice_support_employee()"
@@ -5384,7 +5645,7 @@
       "label": "._get_latest_invoice_with_support_employee()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L247",
+      "source_location": "L249",
       "id": "invoice_agent_agent_invoiceagent_get_latest_invoice_with_support_employee",
       "community": 6,
       "norm_label": "._get_latest_invoice_with_support_employee()"
@@ -5393,7 +5654,7 @@
       "label": "._is_support_employee_request()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L309",
+      "source_location": "L311",
       "id": "invoice_agent_agent_invoiceagent_is_support_employee_request",
       "community": 6,
       "norm_label": "._is_support_employee_request()"
@@ -5402,7 +5663,7 @@
       "label": "._is_latest_invoice_support_employee_request()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L318",
+      "source_location": "L320",
       "id": "invoice_agent_agent_invoiceagent_is_latest_invoice_support_employee_request",
       "community": 6,
       "norm_label": "._is_latest_invoice_support_employee_request()"
@@ -5411,7 +5672,7 @@
       "label": "._is_invoice_detail_request()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L325",
+      "source_location": "L327",
       "id": "invoice_agent_agent_invoiceagent_is_invoice_detail_request",
       "community": 6,
       "norm_label": "._is_invoice_detail_request()"
@@ -5420,7 +5681,7 @@
       "label": "._is_invoice_summary_request()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L331",
+      "source_location": "L333",
       "id": "invoice_agent_agent_invoiceagent_is_invoice_summary_request",
       "community": 6,
       "norm_label": "._is_invoice_summary_request()"
@@ -5429,7 +5690,7 @@
       "label": "._is_all_invoices_request()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L341",
+      "source_location": "L343",
       "id": "invoice_agent_agent_invoiceagent_is_all_invoices_request",
       "community": 6,
       "norm_label": "._is_all_invoices_request()"
@@ -5438,7 +5699,7 @@
       "label": "._get_support_employee_for_invoice()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L351",
+      "source_location": "L353",
       "id": "invoice_agent_agent_invoiceagent_get_support_employee_for_invoice",
       "community": 6,
       "norm_label": "._get_support_employee_for_invoice()"
@@ -5447,7 +5708,7 @@
       "label": "._enrich_invoices_with_support_employee()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L390",
+      "source_location": "L392",
       "id": "invoice_agent_agent_invoiceagent_enrich_invoices_with_support_employee",
       "community": 6,
       "norm_label": "._enrich_invoices_with_support_employee()"
@@ -5456,7 +5717,7 @@
       "label": "._extract_invoice_id()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L412",
+      "source_location": "L414",
       "id": "invoice_agent_agent_invoiceagent_extract_invoice_id",
       "community": 6,
       "norm_label": "._extract_invoice_id()"
@@ -5465,7 +5726,7 @@
       "label": "._extract_number()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/agent.py",
-      "source_location": "L415",
+      "source_location": "L417",
       "id": "invoice_agent_agent_invoiceagent_extract_number",
       "community": 6,
       "norm_label": "._extract_number()"
@@ -5510,7 +5771,7 @@
       "label": "InvoiceAgentExecutor",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/executor.py",
-      "source_location": "L14",
+      "source_location": "L15",
       "id": "invoice_agent_executor_invoiceagentexecutor",
       "community": 12,
       "norm_label": "invoiceagentexecutor"
@@ -5528,7 +5789,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/executor.py",
-      "source_location": "L15",
+      "source_location": "L16",
       "id": "invoice_agent_executor_invoiceagentexecutor_init",
       "community": 6,
       "norm_label": ".__init__()"
@@ -5537,7 +5798,7 @@
       "label": ".execute()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/executor.py",
-      "source_location": "L18",
+      "source_location": "L19",
       "id": "invoice_agent_executor_invoiceagentexecutor_execute",
       "community": 6,
       "norm_label": ".execute()"
@@ -5546,7 +5807,7 @@
       "label": ".cancel()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/executor.py",
-      "source_location": "L45",
+      "source_location": "L51",
       "id": "invoice_agent_executor_invoiceagentexecutor_cancel",
       "community": 12,
       "norm_label": ".cancel()"
@@ -5582,7 +5843,7 @@
       "label": "MusicRequest",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/schemas.py",
-      "source_location": "L14",
+      "source_location": "L16",
       "id": "music_agent_schemas_musicrequest",
       "community": 7,
       "norm_label": "musicrequest"
@@ -5591,7 +5852,7 @@
       "label": "MusicTaskPayload",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/schemas.py",
-      "source_location": "L21",
+      "source_location": "L23",
       "id": "music_agent_schemas_musictaskpayload",
       "community": 7,
       "norm_label": "musictaskpayload"
@@ -5600,7 +5861,7 @@
       "label": ".to_request()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/schemas.py",
-      "source_location": "L27",
+      "source_location": "L29",
       "id": "music_agent_schemas_musictaskpayload_to_request",
       "community": 7,
       "norm_label": ".to_request()"
@@ -5609,9 +5870,9 @@
       "label": "MusicAgentResponse",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/schemas.py",
-      "source_location": "L36",
+      "source_location": "L38",
       "id": "music_agent_schemas_musicagentresponse",
-      "community": 7,
+      "community": 8,
       "norm_label": "musicagentresponse"
     },
     {
@@ -5620,7 +5881,7 @@
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
       "source_location": "L1",
       "id": "src_multi_agent_system_a2a_servers_music_agent_agent_py",
-      "community": 7,
+      "community": 8,
       "norm_label": "agent.py"
     },
     {
@@ -5629,169 +5890,169 @@
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
       "source_location": "L39",
       "id": "music_agent_agent_musicagent",
-      "community": 7,
+      "community": 8,
       "norm_label": "musicagent"
     },
     {
       "label": ".ainvoke()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
-      "source_location": "L40",
+      "source_location": "L42",
       "id": "music_agent_agent_musicagent_ainvoke",
-      "community": 7,
+      "community": 8,
       "norm_label": ".ainvoke()"
     },
     {
       "label": ".invoke_request()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
-      "source_location": "L43",
+      "source_location": "L45",
       "id": "music_agent_agent_musicagent_invoke_request",
-      "community": 7,
+      "community": 8,
       "norm_label": ".invoke_request()"
     },
     {
       "label": "._parse_request()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
-      "source_location": "L56",
+      "source_location": "L58",
       "id": "music_agent_agent_musicagent_parse_request",
-      "community": 7,
+      "community": 8,
       "norm_label": "._parse_request()"
     },
     {
       "label": "._validate_request()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
-      "source_location": "L90",
+      "source_location": "L92",
       "id": "music_agent_agent_musicagent_validate_request",
-      "community": 7,
+      "community": 8,
       "norm_label": "._validate_request()"
     },
     {
       "label": "._get_albums_by_artist()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
-      "source_location": "L115",
+      "source_location": "L117",
       "id": "music_agent_agent_musicagent_get_albums_by_artist",
-      "community": 7,
+      "community": 8,
       "norm_label": "._get_albums_by_artist()"
     },
     {
       "label": "._get_tracks_by_artist()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
-      "source_location": "L130",
+      "source_location": "L132",
       "id": "music_agent_agent_musicagent_get_tracks_by_artist",
-      "community": 7,
+      "community": 8,
       "norm_label": "._get_tracks_by_artist()"
     },
     {
       "label": "._get_songs_by_genre()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
-      "source_location": "L145",
+      "source_location": "L147",
       "id": "music_agent_agent_musicagent_get_songs_by_genre",
-      "community": 7,
+      "community": 8,
       "norm_label": "._get_songs_by_genre()"
     },
     {
       "label": "._check_song()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
-      "source_location": "L160",
+      "source_location": "L162",
       "id": "music_agent_agent_musicagent_check_song",
-      "community": 7,
+      "community": 8,
       "norm_label": "._check_song()"
     },
     {
       "label": "._is_album_query()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
-      "source_location": "L182",
+      "source_location": "L184",
       "id": "music_agent_agent_musicagent_is_album_query",
-      "community": 7,
+      "community": 8,
       "norm_label": "._is_album_query()"
     },
     {
       "label": "._is_explicit_artist_query()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
-      "source_location": "L185",
+      "source_location": "L187",
       "id": "music_agent_agent_musicagent_is_explicit_artist_query",
-      "community": 7,
+      "community": 8,
       "norm_label": "._is_explicit_artist_query()"
     },
     {
       "label": "._is_genre_query()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
-      "source_location": "L192",
+      "source_location": "L194",
       "id": "music_agent_agent_musicagent_is_genre_query",
-      "community": 7,
+      "community": 8,
       "norm_label": "._is_genre_query()"
     },
     {
       "label": "._is_song_check_query()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
-      "source_location": "L213",
+      "source_location": "L215",
       "id": "music_agent_agent_musicagent_is_song_check_query",
-      "community": 7,
+      "community": 8,
       "norm_label": "._is_song_check_query()"
     },
     {
       "label": "._extract_artist()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
-      "source_location": "L232",
+      "source_location": "L234",
       "id": "music_agent_agent_musicagent_extract_artist",
-      "community": 7,
+      "community": 8,
       "norm_label": "._extract_artist()"
     },
     {
       "label": "._extract_genre()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
-      "source_location": "L250",
+      "source_location": "L252",
       "id": "music_agent_agent_musicagent_extract_genre",
-      "community": 7,
+      "community": 8,
       "norm_label": "._extract_genre()"
     },
     {
       "label": "._extract_explicit_genre_value()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
-      "source_location": "L263",
+      "source_location": "L265",
       "id": "music_agent_agent_musicagent_extract_explicit_genre_value",
-      "community": 7,
+      "community": 8,
       "norm_label": "._extract_explicit_genre_value()"
     },
     {
       "label": "._extract_song_title()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
-      "source_location": "L278",
+      "source_location": "L280",
       "id": "music_agent_agent_musicagent_extract_song_title",
-      "community": 7,
+      "community": 8,
       "norm_label": "._extract_song_title()"
     },
     {
       "label": "._find_known_genre()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
-      "source_location": "L301",
+      "source_location": "L303",
       "id": "music_agent_agent_musicagent_find_known_genre",
-      "community": 7,
+      "community": 8,
       "norm_label": "._find_known_genre()"
     },
     {
       "label": "._clean_extracted_value()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
-      "source_location": "L311",
+      "source_location": "L313",
       "id": "music_agent_agent_musicagent_clean_extracted_value",
-      "community": 7,
+      "community": 8,
       "norm_label": "._clean_extracted_value()"
     },
     {
@@ -5834,7 +6095,7 @@
       "label": "MusicAgentExecutor",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/executor.py",
-      "source_location": "L14",
+      "source_location": "L15",
       "id": "music_agent_executor_musicagentexecutor",
       "community": 12,
       "norm_label": "musicagentexecutor"
@@ -5843,7 +6104,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/executor.py",
-      "source_location": "L15",
+      "source_location": "L16",
       "id": "music_agent_executor_musicagentexecutor_init",
       "community": 12,
       "norm_label": ".__init__()"
@@ -5852,7 +6113,7 @@
       "label": ".execute()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/executor.py",
-      "source_location": "L18",
+      "source_location": "L19",
       "id": "music_agent_executor_musicagentexecutor_execute",
       "community": 12,
       "norm_label": ".execute()"
@@ -5861,7 +6122,7 @@
       "label": ".cancel()",
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/executor.py",
-      "source_location": "L45",
+      "source_location": "L51",
       "id": "music_agent_executor_musicagentexecutor_cancel",
       "community": 12,
       "norm_label": ".cancel()"
@@ -6329,7 +6590,7 @@
       "label": "code:http (POST http://localhost:12000/planner/invoke)",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L124",
+      "source_location": "L128",
       "id": "langgraph_agent_project_codeblock_8",
       "community": 74,
       "norm_label": "code:http (post http://localhost:12000/planner/invoke)"
@@ -6338,7 +6599,7 @@
       "label": "code:json ({)",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L128",
+      "source_location": "L132",
       "id": "langgraph_agent_project_codeblock_9",
       "community": 74,
       "norm_label": "code:json ({)"
@@ -6347,7 +6608,7 @@
       "label": "Test Commands",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L136",
+      "source_location": "L140",
       "id": "langgraph_agent_project_test_commands",
       "community": 74,
       "norm_label": "test commands"
@@ -6356,7 +6617,7 @@
       "label": "code:bash (uv run pytest tests -q)",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L140",
+      "source_location": "L144",
       "id": "langgraph_agent_project_codeblock_10",
       "community": 74,
       "norm_label": "code:bash (uv run pytest tests -q)"
@@ -6365,7 +6626,7 @@
       "label": "code:bash (uv run pytest tests/test_invoice_agent_parsing.py tests/test)",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L146",
+      "source_location": "L150",
       "id": "langgraph_agent_project_codeblock_11",
       "community": 74,
       "norm_label": "code:bash (uv run pytest tests/test_invoice_agent_parsing.py tests/test)"
@@ -6374,7 +6635,7 @@
       "label": "code:bash (RUN_INVOICE_SUPPORT_INTEGRATION_TESTS=1 uv run pytest tests/)",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L152",
+      "source_location": "L156",
       "id": "langgraph_agent_project_codeblock_12",
       "community": 74,
       "norm_label": "code:bash (run_invoice_support_integration_tests=1 uv run pytest tests/)"
@@ -6383,7 +6644,7 @@
       "label": "Configuration Notes",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L162",
+      "source_location": "L166",
       "id": "langgraph_agent_project_configuration_notes",
       "community": 74,
       "norm_label": "configuration notes"
@@ -6392,7 +6653,7 @@
       "label": "Roadmap",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L171",
+      "source_location": "L175",
       "id": "langgraph_agent_project_roadmap",
       "community": 74,
       "norm_label": "roadmap"
@@ -6401,7 +6662,7 @@
       "label": "Phase 1: Stabilize Current Invoice Behavior",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L173",
+      "source_location": "L177",
       "id": "langgraph_agent_project_phase_1_stabilize_current_invoice_behavior",
       "community": 74,
       "norm_label": "phase 1: stabilize current invoice behavior"
@@ -6410,7 +6671,7 @@
       "label": "Phase 2: Replace Domain Text Parsing With Structured Inputs",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L181",
+      "source_location": "L185",
       "id": "langgraph_agent_project_phase_2_replace_domain_text_parsing_with_structured_inputs",
       "community": 74,
       "norm_label": "phase 2: replace domain text parsing with structured inputs"
@@ -6419,7 +6680,7 @@
       "label": "code:text (Get all invoices for customer_id=5)",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L187",
+      "source_location": "L191",
       "id": "langgraph_agent_project_codeblock_13",
       "community": 74,
       "norm_label": "code:text (get all invoices for customer_id=5)"
@@ -6428,7 +6689,7 @@
       "label": "code:json ({)",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L191",
+      "source_location": "L195",
       "id": "langgraph_agent_project_codeblock_14",
       "community": 74,
       "norm_label": "code:json ({)"
@@ -6437,7 +6698,7 @@
       "label": "Phase 3: Add Focused Domain Capabilities",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L204",
+      "source_location": "L208",
       "id": "langgraph_agent_project_phase_3_add_focused_domain_capabilities",
       "community": 74,
       "norm_label": "phase 3: add focused domain capabilities"
@@ -6446,7 +6707,7 @@
       "label": "Phase 4: Parallel Multi-Agent Execution",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L222",
+      "source_location": "L226",
       "id": "langgraph_agent_project_phase_4_parallel_multi_agent_execution",
       "community": 74,
       "norm_label": "phase 4: parallel multi-agent execution"
@@ -6455,7 +6716,7 @@
       "label": "code:text (invoice -> music -> final_response)",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L228",
+      "source_location": "L232",
       "id": "langgraph_agent_project_codeblock_15",
       "community": 74,
       "norm_label": "code:text (invoice -> music -> final_response)"
@@ -6464,7 +6725,7 @@
       "label": "code:text (invoice -\\)",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L234",
+      "source_location": "L238",
       "id": "langgraph_agent_project_codeblock_16",
       "community": 74,
       "norm_label": "code:text (invoice -\\)"
@@ -6473,7 +6734,7 @@
       "label": "Phase 5: Deployment Readiness",
       "file_type": "document",
       "source_file": "PROJECT.md",
-      "source_location": "L242",
+      "source_location": "L246",
       "id": "langgraph_agent_project_phase_5_deployment_readiness",
       "community": 74,
       "norm_label": "phase 5: deployment readiness"
@@ -6644,7 +6905,7 @@
       "label": "1. Start MCP server",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L274",
+      "source_location": "L280",
       "id": "langgraph_agent_readme_1_start_mcp_server",
       "community": 76,
       "norm_label": "1. start mcp server"
@@ -6653,7 +6914,7 @@
       "label": "code:bash (uv run python scripts/run_mcp_server.py --host localhost --p)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L276",
+      "source_location": "L282",
       "id": "langgraph_agent_readme_codeblock_8",
       "community": 76,
       "norm_label": "code:bash (uv run python scripts/run_mcp_server.py --host localhost --p)"
@@ -6662,7 +6923,7 @@
       "label": "2. Start Invoice A2A service",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L280",
+      "source_location": "L286",
       "id": "langgraph_agent_readme_2_start_invoice_a2a_service",
       "community": 76,
       "norm_label": "2. start invoice a2a service"
@@ -6671,7 +6932,7 @@
       "label": "code:bash (uv run python scripts/run_invoice_a2a.py --host localhost --)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L282",
+      "source_location": "L288",
       "id": "langgraph_agent_readme_codeblock_9",
       "community": 76,
       "norm_label": "code:bash (uv run python scripts/run_invoice_a2a.py --host localhost --)"
@@ -6680,7 +6941,7 @@
       "label": "3. Start Music A2A service",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L286",
+      "source_location": "L292",
       "id": "langgraph_agent_readme_3_start_music_a2a_service",
       "community": 76,
       "norm_label": "3. start music a2a service"
@@ -6689,7 +6950,7 @@
       "label": "code:bash (uv run python scripts/run_music_a2a.py --host localhost --po)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L288",
+      "source_location": "L294",
       "id": "langgraph_agent_readme_codeblock_10",
       "community": 76,
       "norm_label": "code:bash (uv run python scripts/run_music_a2a.py --host localhost --po)"
@@ -6698,7 +6959,7 @@
       "label": "4. Run Planner CLI",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L292",
+      "source_location": "L298",
       "id": "langgraph_agent_readme_4_run_planner_cli",
       "community": 76,
       "norm_label": "4. run planner cli"
@@ -6707,7 +6968,7 @@
       "label": "code:bash (uv run python scripts/run_planner.py)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L294",
+      "source_location": "L300",
       "id": "langgraph_agent_readme_codeblock_11",
       "community": 76,
       "norm_label": "code:bash (uv run python scripts/run_planner.py)"
@@ -6716,7 +6977,7 @@
       "label": "5. Or run Planner API",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L298",
+      "source_location": "L304",
       "id": "langgraph_agent_readme_5_or_run_planner_api",
       "community": 76,
       "norm_label": "5. or run planner api"
@@ -6725,7 +6986,7 @@
       "label": "code:bash (uv run python scripts/run_orchestrator_api.py --host localho)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L300",
+      "source_location": "L306",
       "id": "langgraph_agent_readme_codeblock_12",
       "community": 76,
       "norm_label": "code:bash (uv run python scripts/run_orchestrator_api.py --host localho)"
@@ -6734,7 +6995,7 @@
       "label": "code:http (POST http://localhost:12000/planner/invoke)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L306",
+      "source_location": "L312",
       "id": "langgraph_agent_readme_codeblock_13",
       "community": 76,
       "norm_label": "code:http (post http://localhost:12000/planner/invoke)"
@@ -6743,7 +7004,7 @@
       "label": "code:json ({)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L310",
+      "source_location": "L316",
       "id": "langgraph_agent_readme_codeblock_14",
       "community": 76,
       "norm_label": "code:json ({)"
@@ -6752,7 +7013,7 @@
       "label": "Example Prompts",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L318",
+      "source_location": "L324",
       "id": "langgraph_agent_readme_example_prompts",
       "community": 76,
       "norm_label": "example prompts"
@@ -6761,7 +7022,7 @@
       "label": "code:text (Get latest invoice for customer_id=5)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L322",
+      "source_location": "L328",
       "id": "langgraph_agent_readme_codeblock_15",
       "community": 76,
       "norm_label": "code:text (get latest invoice for customer_id=5)"
@@ -6770,7 +7031,7 @@
       "label": "code:text (Find tracks by artist AC/DC)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L335",
+      "source_location": "L341",
       "id": "langgraph_agent_readme_codeblock_16",
       "community": 76,
       "norm_label": "code:text (find tracks by artist ac/dc)"
@@ -6779,7 +7040,7 @@
       "label": "code:text (User: What is my latest invoice?)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L346",
+      "source_location": "L352",
       "id": "langgraph_agent_readme_codeblock_17",
       "community": 76,
       "norm_label": "code:text (user: what is my latest invoice?)"
@@ -6788,7 +7049,7 @@
       "label": "code:text (User: Recommend some songs)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L352",
+      "source_location": "L358",
       "id": "langgraph_agent_readme_codeblock_18",
       "community": 76,
       "norm_label": "code:text (user: recommend some songs)"
@@ -6797,7 +7058,7 @@
       "label": "code:text (User: Recommend some songs)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L358",
+      "source_location": "L364",
       "id": "langgraph_agent_readme_codeblock_19",
       "community": 76,
       "norm_label": "code:text (user: recommend some songs)"
@@ -6806,7 +7067,7 @@
       "label": "code:text (Get latest invoice for customer_id=5 and find tracks by arti)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L366",
+      "source_location": "L372",
       "id": "langgraph_agent_readme_codeblock_20",
       "community": 76,
       "norm_label": "code:text (get latest invoice for customer_id=5 and find tracks by arti)"
@@ -6815,7 +7076,7 @@
       "label": "Testing",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L370",
+      "source_location": "L376",
       "id": "langgraph_agent_readme_testing",
       "community": 76,
       "norm_label": "testing"
@@ -6824,7 +7085,7 @@
       "label": "code:bash (uv run pytest tests -q)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L374",
+      "source_location": "L380",
       "id": "langgraph_agent_readme_codeblock_21",
       "community": 76,
       "norm_label": "code:bash (uv run pytest tests -q)"
@@ -6833,7 +7094,7 @@
       "label": "code:bash (uv run pytest tests/test_aggregator.py -q)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L380",
+      "source_location": "L386",
       "id": "langgraph_agent_readme_codeblock_22",
       "community": 76,
       "norm_label": "code:bash (uv run pytest tests/test_aggregator.py -q)"
@@ -6842,7 +7103,7 @@
       "label": "code:bash (RUN_LLM_TESTS=1 uv run pytest tests/test_llm_planner.py -q)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L391",
+      "source_location": "L397",
       "id": "langgraph_agent_readme_codeblock_23",
       "community": 76,
       "norm_label": "code:bash (run_llm_tests=1 uv run pytest tests/test_llm_planner.py -q)"
@@ -6851,7 +7112,7 @@
       "label": "code:bash (RUN_MCP_INTEGRATION_TESTS=1 uv run pytest tests/test_mcp_too)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L397",
+      "source_location": "L403",
       "id": "langgraph_agent_readme_codeblock_24",
       "community": 76,
       "norm_label": "code:bash (run_mcp_integration_tests=1 uv run pytest tests/test_mcp_too)"
@@ -6860,7 +7121,7 @@
       "label": "code:bash (RUN_A2A_INTEGRATION_TESTS=1 uv run pytest tests/test_invoice)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L403",
+      "source_location": "L409",
       "id": "langgraph_agent_readme_codeblock_25",
       "community": 76,
       "norm_label": "code:bash (run_a2a_integration_tests=1 uv run pytest tests/test_invoice)"
@@ -6869,7 +7130,7 @@
       "label": "code:bash (RUN_ORCHESTRATOR_API_INTEGRATION_TESTS=1 uv run pytest tests)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L409",
+      "source_location": "L415",
       "id": "langgraph_agent_readme_codeblock_26",
       "community": 76,
       "norm_label": "code:bash (run_orchestrator_api_integration_tests=1 uv run pytest tests)"
@@ -6878,7 +7139,7 @@
       "label": "code:bash (RUN_A2A_PAYLOAD_INTEGRATION_TESTS=1 uv run pytest tests/test)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L415",
+      "source_location": "L421",
       "id": "langgraph_agent_readme_codeblock_27",
       "community": 76,
       "norm_label": "code:bash (run_a2a_payload_integration_tests=1 uv run pytest tests/test)"
@@ -6887,7 +7148,7 @@
       "label": "code:bash (RUN_INVOICE_SUPPORT_INTEGRATION_TESTS=1 uv run pytest tests/)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L421",
+      "source_location": "L427",
       "id": "langgraph_agent_readme_codeblock_28",
       "community": 76,
       "norm_label": "code:bash (run_invoice_support_integration_tests=1 uv run pytest tests/)"
@@ -6896,7 +7157,7 @@
       "label": "code:bash (RUN_ACONTEXT_INTEGRATION_TESTS=1 uv run pytest tests/test_ac)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L428",
+      "source_location": "L434",
       "id": "langgraph_agent_readme_codeblock_29",
       "community": 76,
       "norm_label": "code:bash (run_acontext_integration_tests=1 uv run pytest tests/test_ac)"
@@ -6905,7 +7166,7 @@
       "label": "Development Workflow",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L432",
+      "source_location": "L438",
       "id": "langgraph_agent_readme_development_workflow",
       "community": 76,
       "norm_label": "development workflow"
@@ -6914,7 +7175,7 @@
       "label": "code:bash (uv run pytest tests -q)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L436",
+      "source_location": "L442",
       "id": "langgraph_agent_readme_codeblock_30",
       "community": 76,
       "norm_label": "code:bash (uv run pytest tests -q)"
@@ -6923,7 +7184,7 @@
       "label": "code:text (1. Add or update schema.)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L444",
+      "source_location": "L450",
       "id": "langgraph_agent_readme_codeblock_31",
       "community": 76,
       "norm_label": "code:text (1. add or update schema.)"
@@ -6932,7 +7193,7 @@
       "label": "A2A integration test fails with connection error",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L454",
+      "source_location": "L460",
       "id": "langgraph_agent_readme_a2a_integration_test_fails_with_connection_error",
       "community": 76,
       "norm_label": "a2a integration test fails with connection error"
@@ -6941,7 +7202,7 @@
       "label": "code:bash (uv run python scripts/run_mcp_server.py --host localhost --p)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L458",
+      "source_location": "L464",
       "id": "langgraph_agent_readme_codeblock_32",
       "community": 76,
       "norm_label": "code:bash (uv run python scripts/run_mcp_server.py --host localhost --p)"
@@ -6950,7 +7211,7 @@
       "label": "Knowledge Graph",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L464",
+      "source_location": "L470",
       "id": "langgraph_agent_readme_knowledge_graph",
       "community": 76,
       "norm_label": "knowledge graph"
@@ -6959,7 +7220,7 @@
       "label": "code:text (graphify-out/)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L468",
+      "source_location": "L474",
       "id": "langgraph_agent_readme_codeblock_33",
       "community": 76,
       "norm_label": "code:text (graphify-out/)"
@@ -6968,7 +7229,7 @@
       "label": "code:bash (graphify update .)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L477",
+      "source_location": "L483",
       "id": "langgraph_agent_readme_codeblock_34",
       "community": 76,
       "norm_label": "code:bash (graphify update .)"
@@ -6977,7 +7238,7 @@
       "label": "Roadmap",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L481",
+      "source_location": "L487",
       "id": "langgraph_agent_readme_roadmap",
       "community": 76,
       "norm_label": "roadmap"
@@ -6986,7 +7247,7 @@
       "label": "Current Status",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L494",
+      "source_location": "L500",
       "id": "langgraph_agent_readme_current_status",
       "community": 76,
       "norm_label": "current status"
@@ -6995,7 +7256,7 @@
       "label": "code:text (Planner \u2192 optional HITL \u2192 invoice/music task execution \u2192 agg)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L498",
+      "source_location": "L504",
       "id": "langgraph_agent_readme_codeblock_35",
       "community": 76,
       "norm_label": "code:text (planner \u2192 optional hitl \u2192 invoice/music task execution \u2192 agg)"
@@ -7080,6 +7341,60 @@
       "id": "langgraph_agent_agents_graphify_42",
       "community": 77,
       "norm_label": "graphify"
+    },
+    {
+      "label": "test_visible_chat_session_reaches_learning_terminal_state()",
+      "file_type": "code",
+      "source_file": "tests/test_acontext_capture_integration.py",
+      "source_location": "L114",
+      "community": 73,
+      "norm_label": "test_visible_chat_session_reaches_learning_terminal_state()",
+      "id": "tests_test_acontext_capture_integration_test_visible_chat_session_reaches_learning_terminal_state"
+    },
+    {
+      "label": "Store one user-visible planner interaction.",
+      "file_type": "rationale",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L33",
+      "community": 0,
+      "norm_label": "store one user-visible planner interaction.",
+      "id": "orchestrator_acontext_capture_rationale_33"
+    },
+    {
+      "label": "Store planner conversations and attach them to one learning space.",
+      "file_type": "rationale",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L37",
+      "community": 73,
+      "norm_label": "store planner conversations and attach them to one learning space.",
+      "id": "orchestrator_acontext_capture_rationale_37"
+    },
+    {
+      "label": "Build capture only when explicitly enabled and configured.",
+      "file_type": "rationale",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L150",
+      "community": 73,
+      "norm_label": "build capture only when explicitly enabled and configured.",
+      "id": "orchestrator_acontext_capture_rationale_150"
+    },
+    {
+      "label": "Map a LangGraph thread id into a stable Acontext UUID.",
+      "file_type": "rationale",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L170",
+      "community": 73,
+      "norm_label": "map a langgraph thread id into a stable acontext uuid.",
+      "id": "orchestrator_acontext_capture_rationale_170"
+    },
+    {
+      "label": "Base class for agents that call tools exposed by the MCP server.",
+      "file_type": "rationale",
+      "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
+      "source_location": "L11",
+      "community": 2,
+      "norm_label": "base class for agents that call tools exposed by the mcp server.",
+      "id": "common_mcp_tool_agent_rationale_11"
     },
     {
       "label": "worker-configuration.d.ts",
@@ -13467,7 +13782,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L217",
-      "community": 95,
+      "community": 75,
       "norm_label": "addeventlistener()",
       "id": "dev_vd1t7f_index_addeventlistener"
     },
@@ -13953,7 +14268,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L596",
-      "community": 80,
+      "community": 99,
       "norm_label": "abort()",
       "id": "dev_vd1t7f_index_abort"
     },
@@ -14070,7 +14385,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L943",
-      "community": 94,
+      "community": 99,
       "norm_label": "partitionenvvars()",
       "id": "dev_vd1t7f_index_partitionenvvars"
     },
@@ -14187,7 +14502,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L1069",
-      "community": 101,
+      "community": 75,
       "norm_label": "child()",
       "id": "dev_vd1t7f_index_child"
     },
@@ -14268,7 +14583,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L1160",
-      "community": 81,
+      "community": 79,
       "norm_label": "json()",
       "id": "dev_vd1t7f_index_json"
     },
@@ -14502,7 +14817,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L1580",
-      "community": 78,
+      "community": 95,
       "norm_label": "parsesseframes()",
       "id": "dev_vd1t7f_index_parsesseframes"
     },
@@ -14583,7 +14898,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L1853",
-      "community": 80,
+      "community": 99,
       "norm_label": "addtimeoutsignal()",
       "id": "dev_vd1t7f_index_addtimeoutsignal"
     },
@@ -14619,7 +14934,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L1883",
-      "community": 89,
+      "community": 80,
       "norm_label": "setstopped()",
       "id": "dev_vd1t7f_index_setstopped"
     },
@@ -14664,7 +14979,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2008",
-      "community": 78,
+      "community": 99,
       "norm_label": "start()",
       "id": "dev_vd1t7f_index_start"
     },
@@ -14673,7 +14988,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2022",
-      "community": 80,
+      "community": 99,
       "norm_label": "startandwaitforports()",
       "id": "dev_vd1t7f_index_startandwaitforports"
     },
@@ -14682,7 +14997,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2076",
-      "community": 79,
+      "community": 99,
       "norm_label": "waitforport()",
       "id": "dev_vd1t7f_index_waitforport"
     },
@@ -14718,7 +15033,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2150",
-      "community": 89,
+      "community": 80,
       "norm_label": "onstop()",
       "id": "dev_vd1t7f_index_onstop"
     },
@@ -14736,7 +15051,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2172",
-      "community": 94,
+      "community": 99,
       "norm_label": "onerror()",
       "id": "dev_vd1t7f_index_onerror"
     },
@@ -14763,7 +15078,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2259",
-      "community": 80,
+      "community": 95,
       "norm_label": "containerfetch()",
       "id": "dev_vd1t7f_index_containerfetch"
     },
@@ -14790,7 +15105,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2338",
-      "community": 80,
+      "community": 95,
       "norm_label": "requestandportfromcontainerfetchargs()",
       "id": "dev_vd1t7f_index_requestandportfromcontainerfetchargs"
     },
@@ -14799,7 +15114,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2364",
-      "community": 80,
+      "community": 99,
       "norm_label": "getportstocheck()",
       "id": "dev_vd1t7f_index_getportstocheck"
     },
@@ -14808,7 +15123,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2382",
-      "community": 80,
+      "community": 99,
       "norm_label": "startcontainerifnotrunning()",
       "id": "dev_vd1t7f_index_startcontainerifnotrunning"
     },
@@ -14817,7 +15132,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2468",
-      "community": 80,
+      "community": 99,
       "norm_label": "setupmonitorcallbacks()",
       "id": "dev_vd1t7f_index_setupmonitorcallbacks"
     },
@@ -14853,7 +15168,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2592",
-      "community": 89,
+      "community": 80,
       "norm_label": "callonstop()",
       "id": "dev_vd1t7f_index_callonstop"
     },
@@ -14925,7 +15240,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2731",
-      "community": 99,
+      "community": 94,
       "norm_label": "sign()",
       "id": "dev_vd1t7f_index_sign"
     },
@@ -14934,7 +15249,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2852",
-      "community": 99,
+      "community": 94,
       "norm_label": "authheader()",
       "id": "dev_vd1t7f_index_authheader"
     },
@@ -14943,7 +15258,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2859",
-      "community": 99,
+      "community": 94,
       "norm_label": "signature()",
       "id": "dev_vd1t7f_index_signature"
     },
@@ -14952,7 +15267,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2872",
-      "community": 99,
+      "community": 94,
       "norm_label": "stringtosign()",
       "id": "dev_vd1t7f_index_stringtosign"
     },
@@ -14961,7 +15276,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2880",
-      "community": 99,
+      "community": 94,
       "norm_label": "canonicalstring()",
       "id": "dev_vd1t7f_index_canonicalstring"
     },
@@ -14970,7 +15285,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2890",
-      "community": 99,
+      "community": 94,
       "norm_label": "hexbodyhash()",
       "id": "dev_vd1t7f_index_hexbodyhash"
     },
@@ -14979,7 +15294,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2901",
-      "community": 99,
+      "community": 94,
       "norm_label": "hmac()",
       "id": "dev_vd1t7f_index_hmac"
     },
@@ -14988,7 +15303,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2912",
-      "community": 99,
+      "community": 94,
       "norm_label": "hash()",
       "id": "dev_vd1t7f_index_hash"
     },
@@ -14997,7 +15312,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L2917",
-      "community": 99,
+      "community": 94,
       "norm_label": "buf2hex()",
       "id": "dev_vd1t7f_index_buf2hex"
     },
@@ -15303,7 +15618,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L3636",
-      "community": 75,
+      "community": 79,
       "norm_label": "createerrorfromresponse()",
       "id": "dev_vd1t7f_index_createerrorfromresponse"
     },
@@ -15411,7 +15726,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L3947",
-      "community": 95,
+      "community": 75,
       "norm_label": "doconnect()",
       "id": "dev_vd1t7f_index_doconnect"
     },
@@ -15420,7 +15735,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L3959",
-      "community": 95,
+      "community": 75,
       "norm_label": "connectviafetch()",
       "id": "dev_vd1t7f_index_connectviafetch"
     },
@@ -15429,7 +15744,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L3994",
-      "community": 95,
+      "community": 75,
       "norm_label": "connectviawebsocket()",
       "id": "dev_vd1t7f_index_connectviawebsocket"
     },
@@ -15474,7 +15789,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L4232",
-      "community": 75,
+      "community": 79,
       "norm_label": "handleresponse()",
       "id": "dev_vd1t7f_index_handleresponse"
     },
@@ -15573,7 +15888,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L4463",
-      "community": 75,
+      "community": 79,
       "norm_label": "handleerrorresponse()",
       "id": "dev_vd1t7f_index_handleerrorresponse"
     },
@@ -15618,7 +15933,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L4567",
-      "community": 94,
+      "community": 99,
       "norm_label": "execute()",
       "id": "dev_vd1t7f_index_execute"
     },
@@ -15627,7 +15942,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L4591",
-      "community": 94,
+      "community": 99,
       "norm_label": "executestream()",
       "id": "dev_vd1t7f_index_executestream"
     },
@@ -15762,7 +16077,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L4857",
-      "community": 5,
+      "community": 2,
       "norm_label": "type()",
       "id": "dev_vd1t7f_index_type"
     },
@@ -15852,7 +16167,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L5000",
-      "community": 78,
+      "community": 75,
       "norm_label": "deletefile()",
       "id": "dev_vd1t7f_index_deletefile"
     },
@@ -15969,7 +16284,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L5219",
-      "community": 75,
+      "community": 79,
       "norm_label": "parseerrorresponse()",
       "id": "dev_vd1t7f_index_parseerrorresponse"
     },
@@ -15987,7 +16302,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L5256",
-      "community": 94,
+      "community": 99,
       "norm_label": "parseexecutionresult()",
       "id": "dev_vd1t7f_index_parseexecutionresult"
     },
@@ -16005,7 +16320,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L5322",
-      "community": 79,
+      "community": 89,
       "norm_label": "unexposeport()",
       "id": "dev_vd1t7f_index_unexposeport"
     },
@@ -16014,7 +16329,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L5334",
-      "community": 78,
+      "community": 79,
       "norm_label": "getexposedports()",
       "id": "dev_vd1t7f_index_getexposedports"
     },
@@ -16140,7 +16455,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L5524",
-      "community": 78,
+      "community": 95,
       "norm_label": "watch()",
       "id": "dev_vd1t7f_index_watch"
     },
@@ -16149,7 +16464,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L5537",
-      "community": 78,
+      "community": 95,
       "norm_label": "waitforreadiness()",
       "id": "dev_vd1t7f_index_waitforreadiness"
     },
@@ -16185,7 +16500,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L5712",
-      "community": 79,
+      "community": 81,
       "norm_label": "sanitizesandboxid()",
       "id": "dev_vd1t7f_index_sanitizesandboxid"
     },
@@ -16293,7 +16608,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L5950",
-      "community": 78,
+      "community": 75,
       "norm_label": "fullsyncr2tocontainer()",
       "id": "dev_vd1t7f_index_fullsyncr2tocontainer"
     },
@@ -16302,7 +16617,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L5968",
-      "community": 78,
+      "community": 99,
       "norm_label": "schedulepoll()",
       "id": "dev_vd1t7f_index_schedulepoll"
     },
@@ -16311,7 +16626,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L5982",
-      "community": 78,
+      "community": 75,
       "norm_label": "pollr2forchanges()",
       "id": "dev_vd1t7f_index_pollr2forchanges"
     },
@@ -16320,7 +16635,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L6026",
-      "community": 78,
+      "community": 75,
       "norm_label": "listallr2objects()",
       "id": "dev_vd1t7f_index_listallr2objects"
     },
@@ -16329,7 +16644,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L6043",
-      "community": 79,
+      "community": 78,
       "norm_label": "transferr2objecttocontainer()",
       "id": "dev_vd1t7f_index_transferr2objecttocontainer"
     },
@@ -16347,7 +16662,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L6054",
-      "community": 78,
+      "community": 99,
       "norm_label": "startcontainerwatch()",
       "id": "dev_vd1t7f_index_startcontainerwatch"
     },
@@ -16356,7 +16671,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L6058",
-      "community": 78,
+      "community": 99,
       "norm_label": "runwatchwithretry()",
       "id": "dev_vd1t7f_index_runwatchwithretry"
     },
@@ -16374,7 +16689,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L6084",
-      "community": 78,
+      "community": 75,
       "norm_label": "runcontainerwatchloop()",
       "id": "dev_vd1t7f_index_runcontainerwatchloop"
     },
@@ -16392,7 +16707,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L6139",
-      "community": 78,
+      "community": 75,
       "norm_label": "suppressecho()",
       "id": "dev_vd1t7f_index_suppressecho"
     },
@@ -16401,7 +16716,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L6145",
-      "community": 78,
+      "community": 75,
       "norm_label": "r2keytocontainerpath()",
       "id": "dev_vd1t7f_index_r2keytocontainerpath"
     },
@@ -16410,7 +16725,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L6150",
-      "community": 78,
+      "community": 75,
       "norm_label": "containerpathtor2key()",
       "id": "dev_vd1t7f_index_containerpathtor2key"
     },
@@ -16419,7 +16734,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L6159",
-      "community": 79,
+      "community": 78,
       "norm_label": "uint8arraytobase64()",
       "id": "dev_vd1t7f_index_uint8arraytobase64"
     },
@@ -16491,7 +16806,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L6280",
-      "community": 79,
+      "community": 89,
       "norm_label": "validateprefix()",
       "id": "dev_vd1t7f_index_validateprefix"
     },
@@ -16500,7 +16815,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L6284",
-      "community": 79,
+      "community": 89,
       "norm_label": "validatebucketname()",
       "id": "dev_vd1t7f_index_validatebucketname"
     },
@@ -16680,7 +16995,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L6618",
-      "community": 94,
+      "community": 99,
       "norm_label": "setenvvars()",
       "id": "dev_vd1t7f_index_setenvvars"
     },
@@ -16752,7 +17067,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L6865",
-      "community": 79,
+      "community": 89,
       "norm_label": "validatemountoptions()",
       "id": "dev_vd1t7f_index_validatemountoptions"
     },
@@ -16806,7 +17121,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L7134",
-      "community": 80,
+      "community": 95,
       "norm_label": "isnoinstanceerror()",
       "id": "dev_vd1t7f_index_isnoinstanceerror"
     },
@@ -16815,7 +17130,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L7151",
-      "community": 80,
+      "community": 95,
       "norm_label": "istransientstartuperror()",
       "id": "dev_vd1t7f_index_istransientstartuperror"
     },
@@ -16824,7 +17139,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L7182",
-      "community": 80,
+      "community": 95,
       "norm_label": "ispermanentstartuperror()",
       "id": "dev_vd1t7f_index_ispermanentstartuperror"
     },
@@ -16833,7 +17148,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L7197",
-      "community": 80,
+      "community": 95,
       "norm_label": "parsecontainerfetchargs()",
       "id": "dev_vd1t7f_index_parsecontainerfetchargs"
     },
@@ -16869,7 +17184,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L7291",
-      "community": 81,
+      "community": 79,
       "norm_label": "exec()",
       "id": "dev_vd1t7f_index_exec"
     },
@@ -16896,7 +17211,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L7351",
-      "community": 94,
+      "community": 99,
       "norm_label": "executewithstreaming()",
       "id": "dev_vd1t7f_index_executewithstreaming"
     },
@@ -17004,7 +17319,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L7759",
-      "community": 94,
+      "community": 99,
       "norm_label": "execstream()",
       "id": "dev_vd1t7f_index_execstream"
     },
@@ -17013,7 +17328,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L7771",
-      "community": 94,
+      "community": 99,
       "norm_label": "execstreamwithsession()",
       "id": "dev_vd1t7f_index_execstreamwithsession"
     },
@@ -17040,7 +17355,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L8008",
-      "community": 78,
+      "community": 79,
       "norm_label": "isportexposed()",
       "id": "dev_vd1t7f_index_isportexposed"
     },
@@ -17049,7 +17364,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L8017",
-      "community": 75,
+      "community": 79,
       "norm_label": "validateporttoken()",
       "id": "dev_vd1t7f_index_validateporttoken"
     },
@@ -17229,7 +17544,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L8743",
-      "community": 81,
+      "community": 79,
       "norm_label": "handlecreatesandbox()",
       "id": "dev_vd1t7f_index_handlecreatesandbox"
     },
@@ -17247,7 +17562,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L8810",
-      "community": 81,
+      "community": 79,
       "norm_label": "handlegetsandbox()",
       "id": "dev_vd1t7f_index_handlegetsandbox"
     },
@@ -17256,7 +17571,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L8848",
-      "community": 81,
+      "community": 79,
       "norm_label": "handleupdatesandbox()",
       "id": "dev_vd1t7f_index_handleupdatesandbox"
     },
@@ -17265,7 +17580,7 @@
       "file_type": "code",
       "source_file": "acontext_server/sandbox/cloudflare/.wrangler/tmp/dev-vD1T7F/index.js",
       "source_location": "L8889",
-      "community": 81,
+      "community": 79,
       "norm_label": "handleexeccommand()",
       "id": "dev_vd1t7f_index_handleexeccommand"
     },
@@ -18138,7 +18453,7 @@
       "file_type": "rationale",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
       "source_location": "L28",
-      "community": 73,
+      "community": 0,
       "norm_label": "store one planner interaction.",
       "id": "orchestrator_acontext_capture_rationale_28"
     },
@@ -18183,7 +18498,7 @@
       "file_type": "code",
       "source_file": "src/multi_agent_system/a2a_servers/music_agent/agent.py",
       "source_location": "L46",
-      "community": 7,
+      "community": 8,
       "norm_label": "musicrequest",
       "id": "music_agent_agent_musicrequest"
     },
@@ -23393,6 +23708,36 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_mcp_tool_agent_error_handling.py",
+      "source_location": "L67",
+      "weight": 1.0,
+      "source": "tests_test_mcp_tool_agent_error_handling_py",
+      "target": "tests_test_mcp_tool_agent_error_handling_test_call_tool_records_sanitized_execution_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_mcp_tool_agent_error_handling.py",
+      "source_location": "L85",
+      "weight": 1.0,
+      "source": "tests_test_mcp_tool_agent_error_handling_py",
+      "target": "tests_test_mcp_tool_agent_error_handling_test_call_tool_records_sanitized_failure_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_mcp_tool_agent_error_handling.py",
+      "source_location": "L99",
+      "weight": 1.0,
+      "source": "tests_test_mcp_tool_agent_error_handling_py",
+      "target": "tests_test_mcp_tool_agent_error_handling_test_evidence_collection_is_isolated_for_concurrent_calls",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_mcp_tool_agent_error_handling.py",
       "source_location": "L64",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -23489,6 +23834,28 @@
       "confidence_score": 1.0,
       "source": "tests_test_mcp_tool_agent_error_handling_test_call_tool_returns_parsed_text_payload",
       "target": "tests_test_mcp_tool_agent_error_handling_faketool"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_mcp_tool_agent_error_handling.py",
+      "source_location": "L68",
+      "weight": 1.0,
+      "source": "tests_test_mcp_tool_agent_error_handling_test_call_tool_records_sanitized_execution_evidence",
+      "target": "tests_test_mcp_tool_agent_error_handling_faketool",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_mcp_tool_agent_error_handling.py",
+      "source_location": "L86",
+      "weight": 1.0,
+      "source": "tests_test_mcp_tool_agent_error_handling_test_call_tool_records_sanitized_failure_evidence",
+      "target": "tests_test_mcp_tool_agent_error_handling_faketool",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -23612,6 +23979,28 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_mcp_tool_agent_error_handling.py",
+      "source_location": "L72",
+      "weight": 1.0,
+      "source": "tests_test_mcp_tool_agent_error_handling_test_call_tool_records_sanitized_execution_evidence",
+      "target": "tests_test_mcp_tool_agent_error_handling_fakeclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_mcp_tool_agent_error_handling.py",
+      "source_location": "L87",
+      "weight": 1.0,
+      "source": "tests_test_mcp_tool_agent_error_handling_test_call_tool_records_sanitized_failure_evidence",
+      "target": "tests_test_mcp_tool_agent_error_handling_fakeclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_mcp_tool_agent_error_handling.py",
       "source_location": "L69",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -23710,6 +24099,39 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/test_mcp_tool_agent_error_handling.py",
+      "source_location": "L75",
+      "weight": 1.0,
+      "source": "tests_test_mcp_tool_agent_error_handling_test_call_tool_records_sanitized_execution_evidence",
+      "target": "common_execution_evidence_collect_execution_evidence"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_mcp_tool_agent_error_handling.py",
+      "source_location": "L86",
+      "weight": 1.0,
+      "source": "tests_test_mcp_tool_agent_error_handling_test_call_tool_records_sanitized_failure_evidence",
+      "target": "runtimeerror"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_mcp_tool_agent_error_handling.py",
+      "source_location": "L90",
+      "weight": 1.0,
+      "source": "tests_test_mcp_tool_agent_error_handling_test_call_tool_records_sanitized_failure_evidence",
+      "target": "common_execution_evidence_collect_execution_evidence"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_mcp_tool_agent_error_handling.py",
       "source_location": "L95",
       "weight": 1.0,
       "source": "tests_test_mcp_tool_agent_error_handling_test_call_tool_raises_when_tool_loader_fails",
@@ -23742,8 +24164,18 @@
       "source_file": "tests/test_acontext_capture_integration.py",
       "source_location": "L33",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_acontext_capture_integration_py",
-      "target": "tests_test_acontext_capture_integration_test_direct_acontext_learning_after_flush",
+      "target": "tests_test_acontext_capture_integration_test_direct_acontext_learning_after_flush"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_acontext_capture_integration.py",
+      "source_location": "L115",
+      "weight": 1.0,
+      "source": "tests_test_acontext_capture_integration_py",
+      "target": "tests_test_acontext_capture_integration_test_sanitized_execution_session_reaches_learning_terminal_state",
       "confidence_score": 1.0
     },
     {
@@ -23762,9 +24194,9 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/test_acontext_capture_integration.py",
-      "source_location": "L43",
+      "source_location": "L125",
       "weight": 1.0,
-      "source": "tests_test_acontext_capture_integration_test_visible_chat_session_reaches_learning_terminal_state",
+      "source": "tests_test_acontext_capture_integration_test_sanitized_execution_session_reaches_learning_terminal_state",
       "target": "orchestrator_acontext_capture_acontextcapture"
     },
     {
@@ -23773,9 +24205,9 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/test_acontext_capture_integration.py",
-      "source_location": "L48",
+      "source_location": "L131",
       "weight": 1.0,
-      "source": "tests_test_acontext_capture_integration_test_visible_chat_session_reaches_learning_terminal_state",
+      "source": "tests_test_acontext_capture_integration_test_sanitized_execution_session_reaches_learning_terminal_state",
       "target": "orchestrator_schemas_plannerserviceresponse"
     },
     {
@@ -23784,9 +24216,20 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/test_acontext_capture_integration.py",
-      "source_location": "L80",
+      "source_location": "L143",
       "weight": 1.0,
-      "source": "tests_test_acontext_capture_integration_test_visible_chat_session_reaches_learning_terminal_state",
+      "source": "tests_test_acontext_capture_integration_test_sanitized_execution_session_reaches_learning_terminal_state",
+      "target": "common_execution_evidence_executionevidence"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_acontext_capture_integration.py",
+      "source_location": "L189",
+      "weight": 1.0,
+      "source": "tests_test_acontext_capture_integration_test_sanitized_execution_session_reaches_learning_terminal_state",
       "target": "orchestrator_acontext_capture_acontext_session_id"
     },
     {
@@ -23973,6 +24416,26 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_acontext_capture.py",
+      "source_location": "L262",
+      "weight": 1.0,
+      "source": "tests_test_acontext_capture_py",
+      "target": "tests_test_acontext_capture_test_execution_evidence_is_stored_without_raw_business_values",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_acontext_capture.py",
+      "source_location": "L327",
+      "weight": 1.0,
+      "source": "tests_test_acontext_capture_py",
+      "target": "tests_test_acontext_capture_test_resume_does_not_store_repeated_execution_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_acontext_capture.py",
       "source_location": "L172",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -24074,6 +24537,16 @@
       "relation": "uses",
       "confidence": "INFERRED",
       "source_file": "tests/test_acontext_capture.py",
+      "source_location": "L8",
+      "weight": 0.8,
+      "source": "tests_test_acontext_capture_fakesessions",
+      "target": "common_execution_evidence_executionevidence",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "tests/test_acontext_capture.py",
       "source_location": "L6",
       "weight": 0.8,
       "confidence_score": 0.5,
@@ -24157,6 +24630,16 @@
       "source_file": "tests/test_acontext_capture.py",
       "source_location": "L8",
       "weight": 0.8,
+      "source": "tests_test_acontext_capture_fakelearningspaces",
+      "target": "common_execution_evidence_executionevidence",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "tests/test_acontext_capture.py",
+      "source_location": "L8",
+      "weight": 0.8,
       "confidence_score": 0.5,
       "source": "tests_test_acontext_capture_fakelearningspaces",
       "target": "orchestrator_acontext_capture_acontextcapture"
@@ -24170,6 +24653,17 @@
       "confidence_score": 0.5,
       "source": "tests_test_acontext_capture_fakelearningspaces",
       "target": "orchestrator_schemas_plannerserviceresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L346",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_operations",
+      "target": "tests_test_acontext_capture_fakelearningspaces_list"
     },
     {
       "relation": "calls",
@@ -24257,6 +24751,38 @@
       "target": "tests_test_acontext_capture_fakeclient"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_acontext_capture.py",
+      "source_location": "L263",
+      "weight": 1.0,
+      "source": "tests_test_acontext_capture_test_execution_evidence_is_stored_without_raw_business_values",
+      "target": "tests_test_acontext_capture_fakeclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_acontext_capture.py",
+      "source_location": "L328",
+      "weight": 1.0,
+      "source": "tests_test_acontext_capture_test_resume_does_not_store_repeated_execution_evidence",
+      "target": "tests_test_acontext_capture_fakeclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "tests/test_acontext_capture.py",
+      "source_location": "L8",
+      "weight": 0.8,
+      "source": "tests_test_acontext_capture_fakeclient",
+      "target": "common_execution_evidence_executionevidence",
+      "confidence_score": 0.5
+    },
+    {
       "relation": "uses",
       "confidence": "INFERRED",
       "source_file": "tests/test_acontext_capture.py",
@@ -24341,6 +24867,28 @@
       "confidence_score": 1.0,
       "source": "tests_test_acontext_capture_test_failed_interaction_is_stored_and_flushed",
       "target": "tests_test_acontext_capture_capture"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_acontext_capture.py",
+      "source_location": "L264",
+      "weight": 1.0,
+      "source": "tests_test_acontext_capture_test_execution_evidence_is_stored_without_raw_business_values",
+      "target": "tests_test_acontext_capture_capture",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_acontext_capture.py",
+      "source_location": "L329",
+      "weight": 1.0,
+      "source": "tests_test_acontext_capture_test_resume_does_not_store_repeated_execution_evidence",
+      "target": "tests_test_acontext_capture_capture",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -24462,6 +25010,50 @@
       "weight": 1.0,
       "source": "tests_test_acontext_capture_test_failed_interaction_is_stored_and_flushed",
       "target": "orchestrator_acontext_capture_acontext_session_id"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_acontext_capture.py",
+      "source_location": "L266",
+      "weight": 1.0,
+      "source": "tests_test_acontext_capture_test_execution_evidence_is_stored_without_raw_business_values",
+      "target": "orchestrator_schemas_plannerserviceresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_acontext_capture.py",
+      "source_location": "L272",
+      "weight": 1.0,
+      "source": "tests_test_acontext_capture_test_execution_evidence_is_stored_without_raw_business_values",
+      "target": "common_execution_evidence_executionevidence"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_acontext_capture.py",
+      "source_location": "L330",
+      "weight": 1.0,
+      "source": "tests_test_acontext_capture_test_resume_does_not_store_repeated_execution_evidence",
+      "target": "common_execution_evidence_executionevidence"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_acontext_capture.py",
+      "source_location": "L343",
+      "weight": 1.0,
+      "source": "tests_test_acontext_capture_test_resume_does_not_store_repeated_execution_evidence",
+      "target": "orchestrator_schemas_plannerserviceresponse"
     },
     {
       "relation": "calls",
@@ -24874,6 +25466,16 @@
       "target": "tests_test_node_instruction_rebuild_test_node_instruction_rebuild_does_not_mutate_original_state"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_node_instruction_rebuild.py",
+      "source_location": "L568",
+      "weight": 1.0,
+      "source": "tests_test_node_instruction_rebuild_py",
+      "target": "tests_test_node_instruction_rebuild_test_invoice_node_merges_sanitized_remote_tool_evidence",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
@@ -24992,6 +25594,17 @@
       "source_location": "L394",
       "weight": 1.0,
       "source": "tests_test_node_instruction_rebuild_test_node_instruction_rebuild_does_not_mutate_original_state",
+      "target": "planner_app_nodes_invoice_node"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_node_instruction_rebuild.py",
+      "source_location": "L610",
+      "weight": 1.0,
+      "source": "tests_test_node_instruction_rebuild_test_invoice_node_merges_sanitized_remote_tool_evidence",
       "target": "planner_app_nodes_invoice_node"
     },
     {
@@ -25694,6 +26307,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_a2a_executors.py",
+      "source_location": "L77",
+      "weight": 1.0,
+      "source": "tests_test_a2a_executors_py",
+      "target": "tests_test_a2a_executors_test_invoice_executor_returns_collected_sanitized_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_a2a_executors.py",
       "source_location": "L73",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -25796,6 +26419,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_a2a_executors.py",
+      "source_location": "L95",
+      "weight": 1.0,
+      "source": "tests_test_a2a_executors_test_invoice_executor_returns_collected_sanitized_evidence",
+      "target": "tests_test_a2a_executors_fakecontext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_a2a_executors.py",
       "source_location": "L89",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -25878,6 +26512,16 @@
       "target": "a2a_client_base_basea2aclient"
     },
     {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "tests/test_a2a_executors.py",
+      "source_location": "L16",
+      "weight": 0.8,
+      "source": "tests_test_a2a_executors_fakecontext",
+      "target": "common_execution_evidence_executionevidence",
+      "confidence_score": 0.5
+    },
+    {
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_a2a_executors.py",
@@ -25907,6 +26551,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_a2a_executors_test_invoice_executor_prefers_structured_request_data",
       "target": "tests_test_a2a_executors_fakeeventqueue"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_a2a_executors.py",
+      "source_location": "L93",
+      "weight": 1.0,
+      "source": "tests_test_a2a_executors_test_invoice_executor_returns_collected_sanitized_evidence",
+      "target": "tests_test_a2a_executors_fakeeventqueue",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -25995,6 +26650,16 @@
       "target": "a2a_client_base_basea2aclient"
     },
     {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "tests/test_a2a_executors.py",
+      "source_location": "L16",
+      "weight": 0.8,
+      "source": "tests_test_a2a_executors_fakeeventqueue",
+      "target": "common_execution_evidence_executionevidence",
+      "confidence_score": 0.5
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
@@ -26003,6 +26668,17 @@
       "source_location": "L51",
       "weight": 1.0,
       "source": "tests_test_a2a_executors_test_invoice_executor_prefers_structured_request_data",
+      "target": "invoice_agent_executor_invoiceagentexecutor"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_a2a_executors.py",
+      "source_location": "L91",
+      "weight": 1.0,
+      "source": "tests_test_a2a_executors_test_invoice_executor_returns_collected_sanitized_evidence",
       "target": "invoice_agent_executor_invoiceagentexecutor"
     },
     {
@@ -27818,6 +28494,67 @@
       "target": "planner_app_nodes_failure_result"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L316",
+      "weight": 1.0,
+      "source": "src_multi_agent_system_planner_app_nodes_py",
+      "target": "planner_app_nodes_planner_decision_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L350",
+      "weight": 1.0,
+      "source": "src_multi_agent_system_planner_app_nodes_py",
+      "target": "planner_app_nodes_with_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L360",
+      "weight": 1.0,
+      "source": "src_multi_agent_system_planner_app_nodes_py",
+      "target": "planner_app_nodes_dispatch_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L371",
+      "weight": 1.0,
+      "source": "src_multi_agent_system_planner_app_nodes_py",
+      "target": "planner_app_nodes_agent_result_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L390",
+      "weight": 1.0,
+      "source": "src_multi_agent_system_planner_app_nodes_py",
+      "target": "planner_app_nodes_extract_remote_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "planner_app_nodes_planner_node",
+      "target": "planner_app_nodes_planner_decision_evidence",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -27842,6 +28579,17 @@
     {
       "relation": "calls",
       "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L77",
+      "weight": 1.0,
+      "source": "planner_app_nodes_missing_info_node",
+      "target": "planner_app_nodes_with_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
@@ -27849,6 +28597,17 @@
       "weight": 1.0,
       "source": "planner_app_nodes_missing_info_node",
       "target": "planner_app_hitl_interrupt_for_missing_info"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L79",
+      "weight": 1.0,
+      "source": "planner_app_nodes_missing_info_node",
+      "target": "common_execution_evidence_executionevidence"
     },
     {
       "relation": "calls",
@@ -27882,6 +28641,50 @@
       "confidence_score": 1.0,
       "source": "planner_app_nodes_invoice_node",
       "target": "planner_app_nodes_attach_a2a_payload"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L106",
+      "weight": 1.0,
+      "source": "planner_app_nodes_invoice_node",
+      "target": "planner_app_nodes_with_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L108",
+      "weight": 1.0,
+      "source": "planner_app_nodes_invoice_node",
+      "target": "planner_app_nodes_dispatch_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L109",
+      "weight": 1.0,
+      "source": "planner_app_nodes_invoice_node",
+      "target": "planner_app_nodes_extract_remote_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L110",
+      "weight": 1.0,
+      "source": "planner_app_nodes_invoice_node",
+      "target": "planner_app_nodes_agent_result_evidence",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -27954,6 +28757,50 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L153",
+      "weight": 1.0,
+      "source": "planner_app_nodes_music_node",
+      "target": "planner_app_nodes_with_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L155",
+      "weight": 1.0,
+      "source": "planner_app_nodes_music_node",
+      "target": "planner_app_nodes_dispatch_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L156",
+      "weight": 1.0,
+      "source": "planner_app_nodes_music_node",
+      "target": "planner_app_nodes_extract_remote_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L157",
+      "weight": 1.0,
+      "source": "planner_app_nodes_music_node",
+      "target": "planner_app_nodes_agent_result_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
       "source_location": "L127",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -27985,6 +28832,17 @@
     {
       "relation": "calls",
       "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L227",
+      "weight": 1.0,
+      "source": "planner_app_nodes_final_response_node",
+      "target": "planner_app_nodes_with_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "src/multi_agent_system/planner_app/nodes.py",
@@ -27992,6 +28850,17 @@
       "weight": 1.0,
       "source": "planner_app_nodes_final_response_node",
       "target": "aggregator_schemas_agentresult"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L229",
+      "weight": 1.0,
+      "source": "planner_app_nodes_final_response_node",
+      "target": "common_execution_evidence_executionevidence"
     },
     {
       "relation": "calls",
@@ -28025,6 +28894,39 @@
       "weight": 1.0,
       "source": "planner_app_nodes_attach_a2a_payload",
       "target": "planner_app_task_instructions_build_a2a_payload_from_task"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L320",
+      "weight": 1.0,
+      "source": "planner_app_nodes_planner_decision_evidence",
+      "target": "common_execution_evidence_executionevidence"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L361",
+      "weight": 1.0,
+      "source": "planner_app_nodes_dispatch_evidence",
+      "target": "common_execution_evidence_executionevidence"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/multi_agent_system/planner_app/nodes.py",
+      "source_location": "L377",
+      "weight": 1.0,
+      "source": "planner_app_nodes_agent_result_evidence",
+      "target": "common_execution_evidence_executionevidence"
     },
     {
       "relation": "contains",
@@ -29006,6 +29908,16 @@
     {
       "relation": "inherits",
       "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/common/execution_evidence.py",
+      "source_location": "L24",
+      "weight": 1.0,
+      "source": "common_execution_evidence_executionevidence",
+      "target": "basemodel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
       "source_file": "src/multi_agent_system/aggregator/schemas.py",
       "source_location": "L5",
       "weight": 1.0,
@@ -29178,6 +30090,17 @@
       "context": "call",
       "confidence": "INFERRED",
       "confidence_score": 0.8,
+      "source_file": "tests/test_acontext_capture_integration.py",
+      "source_location": "L48",
+      "weight": 1.0,
+      "source": "tests_test_acontext_capture_integration_test_visible_chat_session_reaches_learning_terminal_state",
+      "target": "orchestrator_schemas_plannerserviceresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
       "source_file": "tests/test_acontext_capture.py",
       "source_location": "L64",
       "weight": 1.0,
@@ -29316,6 +30239,86 @@
       "target": "orchestrator_acontext_capture_ensure_learning_session"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L249",
+      "weight": 1.0,
+      "source": "src_multi_agent_system_orchestrator_acontext_capture_py",
+      "target": "orchestrator_acontext_capture_extract_execution_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L265",
+      "weight": 1.0,
+      "source": "src_multi_agent_system_orchestrator_acontext_capture_py",
+      "target": "orchestrator_acontext_capture_summarize_user_turn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L288",
+      "weight": 1.0,
+      "source": "src_multi_agent_system_orchestrator_acontext_capture_py",
+      "target": "orchestrator_acontext_capture_interaction_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L308",
+      "weight": 1.0,
+      "source": "src_multi_agent_system_orchestrator_acontext_capture_py",
+      "target": "orchestrator_acontext_capture_summarize_assistant_turn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L331",
+      "weight": 1.0,
+      "source": "src_multi_agent_system_orchestrator_acontext_capture_py",
+      "target": "orchestrator_acontext_capture_field_names",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L341",
+      "weight": 1.0,
+      "source": "src_multi_agent_system_orchestrator_acontext_capture_py",
+      "target": "orchestrator_acontext_capture_operations",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L355",
+      "weight": 1.0,
+      "source": "src_multi_agent_system_orchestrator_acontext_capture_py",
+      "target": "orchestrator_acontext_capture_store_evidence_message",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L409",
+      "weight": 1.0,
+      "source": "src_multi_agent_system_orchestrator_acontext_capture_py",
+      "target": "orchestrator_acontext_capture_safe_tool_name",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
@@ -29324,6 +30327,26 @@
       "confidence_score": 1.0,
       "source": "orchestrator_acontext_capture_plannerinteractioncapture",
       "target": "orchestrator_acontext_capture_plannerinteractioncapture_capture"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L14",
+      "weight": 0.8,
+      "source": "orchestrator_acontext_capture_plannerinteractioncapture",
+      "target": "common_execution_evidence_executionevidence",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_rationale_36",
+      "target": "orchestrator_acontext_capture_plannerinteractioncapture_capture",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -29364,6 +30387,16 @@
       "confidence_score": 1.0,
       "source": "orchestrator_acontext_capture_acontextcapture",
       "target": "orchestrator_acontext_capture_acontextcapture_capture"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L122",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_acontextcapture",
+      "target": "orchestrator_acontext_capture_acontextcapture_store_new_evidence",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -29410,6 +30443,37 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_rationale_40",
+      "target": "orchestrator_acontext_capture_acontextcapture",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L14",
+      "weight": 0.8,
+      "source": "orchestrator_acontext_capture_acontextcapture",
+      "target": "common_execution_evidence_executionevidence",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_acontext_capture_integration.py",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "tests_test_acontext_capture_integration_test_visible_chat_session_reaches_learning_terminal_state",
+      "target": "orchestrator_acontext_capture_acontextcapture"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
       "source_location": "L37",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -29436,6 +30500,50 @@
       "confidence_score": 1.0,
       "source": "orchestrator_acontext_capture_acontextcapture_capture",
       "target": "orchestrator_acontext_capture_acontext_session_id"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L71",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_acontextcapture_capture",
+      "target": "orchestrator_acontext_capture_extract_execution_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L72",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_acontextcapture_capture",
+      "target": "orchestrator_acontext_capture_interaction_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L73",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_acontextcapture_capture",
+      "target": "orchestrator_acontext_capture_summarize_user_turn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L74",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_acontextcapture_capture",
+      "target": "orchestrator_acontext_capture_summarize_assistant_turn",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -29482,6 +30590,38 @@
       "target": "orchestrator_acontext_capture_ensure_learning_session"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L103",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_acontextcapture_capture",
+      "target": "orchestrator_acontext_capture_acontextcapture_store_new_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L136",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_acontextcapture_store_new_evidence",
+      "target": "orchestrator_acontext_capture_store_evidence_message",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L184",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_rationale_184",
+      "target": "orchestrator_acontext_capture_build_acontext_capture",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
@@ -29510,6 +30650,27 @@
       "confidence_score": 1.0,
       "source": "orchestrator_acontext_capture_rationale_95",
       "target": "orchestrator_acontext_capture_build_acontext_capture"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L204",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_rationale_204",
+      "target": "orchestrator_acontext_capture_acontext_session_id",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_acontext_capture_integration.py",
+      "source_location": "L80",
+      "weight": 1.0,
+      "source": "tests_test_acontext_capture_integration_test_visible_chat_session_reaches_learning_terminal_state",
+      "target": "orchestrator_acontext_capture_acontext_session_id"
     },
     {
       "relation": "rationale_for",
@@ -29564,6 +30725,83 @@
       "target": "orchestrator_acontext_capture_acontext_session_id"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L270",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_summarize_user_turn",
+      "target": "orchestrator_acontext_capture_field_names",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L279",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_summarize_user_turn",
+      "target": "orchestrator_acontext_capture_operations",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L302",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_interaction_evidence",
+      "target": "orchestrator_acontext_capture_field_names",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L297",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_interaction_evidence",
+      "target": "common_execution_evidence_executionevidence"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L313",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_summarize_assistant_turn",
+      "target": "orchestrator_acontext_capture_field_names",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L322",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_summarize_assistant_turn",
+      "target": "orchestrator_acontext_capture_operations",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/orchestrator/acontext_capture.py",
+      "source_location": "L377",
+      "weight": 1.0,
+      "source": "orchestrator_acontext_capture_store_evidence_message",
+      "target": "orchestrator_acontext_capture_safe_tool_name",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/multi_agent_system/common/agent_card_loader.py",
@@ -29594,6 +30832,180 @@
       "weight": 1.0,
       "source": "music_agent_server_create_app",
       "target": "common_agent_card_loader_load_agent_card"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/common/execution_evidence.py",
+      "source_location": "L24",
+      "weight": 1.0,
+      "source": "src_multi_agent_system_common_execution_evidence_py",
+      "target": "common_execution_evidence_executionevidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/common/execution_evidence.py",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "src_multi_agent_system_common_execution_evidence_py",
+      "target": "common_execution_evidence_collect_execution_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/common/execution_evidence.py",
+      "source_location": "L53",
+      "weight": 1.0,
+      "source": "src_multi_agent_system_common_execution_evidence_py",
+      "target": "common_execution_evidence_record_execution_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/common/execution_evidence.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "common_execution_evidence_rationale_25",
+      "target": "common_execution_evidence_executionevidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
+      "source_location": "L8",
+      "weight": 0.8,
+      "source": "common_mcp_tool_agent_mcptoolagent",
+      "target": "common_execution_evidence_executionevidence",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/schemas.py",
+      "source_location": "L5",
+      "weight": 0.8,
+      "source": "invoice_agent_schemas_invoicerequest",
+      "target": "common_execution_evidence_executionevidence",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/schemas.py",
+      "source_location": "L5",
+      "weight": 0.8,
+      "source": "invoice_agent_schemas_invoicetaskpayload",
+      "target": "common_execution_evidence_executionevidence",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/schemas.py",
+      "source_location": "L5",
+      "weight": 0.8,
+      "source": "invoice_agent_schemas_invoiceagentresponse",
+      "target": "common_execution_evidence_executionevidence",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "src/multi_agent_system/a2a_servers/music_agent/schemas.py",
+      "source_location": "L5",
+      "weight": 0.8,
+      "source": "music_agent_schemas_musicrequest",
+      "target": "common_execution_evidence_executionevidence",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "src/multi_agent_system/a2a_servers/music_agent/schemas.py",
+      "source_location": "L5",
+      "weight": 0.8,
+      "source": "music_agent_schemas_musictaskpayload",
+      "target": "common_execution_evidence_executionevidence",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "src/multi_agent_system/a2a_servers/music_agent/schemas.py",
+      "source_location": "L5",
+      "weight": 0.8,
+      "source": "music_agent_schemas_musicagentresponse",
+      "target": "common_execution_evidence_executionevidence",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
+      "source_location": "L51",
+      "weight": 1.0,
+      "source": "common_mcp_tool_agent_mcptoolagent_call_tool",
+      "target": "common_execution_evidence_executionevidence"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/common/execution_evidence.py",
+      "source_location": "L44",
+      "weight": 1.0,
+      "source": "common_execution_evidence_rationale_44",
+      "target": "common_execution_evidence_collect_execution_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/multi_agent_system/a2a_servers/invoice_agent/executor.py",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "invoice_agent_executor_invoiceagentexecutor_execute",
+      "target": "common_execution_evidence_collect_execution_evidence"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/multi_agent_system/a2a_servers/music_agent/executor.py",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "music_agent_executor_musicagentexecutor_execute",
+      "target": "common_execution_evidence_collect_execution_evidence"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/common/execution_evidence.py",
+      "source_location": "L54",
+      "weight": 1.0,
+      "source": "common_execution_evidence_rationale_54",
+      "target": "common_execution_evidence_record_execution_evidence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
+      "source_location": "L50",
+      "weight": 1.0,
+      "source": "common_mcp_tool_agent_mcptoolagent_call_tool",
+      "target": "common_execution_evidence_record_execution_evidence"
     },
     {
       "relation": "contains",
@@ -29857,6 +31269,16 @@
       "target": "common_mcp_tool_agent_mcptoolagent"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
+      "source_location": "L206",
+      "weight": 1.0,
+      "source": "src_multi_agent_system_common_mcp_tool_agent_py",
+      "target": "common_mcp_tool_agent_summarize_tool_result",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
@@ -29950,11 +31372,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
-      "source_location": "L11",
+      "source_location": "L17",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "common_mcp_tool_agent_rationale_11",
-      "target": "common_mcp_tool_agent_mcptoolagent"
+      "source": "common_mcp_tool_agent_rationale_17",
+      "target": "common_mcp_tool_agent_mcptoolagent",
+      "confidence_score": 1.0
     },
     {
       "relation": "uses",
@@ -29974,6 +31396,16 @@
       "weight": 0.8,
       "confidence_score": 0.5,
       "source": "music_agent_agent_musicagent",
+      "target": "common_mcp_tool_agent_mcptoolagent"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "common_mcp_tool_agent_rationale_11",
       "target": "common_mcp_tool_agent_mcptoolagent"
     },
     {
@@ -30039,6 +31471,17 @@
       "confidence_score": 1.0,
       "source": "common_mcp_tool_agent_mcptoolagent_call_tool",
       "target": "common_mcp_tool_agent_mcptoolagent_unwrap_mcp_result"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/multi_agent_system/common/mcp_tool_agent.py",
+      "source_location": "L89",
+      "weight": 1.0,
+      "source": "common_mcp_tool_agent_mcptoolagent_call_tool",
+      "target": "common_mcp_tool_agent_summarize_tool_result",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -54684,5 +56127,5 @@
       "source_file": "tests/test_task_instructions.py"
     }
   ],
-  "built_at_commit": "24d3182ae52f1e8293fdfe882b96e211f92df0c9"
+  "built_at_commit": "542267378c8448737647fd12f1797e4ede4c1d50"
 }

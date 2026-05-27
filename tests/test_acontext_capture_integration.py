@@ -7,6 +7,7 @@ import pytest
 from acontext import AcontextAsyncClient
 from acontext.errors import APIError, TransportError
 
+from multi_agent_system.common.execution_evidence import ExecutionEvidence
 from multi_agent_system.config import settings
 from multi_agent_system.orchestrator.acontext_capture import (
     AcontextCapture,
@@ -111,7 +112,7 @@ async def test_direct_acontext_learning_after_flush() -> None:
 
 
 @pytest.mark.anyio
-async def test_visible_chat_session_reaches_learning_terminal_state() -> None:
+async def test_sanitized_execution_session_reaches_learning_terminal_state() -> None:
     assert settings.acontext_api_key
     api_key = settings.acontext_api_key
     base_url = settings.acontext_base_url
@@ -137,6 +138,25 @@ async def test_visible_chat_session_reaches_learning_terminal_state() -> None:
             "preserve customer_id in task args and build an instruction such as "
             "'Get latest invoice for customer_id=5'."
         ),
+        raw_result={
+            "execution_evidence": [
+                ExecutionEvidence(
+                    kind="planner_decision",
+                    agent="planner",
+                    operation="latest_invoice",
+                    status="completed",
+                    fields=["customer_id"],
+                    summary="Planner selected an executable workflow; values omitted from memory.",
+                ).model_dump(),
+                ExecutionEvidence(
+                    kind="agent_result",
+                    agent="invoice",
+                    operation="latest_invoice",
+                    status="completed",
+                    summary="Domain workflow completed; returned values omitted from memory.",
+                ).model_dump(),
+            ]
+        },
     )
 
     try:
@@ -160,11 +180,18 @@ async def test_visible_chat_session_reaches_learning_terminal_state() -> None:
                 user=user_identifier,
                 filter_by_meta={
                     "source": "multi_agent_system.planner",
-                    "memory_scope": "visible-chat-v1",
+                    "memory_scope": "sanitized-execution-v1",
                 },
             )
             assert spaces.items
             space_id = spaces.items[0].id
+            messages = await client.sessions.get_messages(
+                acontext_session_id(thread_id),
+                format="openai",
+            )
+            serialized_messages = str(messages.items)
+            assert "latest_invoice" in serialized_messages
+            assert "customer_id=5" not in serialized_messages
 
             learning = await client.learning_spaces.wait_for_learning(
                 space_id,

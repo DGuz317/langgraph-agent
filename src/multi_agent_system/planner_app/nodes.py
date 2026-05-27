@@ -1,9 +1,11 @@
+import json
 from typing import Any
 
 from multi_agent_system.a2a_client.invoice_client import InvoiceA2AClient
 from multi_agent_system.a2a_client.music_client import MusicA2AClient
 from multi_agent_system.aggregator.agent import AggregatorAgent
 from multi_agent_system.aggregator.schemas import AggregatorInput, AgentResult
+from multi_agent_system.common.execution_evidence import ExecutionEvidence
 from multi_agent_system.planner.agent import PlannerAgent
 from multi_agent_system.planner_app.hitl import interrupt_for_missing_info
 from multi_agent_system.planner_app.state import PlannerAppState
@@ -23,6 +25,7 @@ async def planner_node(state: PlannerAppState) -> dict:
     return {
         "planner_output": output.model_dump(),
         "missing_fields": output.missing_fields,
+        "execution_evidence": _planner_decision_evidence(output.model_dump()),
     }
 
 
@@ -71,6 +74,17 @@ async def missing_info_node(state: PlannerAppState) -> dict:
         **extracted,
         "planner_output": planner_output,
         "missing_fields": [],
+        "execution_evidence": _with_evidence(
+            state,
+            ExecutionEvidence(
+                kind="hitl_resume",
+                agent="planner",
+                operation="required_fields",
+                status="completed",
+                fields=sorted(extracted),
+                summary="Required fields were supplied; values omitted from memory.",
+            ),
+        ),
     }
 
 
@@ -89,6 +103,12 @@ async def invoice_node(state: PlannerAppState) -> dict:
         return {
             "planner_output": planner_output,
             "invoice_result": result,
+            "execution_evidence": _with_evidence(
+                state,
+                _dispatch_evidence(task),
+                *_extract_remote_evidence(result),
+                _agent_result_evidence("invoice", task["intent"], completed=True),
+            ),
         }
 
     except (
@@ -103,6 +123,15 @@ async def invoice_node(state: PlannerAppState) -> dict:
         return {
             "planner_output": planner_output,
             "invoice_result": _failure_result("Invoice", exc),
+            "execution_evidence": _with_evidence(
+                state,
+                *([_dispatch_evidence(task)] if task is not None else []),
+                _agent_result_evidence(
+                    "invoice",
+                    str(task.get("intent", "unknown")) if task is not None else "unknown",
+                    completed=False,
+                ),
+            ),
         }
 
 
@@ -121,6 +150,12 @@ async def music_node(state: PlannerAppState) -> dict:
         return {
             "planner_output": planner_output,
             "music_result": result,
+            "execution_evidence": _with_evidence(
+                state,
+                _dispatch_evidence(task),
+                *_extract_remote_evidence(result),
+                _agent_result_evidence("music", task["intent"], completed=True),
+            ),
         }
 
     except (
@@ -135,6 +170,15 @@ async def music_node(state: PlannerAppState) -> dict:
         return {
             "planner_output": planner_output,
             "music_result": _failure_result("Music", exc),
+            "execution_evidence": _with_evidence(
+                state,
+                *([_dispatch_evidence(task)] if task is not None else []),
+                _agent_result_evidence(
+                    "music",
+                    str(task.get("intent", "unknown")) if task is not None else "unknown",
+                    completed=False,
+                ),
+            ),
         }
 
 
@@ -179,11 +223,31 @@ async def final_response_node(state: PlannerAppState) -> dict:
                     "- Check for song Ligia\n\n"
                     "For vague music requests like 'recommend some songs', "
                     "I will ask whether you want to search by artist or by genre."
-                )
+                ),
+                "execution_evidence": _with_evidence(
+                    state,
+                    ExecutionEvidence(
+                        kind="aggregation",
+                        agent="aggregator",
+                        operation="capabilities",
+                        status="completed",
+                        summary="Returned supported workflow guidance.",
+                    ),
+                ),
             }
 
         return {
-            "final_answer": "I could not complete the request."
+            "final_answer": "I could not complete the request.",
+            "execution_evidence": _with_evidence(
+                state,
+                ExecutionEvidence(
+                    kind="aggregation",
+                    agent="aggregator",
+                    operation="final_response",
+                    status="failed",
+                    summary="No workflow result was available.",
+                ),
+            ),
         }
 
     output = aggregator.invoke(
@@ -194,7 +258,17 @@ async def final_response_node(state: PlannerAppState) -> dict:
     )
 
     return {
-        "final_answer": output.final_answer
+        "final_answer": output.final_answer,
+        "execution_evidence": _with_evidence(
+            state,
+            ExecutionEvidence(
+                kind="aggregation",
+                agent="aggregator",
+                operation="final_response",
+                status="completed",
+                summary="Combined completed workflow results; returned values omitted from memory.",
+            ),
+        ),
     }
 
 
@@ -237,3 +311,95 @@ def _mark_task_failed(task: dict[str, Any] | None) -> None:
 
 def _failure_result(agent_label: str, exc: Exception) -> str:
     return f"{agent_label} task failed: {exc}"
+
+
+def _planner_decision_evidence(planner_output: dict[str, Any]) -> list[dict[str, Any]]:
+    tasks = planner_output.get("tasks", [])
+    if not tasks:
+        return [
+            ExecutionEvidence(
+                kind="planner_decision",
+                agent="planner",
+                operation="no_task",
+                status="completed",
+                summary="Planner found no executable invoice or music workflow.",
+            ).model_dump()
+        ]
+
+    evidence: list[dict[str, Any]] = []
+    for task in tasks:
+        missing_fields = [str(field) for field in task.get("missing_fields", [])]
+        fields = sorted({*task.get("args", {}).keys(), *missing_fields})
+        if missing_fields:
+            summary = "Planner selected a workflow requiring additional fields."
+        else:
+            summary = "Planner selected an executable workflow; values omitted from memory."
+        evidence.append(
+            ExecutionEvidence(
+                kind="planner_decision",
+                agent="planner",
+                operation=str(task.get("intent", "unknown")),
+                status="interrupted" if missing_fields else "completed",
+                fields=fields,
+                summary=summary,
+            ).model_dump()
+        )
+    return evidence
+
+
+def _with_evidence(
+    state: PlannerAppState,
+    *new_evidence: ExecutionEvidence,
+) -> list[dict[str, Any]]:
+    return [
+        *state.get("execution_evidence", []),
+        *(item.model_dump() for item in new_evidence),
+    ]
+
+
+def _dispatch_evidence(task: dict[str, Any]) -> ExecutionEvidence:
+    return ExecutionEvidence(
+        kind="a2a_dispatch",
+        agent=task["agent"],
+        operation=str(task.get("intent", "unknown")),
+        status="started",
+        fields=sorted(str(key) for key in task.get("args", {})),
+        summary="Dispatched domain workflow; supplied values omitted from memory.",
+    )
+
+
+def _agent_result_evidence(
+    agent: str,
+    operation: str,
+    *,
+    completed: bool,
+) -> ExecutionEvidence:
+    return ExecutionEvidence(
+        kind="agent_result",
+        agent=agent,
+        operation=operation,
+        status="completed" if completed else "failed",
+        summary=(
+            "Domain workflow completed; returned values omitted from memory."
+            if completed
+            else "Domain workflow failed; failure details omitted from memory."
+        ),
+    )
+
+
+def _extract_remote_evidence(result: str) -> list[ExecutionEvidence]:
+    try:
+        parsed = json.loads(result)
+    except (TypeError, json.JSONDecodeError):
+        return []
+
+    if not isinstance(parsed, dict):
+        return []
+
+    evidence: list[ExecutionEvidence] = []
+    for value in parsed.get("execution_evidence", []):
+        try:
+            evidence.append(ExecutionEvidence.model_validate(value))
+        except ValueError:
+            continue
+    return evidence

@@ -9,6 +9,7 @@ from multi_agent_system.a2a_servers.invoice_agent.schemas import (
     InvoiceAgentResponse,
     InvoiceTaskPayload,
 )
+from multi_agent_system.common.execution_evidence import collect_execution_evidence
 
 
 class InvoiceAgentExecutor(AgentExecutor):
@@ -22,18 +23,23 @@ class InvoiceAgentExecutor(AgentExecutor):
     ) -> None:
         data_parts = get_data_parts(context.message.parts) if context.message else []
 
-        if data_parts:
-            try:
-                payload = InvoiceTaskPayload.model_validate(data_parts[0])
-            except ValidationError:
-                result = InvoiceAgentResponse(
-                    success=False,
-                    content="Invalid structured invoice request.",
-                )
+        with collect_execution_evidence() as evidence:
+            if data_parts:
+                try:
+                    payload = InvoiceTaskPayload.model_validate(data_parts[0])
+                except ValidationError:
+                    result = InvoiceAgentResponse(
+                        success=False,
+                        content="Invalid structured invoice request.",
+                    )
+                else:
+                    result = await self.agent.invoke_request(payload.to_request())
             else:
-                result = await self.agent.invoke_request(payload.to_request())
-        else:
-            result = await self.agent.ainvoke(context.get_user_input())
+                result = await self.agent.ainvoke(context.get_user_input())
+
+        result = result.model_copy(
+            update={"execution_evidence": [*result.execution_evidence, *evidence]}
+        )
 
         await event_queue.enqueue_event(
             new_text_message(

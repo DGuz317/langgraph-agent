@@ -1,16 +1,16 @@
 # Graph Report - langgraph-agent  (2026-05-27)
 
 ## Corpus Check
-- 97 files · ~28,692 words
+- 98 files · ~30,558 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2157 nodes · 3303 edges · 103 communities (90 shown, 13 thin omitted)
-- Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 340 edges (avg confidence: 0.79)
+- 2192 nodes · 3410 edges · 103 communities (90 shown, 13 thin omitted)
+- Extraction: 89% EXTRACTED · 11% INFERRED · 0% AMBIGUOUS · INFERRED: 378 edges (avg confidence: 0.78)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `24d3182a`
+- Built from commit: `54226737`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -89,12 +89,12 @@
 2. `get()` - 37 edges
 3. `InvoiceAgent` - 30 edges
 4. `fetch()` - 29 edges
-5. `MusicAgent` - 27 edges
-6. `debug()` - 27 edges
-7. `getSandbox()` - 26 edges
-8. `now()` - 25 edges
-9. `ensureDefaultSession()` - 25 edges
-10. `_call_tool()` - 24 edges
+5. `PlannerServiceResponse` - 27 edges
+6. `ExecutionEvidence` - 27 edges
+7. `MusicAgent` - 27 edges
+8. `debug()` - 27 edges
+9. `getSandbox()` - 26 edges
+10. `now()` - 25 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Graphify PreToolUse Hook Check` --implements--> `Graphify Workflow`  [INFERRED]
@@ -127,16 +127,16 @@
 ## Communities (103 total, 13 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.08
-Nodes (28): command(), create_app(), PlannerServiceProtocol, _extract_final_answer(), _extract_interrupt_message(), _has_interrupt(), PlannerService, Return result as-is when possible.      Kept as a helper so future API layers ca (+20 more)
+Cohesion: 0.07
+Nodes (33): command(), PlannerInteractionCapture, Store one planner interaction., Store one user-visible planner interaction., Store one user-visible planner interaction., create_app(), PlannerServiceProtocol, _extract_final_answer() (+25 more)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.05
 Nodes (36): Domain Boundary Rule, A2A Endpoint Settings, Model Provider Configuration, Settings, SQLITE_DB Configuration, InvoiceA2AClient, InvoiceAgent, InvoiceAgent.ainvoke() (+28 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.12
-Nodes (17): MCPToolError, MultiAgentSystemError, Raised when an MCP tool call fails., Base error for application-level failures., MCPToolAgent, Base class for agents that call tools exposed by the MCP server., RuntimeError, FakeClient (+9 more)
+Cohesion: 0.09
+Nodes (26): MCPToolError, MultiAgentSystemError, Raised when an MCP tool call fails., Base error for application-level failures., collect_execution_evidence(), Collect evidence for one request without leaking across concurrent tasks., Append evidence when a collection scope is active., record_execution_evidence() (+18 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.09
@@ -148,19 +148,19 @@ Nodes (38): assert(), binding(), cleanup(), cpuUsage(), createNotImplementedErro
 
 ### Community 5 - "Community 5"
 Cohesion: 0.05
-Nodes (40): get_llm(), type(), _user_input_must_not_be_blank(), PlannerAgent, _has_arg_value(), _instruction_must_not_be_blank(), PlannedTask, PlannerOutput (+32 more)
+Nodes (41): get_llm(), PlannerInvokeRequest, API request for invoking or resuming the planner., _user_input_must_not_be_blank(), PlannerAgent, _has_arg_value(), _instruction_must_not_be_blank(), PlannedTask (+33 more)
 
 ### Community 6 - "Community 6"
 Cohesion: 0.07
-Nodes (11): InvoiceAgent, InvoiceRequest, InvoiceAgentResponse, InvoiceRequest, InvoiceTaskPayload, MCPToolAgent, test_invoice_agent_does_not_treat_invoice_id_as_customer_id(), test_invoice_agent_missing_customer_id_fails_validation() (+3 more)
+Nodes (8): InvoiceAgent, InvoiceRequest, InvoiceAgentResponse, test_invoice_agent_does_not_treat_invoice_id_as_customer_id(), test_invoice_agent_missing_customer_id_fails_validation(), test_invoice_agent_missing_invoice_id_fails_validation(), test_invoice_agent_parse_request(), test_invoice_agent_parses_invoice_detail_by_invoice_id()
 
 ### Community 7 - "Community 7"
-Cohesion: 0.07
-Nodes (28): AggregatorAgent, AgentResult, AggregatorInput, AggregatorOutput, BaseModel, MusicAgent, MusicRequest, MusicAgentResponse (+20 more)
+Cohesion: 0.06
+Nodes (53): AggregatorAgent, AgentResult, AggregatorInput, AggregatorOutput, BaseModel, ExecutionEvidence, Sanitized workflow evidence eligible for long-lived memory storage., InvoiceRequest (+45 more)
 
 ### Community 8 - "Community 8"
 Cohesion: 0.13
-Nodes (24): _attach_a2a_payload(), _copy_planner_output(), _failure_result(), _get_next_task_for_agent(), invoice_node(), _mark_task_failed(), missing_info_node(), music_node() (+16 more)
+Nodes (9): MCPToolAgent, MusicAgent, MusicRequest, MusicAgentResponse, test_music_agent_missing_artist_fails_validation(), test_music_agent_parses_artist_requests(), test_music_agent_parses_genre_requests(), test_music_agent_parses_song_check_requests() (+1 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.00
@@ -176,7 +176,7 @@ Nodes (17): dependencies, @cloudflare/sandbox, description, devDependencies, @cl
 
 ### Community 12 - "Community 12"
 Cohesion: 0.10
-Nodes (19): AgentExecutor, load_agent_card(), Invoice Agent Card, InvoiceAgentExecutor, create_app(), main(), Music Agent Card, MusicAgentExecutor (+11 more)
+Nodes (20): AgentExecutor, load_agent_card(), Invoice Agent Card, InvoiceAgentExecutor, create_app(), main(), Music Agent Card, MusicAgentExecutor (+12 more)
 
 ### Community 13 - "Community 13"
 Cohesion: 0.12
@@ -236,15 +236,15 @@ Nodes (4): MCP Database Provider, Invoice MCP Tool Family, Music MCP Tool Family
 
 ### Community 73 - "Community 73"
 Cohesion: 0.05
-Nodes (40): acontext_session_id(), AcontextCapture, build_acontext_capture(), _ensure_learning_session(), _ensure_session(), PlannerInteractionCapture, Map existing planner thread identifiers into stable Acontext UUIDs., Build capture only when explicitly enabled and configured. (+32 more)
+Nodes (50): acontext_session_id(), AcontextCapture, build_acontext_capture(), _ensure_learning_session(), _ensure_session(), _extract_execution_evidence(), _field_names(), _interaction_evidence() (+42 more)
 
 ### Community 74 - "Community 74"
 Cohesion: 0.07
 Nodes (31): code:text (User input), code:bash (uv run pytest tests -q), code:bash (uv run pytest tests/test_invoice_agent_parsing.py tests/test), code:bash (RUN_INVOICE_SUPPORT_INTEGRATION_TESTS=1 uv run pytest tests/), code:text (Get all invoices for customer_id=5), code:json ({), code:text (invoice -> music -> final_response), code:text (invoice -\) (+23 more)
 
 ### Community 75 - "Community 75"
-Cohesion: 0.09
-Nodes (39): buildLogData(), buildMessage(), checkVersionCompatibility(), createErrorFromResponse(), debug(), emitWarning(), error(), getVersion() (+31 more)
+Cohesion: 0.07
+Nodes (47): addEventListener(), buildLogData(), buildMessage(), checkVersionCompatibility(), child(), connectViaFetch(), connectViaWebSocket(), containerPathToR2Key() (+39 more)
 
 ### Community 76 - "Community 76"
 Cohesion: 0.05
@@ -255,20 +255,20 @@ Cohesion: 0.22
 Nodes (8): Architecture Notes, Commands, Graphify, graphify, Repository Instructions, Runtime Flow, Stack And Setup, Workflow
 
 ### Community 78 - "Community 78"
-Cohesion: 0.05
-Nodes (58): base64ToUint8Array(), checkout(), click(), containerPathToR2Key(), createProcessFromDTO(), createSession(), deleteFile(), doubleClick() (+50 more)
+Cohesion: 0.06
+Nodes (43): base64ToUint8Array(), checkout(), click(), createProcessFromDTO(), createSession(), doubleClick(), drag(), ensureBackupSession() (+35 more)
 
 ### Community 79 - "Community 79"
 Cohesion: 0.08
-Nodes (32): checkAuth(), constructPreviewUrl(), determinePort(), exposePort(), fetch(), fromHeaders(), generatePortToken(), get() (+24 more)
+Nodes (37): checkAuth(), constructPreviewUrl(), createErrorFromResponse(), determinePort(), exec(), exposePort(), fetch(), fromHeaders() (+29 more)
 
 ### Community 80 - "Community 80"
-Cohesion: 0.08
-Nodes (36): abort(), addTimeoutSignal(), alarm(), containerFetch(), deleteSchedules(), generateId(), getEntriesByName(), getPortsToCheck() (+28 more)
+Cohesion: 0.10
+Nodes (27): alarm(), callOnStop(), deleteSchedules(), generateId(), getEntriesByName(), getSchedule(), getState(), isActivityExpired() (+19 more)
 
 ### Community 81 - "Community 81"
-Cohesion: 0.13
-Nodes (26): buildSandboxConfiguration(), exec(), getSandbox(), handleCreateSandbox(), handleExecCommand(), handleGetSandbox(), handleUpdateSandbox(), hasSandboxConfiguration() (+18 more)
+Cohesion: 0.15
+Nodes (21): buildSandboxConfiguration(), getSandbox(), hasSandboxConfiguration(), mergeSandboxConfiguration(), sameContainerTimeouts(), sanitizeSandboxId(), checkAuth(), CreateSandboxRequest (+13 more)
 
 ### Community 82 - "Community 82"
 Cohesion: 0.15
@@ -295,8 +295,8 @@ Cohesion: 0.40
 Nodes (5): Authentication Errors, code:bash (npx wrangler tail), Connection Refused (Local Dev), Container Not Ready, Troubleshooting
 
 ### Community 89 - "Community 89"
-Cohesion: 0.14
-Nodes (24): buildS3fsSource(), callOnStop(), createPasswordFile(), delete(), deletePasswordFile(), destroy(), detectCredentials(), detectProviderFromUrl() (+16 more)
+Cohesion: 0.13
+Nodes (25): buildS3fsSource(), createPasswordFile(), delete(), deletePasswordFile(), destroy(), detectCredentials(), detectProviderFromUrl(), execInternal() (+17 more)
 
 ### Community 90 - "Community 90"
 Cohesion: 0.50
@@ -315,12 +315,12 @@ Cohesion: 0.67
 Nodes (3): code:bash (POST /sandbox/create), code:json ({), Create Sandbox
 
 ### Community 94 - "Community 94"
-Cohesion: 0.11
-Nodes (26): createArchive(), createBackup(), deleteSession(), doCreateBackup(), doRestoreBackup(), downloadBackupPresigned(), enqueueBackupOp(), execStream() (+18 more)
+Cohesion: 0.13
+Nodes (26): authHeader(), buf2hex(), canonicalString(), createArchive(), createBackup(), deleteSession(), doCreateBackup(), doRestoreBackup() (+18 more)
 
 ### Community 95 - "Community 95"
-Cohesion: 0.09
-Nodes (25): addEventListener(), buildStreamOptions(), buildUrl(), connect(), connectViaFetch(), connectViaWebSocket(), doConnect(), doFetch() (+17 more)
+Cohesion: 0.08
+Nodes (30): buildStreamOptions(), buildUrl(), connect(), containerFetch(), doFetch(), doStreamFetch(), fetchStream(), generateRequestId() (+22 more)
 
 ### Community 96 - "Community 96"
 Cohesion: 0.27
@@ -335,16 +335,16 @@ Cohesion: 0.25
 Nodes (6): __Facade_ScheduledController__, wrapExportedHandler(), wrapWorkerEntrypoint(), __facade_register__(), wrapExportedHandler(), wrapWorkerEntrypoint()
 
 ### Community 99 - "Community 99"
-Cohesion: 0.36
-Nodes (9): authHeader(), buf2hex(), canonicalString(), hash(), hexBodyHash(), hmac(), sign(), signature() (+1 more)
+Cohesion: 0.12
+Nodes (20): abort(), addTimeoutSignal(), execStream(), execStreamWithSession(), execute(), executeStream(), executeWithStreaming(), getPortsToCheck() (+12 more)
 
 ### Community 100 - "Community 100"
 Cohesion: 0.25
 Nodes (8): conditionToString(), createReadyTimeoutError(), getProcessLogs(), matchPattern(), startProcessCallbackStream(), streamProcessLogs(), waitForLogPattern(), waitForProcessExit()
 
 ### Community 101 - "Community 101"
-Cohesion: 0.18
-Nodes (14): bind(), child(), constructor(), createLogger(), createNoOpLogger(), createTransport(), encodeRfc3986(), generate() (+6 more)
+Cohesion: 0.19
+Nodes (13): bind(), constructor(), createLogger(), createNoOpLogger(), createTransport(), encodeRfc3986(), generate(), getDefaultTimeouts() (+5 more)
 
 ## Knowledge Gaps
 - **833 isolated node(s):** `PreToolUse`, `name`, `description`, `supportedInterfaces`, `version` (+828 more)
@@ -354,17 +354,17 @@ Nodes (14): bind(), child(), constructor(), createLogger(), createNoOpLogger(), 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `build_async_checkpointer_context()` connect `Community 18` to `Community 2`, `Community 5`?**
-  _High betweenness centrality (0.047) - this node is a cross-community bridge._
-- **Why does `type()` connect `Community 5` to `Community 2`, `Community 4`, `Community 78`?**
-  _High betweenness centrality (0.046) - this node is a cross-community bridge._
-- **Why does `PlannerServiceResponse` connect `Community 73` to `Community 0`, `Community 5`, `Community 7`?**
-  _High betweenness centrality (0.043) - this node is a cross-community bridge._
+- **Why does `ExecutionEvidence` connect `Community 7` to `Community 0`, `Community 2`, `Community 6`, `Community 8`, `Community 73`, `Community 12`?**
+  _High betweenness centrality (0.055) - this node is a cross-community bridge._
+- **Why does `type()` connect `Community 2` to `Community 4`, `Community 5`, `Community 78`?**
+  _High betweenness centrality (0.051) - this node is a cross-community bridge._
+- **Why does `MCPToolAgent` connect `Community 2` to `Community 8`, `Community 6`, `Community 7`?**
+  _High betweenness centrality (0.039) - this node is a cross-community bridge._
 - **Are the 7 inferred relationships involving `InvoiceAgent` (e.g. with `MCPToolAgent` and `test_invoice_agent_parse_request()`) actually correct?**
   _`InvoiceAgent` has 7 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 7 inferred relationships involving `MusicAgent` (e.g. with `MCPToolAgent` and `test_music_agent_parses_artist_requests()`) actually correct?**
-  _`MusicAgent` has 7 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 24 inferred relationships involving `PlannerServiceResponse` (e.g. with `FakePlannerService` and `FakeSessions`) actually correct?**
+  _`PlannerServiceResponse` has 24 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `Normalize FastMCP CallToolResult output into plain Python values.      FastMCP c`, `PreToolUse`, `Raised when a planner task cannot be converted into an executable instruction.` to the rest of the system?**
-  _873 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _881 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.08170731707317073 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06845513413506013 - nodes in this community are weakly interconnected._

@@ -7,6 +7,7 @@ class PlannerAppState(TypedDict, total=False):
 
     planner_output: dict[str, Any]
     missing_fields: list[str]
+    execution_evidence: list[dict[str, Any]]
 
     customer_id: str | None
     invoice_id: str | None

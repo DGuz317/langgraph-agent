@@ -64,6 +64,26 @@ async def test_invoice_node_rebuilds_instruction_from_args(
     }
     assert captured["payload"] == result["planner_output"]["tasks"][0]["a2a_payload"]
     assert result["planner_output"]["tasks"][0]["status"] == "completed"
+    assert result["execution_evidence"] == [
+        {
+            "kind": "a2a_dispatch",
+            "agent": "invoice",
+            "operation": "latest_invoice",
+            "status": "started",
+            "call_id": None,
+            "fields": ["customer_id"],
+            "summary": "Dispatched domain workflow; supplied values omitted from memory.",
+        },
+        {
+            "kind": "agent_result",
+            "agent": "invoice",
+            "operation": "latest_invoice",
+            "status": "completed",
+            "call_id": None,
+            "fields": [],
+            "summary": "Domain workflow completed; returned values omitted from memory.",
+        },
+    ]
 
 
 @pytest.mark.anyio
@@ -542,3 +562,57 @@ async def test_node_instruction_rebuild_does_not_mutate_original_state(
     assert original_task["instruction"] == "stale instruction should remain in original state"
     assert original_task["status"] == "not_started"
     assert result["planner_output"]["tasks"][0]["status"] == "completed"
+
+
+@pytest.mark.anyio
+async def test_invoice_node_merges_sanitized_remote_tool_evidence(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class FakeInvoiceClient:
+        async def ask_payload(self, payload: dict) -> str:
+            return """
+            {
+              "success": true,
+              "content": "ok",
+              "data": {},
+              "execution_evidence": [
+                {
+                  "kind": "mcp_tool_result",
+                  "agent": "invoice",
+                  "operation": "get_invoice_summary_by_customer",
+                  "status": "completed",
+                  "call_id": "call-1",
+                  "fields": [],
+                  "summary": "Tool completed; returned values omitted from memory."
+                }
+              ]
+            }
+            """
+
+    monkeypatch.setattr(
+        "multi_agent_system.planner_app.nodes.InvoiceA2AClient",
+        FakeInvoiceClient,
+    )
+    state = {
+        "user_input": "Show total invoice spending for customer_id=5",
+        "planner_output": {
+            "tasks": [
+                {
+                    "agent": "invoice",
+                    "intent": "invoice_summary",
+                    "args": {"customer_id": "5"},
+                    "status": "not_started",
+                }
+            ]
+        },
+    }
+
+    result = await invoice_node(state)
+
+    remote = [
+        item
+        for item in result["execution_evidence"]
+        if item["kind"] == "mcp_tool_result"
+    ]
+    assert remote[0]["operation"] == "get_invoice_summary_by_customer"
+    assert "customer_id=5" not in remote[0]["summary"]

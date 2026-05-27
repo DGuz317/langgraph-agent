@@ -12,7 +12,7 @@ The current implementation is past the initial demo stage. It has a tested plann
 User input
 -> Planner CLI or POST /planner/invoke
 -> PlannerService
--> optional Acontext visible-chat capture and skill learning
+-> optional Acontext sanitized execution-evidence capture and skill learning
 -> PlannerAgent structured PlannerOutput
 -> LangGraph planner_app
 -> optional HITL interrupt/resume
@@ -44,7 +44,7 @@ Completed:
 - Planner retries invalid structured LLM output once before returning a safe failed output.
 - Planner structured LLM initialization is lazy for easier unit testing.
 - `PlannerService` wraps graph invocation, thread ids, HITL resume, interrupt extraction, and final-answer extraction.
-- Optional Acontext capture records user-visible planner turns in a shared learning space and flushes terminal sessions for skill generation.
+- Optional Acontext capture records sanitized workflow decisions, domain dispatch, and MCP outcome summaries in a shared learning space and flushes terminal sessions for skill generation.
 - `scripts/run_planner.py` uses `PlannerService` and configurable memory or SQLite checkpointing.
 - `src/multi_agent_system/orchestrator/server.py` exposes `POST /planner/invoke`.
 - Graph nodes rebuild execution instructions from structured `task["args"]`, not stale planner instruction text.
@@ -113,11 +113,15 @@ curl -fsS http://localhost:8029/health
 ```
 
 Set `ACONTEXT_ENABLED=true`, `ACONTEXT_API_KEY`, and
-`ACONTEXT_BASE_URL=http://localhost:8029/api/v1` to capture planner-visible
-conversation turns. The current memory phase generates reviewable skills; it
-does not yet inject those skills back into planning. The local learning setup
-uses an Ollama container reachable by the Acontext containers; for slow local
-models, set `ACONTEXT_TIMEOUT=1000` so terminal flush processing can finish.
+`ACONTEXT_BASE_URL=http://localhost:8029/api/v1` to capture sanitized planner
+workflow evidence. Captured memory excludes raw user-entered values and
+invoice/music result payloads. The current memory phase generates reviewable
+skills; it does not yet inject those skills back into planning. The local
+learning setup uses an Ollama container reachable by the Acontext containers;
+for slow local models, set `ACONTEXT_TIMEOUT=1000` so terminal flush
+processing can finish. Sanitized capture writes to the new
+`sanitized-execution-v1` memory scope rather than reusing prior raw
+`visible-chat-v1` learning sessions.
 
 Invoke the planner API:
 

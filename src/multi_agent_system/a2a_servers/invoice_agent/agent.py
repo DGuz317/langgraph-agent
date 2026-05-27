@@ -9,6 +9,8 @@ from multi_agent_system.common.mcp_tool_agent import MCPToolAgent
 
 
 class InvoiceAgent(MCPToolAgent):
+    evidence_agent = "invoice"
+
     async def ainvoke(self, query: str) -> InvoiceAgentResponse:
         return await self.invoke_request(self._parse_request(query))
 

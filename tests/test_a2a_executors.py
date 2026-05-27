@@ -13,6 +13,10 @@ from multi_agent_system.a2a_servers.invoice_agent.schemas import InvoiceAgentRes
 from multi_agent_system.a2a_servers.music_agent.executor import MusicAgentExecutor
 from multi_agent_system.a2a_servers.music_agent.schemas import MusicAgentResponse
 from multi_agent_system.a2a_client.base import BaseA2AClient
+from multi_agent_system.common.execution_evidence import (
+    ExecutionEvidence,
+    record_execution_evidence,
+)
 
 
 class FakeContext:
@@ -67,6 +71,43 @@ async def test_invoice_executor_prefers_structured_request_data() -> None:
     assert captured["request"].intent == "all_invoices"
     assert captured["request"].customer_id == "5"
     assert json.loads(get_message_text(queue.events[0]))["content"] == "structured invoice"
+
+
+@pytest.mark.anyio
+async def test_invoice_executor_returns_collected_sanitized_evidence() -> None:
+    class FakeInvoiceAgent:
+        async def invoke_request(self, request):
+            record_execution_evidence(
+                ExecutionEvidence(
+                    kind="mcp_tool_result",
+                    agent="invoice",
+                    operation="get_invoice_summary_by_customer",
+                    status="completed",
+                    summary="Tool completed; returned values omitted from memory.",
+                )
+            )
+            return InvoiceAgentResponse(success=True, content="structured invoice")
+
+    executor = InvoiceAgentExecutor()
+    executor.agent = FakeInvoiceAgent()
+    queue = FakeEventQueue()
+    await executor.execute(
+        FakeContext(
+            new_data_message(
+                {
+                    "agent": "invoice",
+                    "intent": "invoice_summary",
+                    "args": {"customer_id": "5"},
+                },
+                role=Role.ROLE_USER,
+            )
+        ),
+        queue,
+    )
+
+    result = json.loads(get_message_text(queue.events[0]))
+    assert result["execution_evidence"][0]["operation"] == "get_invoice_summary_by_customer"
+    assert "customer_id=5" not in result["execution_evidence"][0]["summary"]
 
 
 @pytest.mark.anyio

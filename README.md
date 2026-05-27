@@ -261,15 +261,21 @@ reachable at that address, then set `LLM_BASE_URL` and
 `wrangler dev --ip 0.0.0.0 --port 8788`. Also ensure Acontext's
 `config.yaml` mount refers to a file, not a directory.
 
-When `ACONTEXT_ENABLED=true`, `PlannerService` stores visible user and
-assistant turns only, reuses a single learning space, and submits completed or
-failed sessions for skill generation. V1 does not inject learned skills back
-into planner routing or domain results. For a self-hosted local server, set the
-application `ACONTEXT_API_KEY` to `sk-ac-` followed by the
+When `ACONTEXT_ENABLED=true`, `PlannerService` stores sanitized workflow
+evidence for planning decisions, HITL field requests, domain dispatches, and
+MCP tool outcomes. It omits user-entered values and returned invoice/music
+records from Acontext memory, reuses a single learning space, and submits
+completed or failed sessions for skill generation. V1 does not inject learned
+skills back into planner routing or domain results. For a self-hosted local
+server, set the application `ACONTEXT_API_KEY` to `sk-ac-` followed by the
 `ROOT_API_BEARER_TOKEN` value in the ignored Acontext server `.env`. Keep
 `ACONTEXT_TIMEOUT` at or above the local model's worst-case response time;
 the Dockerized `gpt-oss` setup uses `1000` seconds for both application and
 Acontext Core timeouts.
+
+Sanitized capture uses a new `sanitized-execution-v1` memory scope and session
+identifier mapping. Existing `visible-chat-v1` sessions or skills created by
+raw transcript capture are not reused for new learning.
 
 ### 1. Start MCP server
 

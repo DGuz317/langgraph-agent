@@ -37,6 +37,8 @@ KNOWN_GENRES = (
 
 
 class MusicAgent(MCPToolAgent):
+    evidence_agent = "music"
+
     async def ainvoke(self, query: str) -> MusicAgentResponse:
         return await self.invoke_request(self._parse_request(query))
 
