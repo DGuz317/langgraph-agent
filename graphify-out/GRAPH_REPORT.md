@@ -1,16 +1,16 @@
-# Graph Report - langgraph-agent  (2026-05-26)
+# Graph Report - langgraph-agent  (2026-05-27)
 
 ## Corpus Check
-- 104 files · ~108,747 words
+- 97 files · ~28,692 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2156 nodes · 3302 edges · 103 communities (90 shown, 13 thin omitted)
+- 2157 nodes · 3303 edges · 103 communities (90 shown, 13 thin omitted)
 - Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 340 edges (avg confidence: 0.79)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f4543d6e`
+- Built from commit: `24d3182a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -89,8 +89,8 @@
 2. `get()` - 37 edges
 3. `InvoiceAgent` - 30 edges
 4. `fetch()` - 29 edges
-5. `debug()` - 27 edges
-6. `MusicAgent` - 27 edges
+5. `MusicAgent` - 27 edges
+6. `debug()` - 27 edges
 7. `getSandbox()` - 26 edges
 8. `now()` - 25 edges
 9. `ensureDefaultSession()` - 25 edges
@@ -135,8 +135,8 @@ Cohesion: 0.05
 Nodes (36): Domain Boundary Rule, A2A Endpoint Settings, Model Provider Configuration, Settings, SQLITE_DB Configuration, InvoiceA2AClient, InvoiceAgent, InvoiceAgent.ainvoke() (+28 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.06
-Nodes (31): BaseA2AClient, Send structured task data while retaining text compatibility., MusicA2AClient, BaseA2AClient, A2AClientError, MCPToolError, MultiAgentSystemError, Raised when an MCP tool call fails. (+23 more)
+Cohesion: 0.12
+Nodes (17): MCPToolError, MultiAgentSystemError, Raised when an MCP tool call fails., Base error for application-level failures., MCPToolAgent, Base class for agents that call tools exposed by the MCP server., RuntimeError, FakeClient (+9 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.09
@@ -155,7 +155,7 @@ Cohesion: 0.07
 Nodes (11): InvoiceAgent, InvoiceRequest, InvoiceAgentResponse, InvoiceRequest, InvoiceTaskPayload, MCPToolAgent, test_invoice_agent_does_not_treat_invoice_id_as_customer_id(), test_invoice_agent_missing_customer_id_fails_validation() (+3 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.06
+Cohesion: 0.07
 Nodes (28): AggregatorAgent, AgentResult, AggregatorInput, AggregatorOutput, BaseModel, MusicAgent, MusicRequest, MusicAgentResponse (+20 more)
 
 ### Community 8 - "Community 8"
@@ -235,7 +235,7 @@ Cohesion: 0.67
 Nodes (4): MCP Database Provider, Invoice MCP Tool Family, Music MCP Tool Family, MCP Server Assembly
 
 ### Community 73 - "Community 73"
-Cohesion: 0.06
+Cohesion: 0.05
 Nodes (40): acontext_session_id(), AcontextCapture, build_acontext_capture(), _ensure_learning_session(), _ensure_session(), PlannerInteractionCapture, Map existing planner thread identifiers into stable Acontext UUIDs., Build capture only when explicitly enabled and configured. (+32 more)
 
 ### Community 74 - "Community 74"
@@ -243,8 +243,8 @@ Cohesion: 0.07
 Nodes (31): code:text (User input), code:bash (uv run pytest tests -q), code:bash (uv run pytest tests/test_invoice_agent_parsing.py tests/test), code:bash (RUN_INVOICE_SUPPORT_INTEGRATION_TESTS=1 uv run pytest tests/), code:text (Get all invoices for customer_id=5), code:json ({), code:text (invoice -> music -> final_response), code:text (invoice -\) (+23 more)
 
 ### Community 75 - "Community 75"
-Cohesion: 0.08
-Nodes (44): buildLogData(), buildMessage(), checkVersionCompatibility(), debug(), deleteFile(), emitWarning(), error(), fullSyncR2ToContainer() (+36 more)
+Cohesion: 0.09
+Nodes (39): buildLogData(), buildMessage(), checkVersionCompatibility(), createErrorFromResponse(), debug(), emitWarning(), error(), getVersion() (+31 more)
 
 ### Community 76 - "Community 76"
 Cohesion: 0.05
@@ -255,28 +255,28 @@ Cohesion: 0.22
 Nodes (8): Architecture Notes, Commands, Graphify, graphify, Repository Instructions, Runtime Flow, Stack And Setup, Workflow
 
 ### Community 78 - "Community 78"
-Cohesion: 0.07
-Nodes (41): base64ToUint8Array(), checkout(), click(), createProcessFromDTO(), createSession(), doubleClick(), drag(), ensureBackupSession() (+33 more)
+Cohesion: 0.05
+Nodes (58): base64ToUint8Array(), checkout(), click(), containerPathToR2Key(), createProcessFromDTO(), createSession(), deleteFile(), doubleClick() (+50 more)
 
 ### Community 79 - "Community 79"
 Cohesion: 0.08
-Nodes (39): checkAuth(), constructPreviewUrl(), createErrorFromResponse(), determinePort(), exec(), exposePort(), fetch(), fromHeaders() (+31 more)
+Nodes (32): checkAuth(), constructPreviewUrl(), determinePort(), exposePort(), fetch(), fromHeaders(), generatePortToken(), get() (+24 more)
 
 ### Community 80 - "Community 80"
 Cohesion: 0.08
-Nodes (37): abort(), addTimeoutSignal(), alarm(), containerFetch(), deleteSchedules(), generateId(), getEntriesByName(), getPortsToCheck() (+29 more)
+Nodes (36): abort(), addTimeoutSignal(), alarm(), containerFetch(), deleteSchedules(), generateId(), getEntriesByName(), getPortsToCheck() (+28 more)
 
 ### Community 81 - "Community 81"
 Cohesion: 0.13
-Nodes (25): buildSandboxConfiguration(), createLogger(), generate(), getEnvVar(), getLogLevelFromEnv(), getOutputMode(), getSandbox(), hasSandboxConfiguration() (+17 more)
+Nodes (26): buildSandboxConfiguration(), exec(), getSandbox(), handleCreateSandbox(), handleExecCommand(), handleGetSandbox(), handleUpdateSandbox(), hasSandboxConfiguration() (+18 more)
 
 ### Community 82 - "Community 82"
 Cohesion: 0.15
 Nodes (13): API Endpoints, code:bash (POST /sandbox/{sandbox_id}/exec), code:json ({), code:bash (POST /sandbox/{sandbox_id}/kill), code:json ({), code:bash (GET /sandbox/{sandbox_id}), code:json ({), code:bash (POST /sandbox/{sandbox_id}/update) (+5 more)
 
 ### Community 84 - "Community 84"
-Cohesion: 0.19
-Nodes (10): InvoiceA2AClient, _assert_support_employee(), _response_data(), test_invoice_a2a_all_invoices_include_support_employee(), test_invoice_a2a_detail_includes_support_employee(), test_invoice_a2a_latest_invoice_includes_support_employee(), test_invoice_a2a_returns_direct_customer_support_employee_without_invoice_rows(), test_invoice_a2a_returns_support_employee_for_latest_invoice() (+2 more)
+Cohesion: 0.07
+Nodes (24): BaseA2AClient, Send structured task data while retaining text compatibility., InvoiceA2AClient, MusicA2AClient, BaseA2AClient, A2AClientError, Raised when an A2A service request fails., StubA2AClient (+16 more)
 
 ### Community 85 - "Community 85"
 Cohesion: 0.17
@@ -295,8 +295,8 @@ Cohesion: 0.40
 Nodes (5): Authentication Errors, code:bash (npx wrangler tail), Connection Refused (Local Dev), Container Not Ready, Troubleshooting
 
 ### Community 89 - "Community 89"
-Cohesion: 0.12
-Nodes (27): buildS3fsSource(), callOnStop(), createPasswordFile(), delete(), deletePasswordFile(), destroy(), detectCredentials(), detectProviderFromUrl() (+19 more)
+Cohesion: 0.14
+Nodes (24): buildS3fsSource(), callOnStop(), createPasswordFile(), delete(), deletePasswordFile(), destroy(), detectCredentials(), detectProviderFromUrl() (+16 more)
 
 ### Community 90 - "Community 90"
 Cohesion: 0.50
@@ -323,8 +323,8 @@ Cohesion: 0.09
 Nodes (25): addEventListener(), buildStreamOptions(), buildUrl(), connect(), connectViaFetch(), connectViaWebSocket(), doConnect(), doFetch() (+17 more)
 
 ### Community 96 - "Community 96"
-Cohesion: 0.13
-Nodes (20): applySandboxConfiguration(), bind(), child(), computeRetryTimeoutMs(), configure(), constructor(), createNoOpLogger(), createSandboxClient() (+12 more)
+Cohesion: 0.27
+Nodes (11): applySandboxConfiguration(), computeRetryTimeoutMs(), configure(), createSandboxClient(), setBaseUrl(), setContainerTimeouts(), setKeepAlive(), setRetryTimeoutMs() (+3 more)
 
 ### Community 97 - "Community 97"
 Cohesion: 0.20
@@ -343,28 +343,28 @@ Cohesion: 0.25
 Nodes (8): conditionToString(), createReadyTimeoutError(), getProcessLogs(), matchPattern(), startProcessCallbackStream(), streamProcessLogs(), waitForLogPattern(), waitForProcessExit()
 
 ### Community 101 - "Community 101"
-Cohesion: 0.29
-Nodes (7): containerPathToR2Key(), parseSSEFrames(), runContainerWatchLoop(), runWatchWithRetry(), startContainerWatch(), waitForReadiness(), watch()
+Cohesion: 0.18
+Nodes (14): bind(), child(), constructor(), createLogger(), createNoOpLogger(), createTransport(), encodeRfc3986(), generate() (+6 more)
 
 ## Knowledge Gaps
-- **833 isolated node(s):** `GlobalProps`, `Env`, `DOMException`, `WorkerGlobalScopeEventMap`, `Console` (+828 more)
+- **833 isolated node(s):** `PreToolUse`, `name`, `description`, `supportedInterfaces`, `version` (+828 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `PlannerServiceResponse` connect `Community 73` to `Community 0`, `Community 5`, `Community 7`?**
-  _High betweenness centrality (0.048) - this node is a cross-community bridge._
-- **Why does `type()` connect `Community 5` to `Community 2`, `Community 4`, `Community 78`?**
+- **Why does `build_async_checkpointer_context()` connect `Community 18` to `Community 2`, `Community 5`?**
   _High betweenness centrality (0.047) - this node is a cross-community bridge._
-- **Why does `MCPToolAgent` connect `Community 2` to `Community 6`, `Community 7`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+- **Why does `type()` connect `Community 5` to `Community 2`, `Community 4`, `Community 78`?**
+  _High betweenness centrality (0.046) - this node is a cross-community bridge._
+- **Why does `PlannerServiceResponse` connect `Community 73` to `Community 0`, `Community 5`, `Community 7`?**
+  _High betweenness centrality (0.043) - this node is a cross-community bridge._
 - **Are the 7 inferred relationships involving `InvoiceAgent` (e.g. with `MCPToolAgent` and `test_invoice_agent_parse_request()`) actually correct?**
   _`InvoiceAgent` has 7 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `Normalize FastMCP CallToolResult output into plain Python values.      FastMCP c`, `GlobalProps`, `Env` to the rest of the system?**
+- **Are the 7 inferred relationships involving `MusicAgent` (e.g. with `MCPToolAgent` and `test_music_agent_parses_artist_requests()`) actually correct?**
+  _`MusicAgent` has 7 INFERRED edges - model-reasoned connections that need verification._
+- **What connects `Normalize FastMCP CallToolResult output into plain Python values.      FastMCP c`, `PreToolUse`, `Raised when a planner task cannot be converted into an executable instruction.` to the rest of the system?**
   _873 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.08170731707317073 - nodes in this community are weakly interconnected._
-- **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.05204872646733112 - nodes in this community are weakly interconnected._

@@ -195,7 +195,7 @@ ACONTEXT_ENABLED=false
 ACONTEXT_API_KEY=sk-ac-your-local-root-api-bearer-token
 ACONTEXT_BASE_URL=http://localhost:8029/api/v1
 ACONTEXT_USER_IDENTIFIER=multi-agent-system
-ACONTEXT_TIMEOUT=360
+ACONTEXT_TIMEOUT=1000
 ```
 
 Security notes:
@@ -225,47 +225,41 @@ acontext server up
 curl -fsS http://localhost:8029/health
 ```
 
-To keep Acontext learning local with Ollama, configure its server `.env`
-before starting the server:
+To keep Acontext learning local with an Ollama container, configure the
+Acontext server `.env` with a Docker-reachable Ollama endpoint before
+starting the server. This example uses the Acontext Core network gateway
+shown below:
 
 ```env
 LLM_API_KEY=dummy-key-not-required
 LLM_SDK=openai
-LLM_SIMPLE_MODEL=ministral-3:3b
-LLM_BASE_URL=http://host.docker.internal:11434/v1
-LLM_RESPONSE_TIMEOUT=300
+LLM_SIMPLE_MODEL=gpt-oss
+LLM_BASE_URL=http://172.18.0.1:11434/v1
+LLM_RESPONSE_TIMEOUT=1000
 
 BLOCK_EMBEDDING_PROVIDER=openai
 BLOCK_EMBEDDING_API_KEY=dummy-key
-BLOCK_EMBEDDING_BASE_URL=http://host.docker.internal:11434/v1
+BLOCK_EMBEDDING_BASE_URL=http://172.18.0.1:11434/v1
 BLOCK_EMBEDDING_MODEL=nomic-embed-text
 BLOCK_EMBEDDING_DIM=768
 ```
 
-The Acontext containers must be able to reach Ollama and the sandbox worker on
-the host. On Linux, configure the local Acontext compose environment with a
-`host.docker.internal:host-gateway` mapping when that hostname is not already
-available. Ollama must also listen on a Docker-reachable address rather than
-only `127.0.0.1`, for example by starting it with
-`OLLAMA_HOST=0.0.0.0:11434 ollama serve` on a trusted local machine. Apply the
-equivalent reachability requirement to the sandbox worker URL. Also ensure
-Acontext's `config.yaml` mount refers to a file, not a directory.
-
-If the CLI-generated Compose setup cannot resolve `host.docker.internal` on
-Linux, use the Acontext Core container network gateway instead. Obtain it while
-the stack is running:
+The Acontext containers must be able to reach the Ollama container and the
+sandbox worker. If both services are not addressed by container name on one
+Docker network, use the Acontext Core container network gateway. Obtain it
+while the stack is running:
 
 ```bash
 docker inspect -f '{{range .NetworkSettings.Networks}}{{.Gateway}}{{end}}' \
   acontext-server-core
 ```
 
-For a gateway such as `172.18.0.1`, set the Acontext server `.env` values to
-`http://172.18.0.1:11434/v1` for `LLM_BASE_URL` and
-`BLOCK_EMBEDDING_BASE_URL`, and `http://172.18.0.1:8788` for
-`CLOUDFLARE_WORKER_URL`. Run its sandbox worker with
-`wrangler dev --ip 0.0.0.0 --port 8788`; the CLI-created worker otherwise
-listens only on host loopback.
+For a gateway such as `172.18.0.1`, publish Ollama's API port so it is
+reachable at that address, then set `LLM_BASE_URL` and
+`BLOCK_EMBEDDING_BASE_URL` to `http://172.18.0.1:11434/v1`. Set
+`CLOUDFLARE_WORKER_URL=http://172.18.0.1:8788` and run the worker with
+`wrangler dev --ip 0.0.0.0 --port 8788`. Also ensure Acontext's
+`config.yaml` mount refers to a file, not a directory.
 
 When `ACONTEXT_ENABLED=true`, `PlannerService` stores visible user and
 assistant turns only, reuses a single learning space, and submits completed or
@@ -273,8 +267,9 @@ failed sessions for skill generation. V1 does not inject learned skills back
 into planner routing or domain results. For a self-hosted local server, set the
 application `ACONTEXT_API_KEY` to `sk-ac-` followed by the
 `ROOT_API_BEARER_TOKEN` value in the ignored Acontext server `.env`. Keep
-`ACONTEXT_TIMEOUT` above the local model's worst-case response time; `360`
-seconds is suitable when the Acontext Core `LLM_RESPONSE_TIMEOUT` is `300`.
+`ACONTEXT_TIMEOUT` at or above the local model's worst-case response time;
+the Dockerized `gpt-oss` setup uses `1000` seconds for both application and
+Acontext Core timeouts.
 
 ### 1. Start MCP server
 

@@ -42,7 +42,7 @@ class AcontextCapture:
         api_key: str,
         base_url: str,
         user_identifier: str,
-        timeout: float = 360.0,
+        timeout: float = 1000.0,
         client_factory: Callable[[], AcontextAsyncClient] | None = None,
     ) -> None:
         self._api_key = api_key

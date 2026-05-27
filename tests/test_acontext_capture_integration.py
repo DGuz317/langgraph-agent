@@ -30,6 +30,87 @@ def anyio_backend() -> str:
 
 
 @pytest.mark.anyio
+async def test_direct_acontext_learning_after_flush() -> None:
+    assert settings.acontext_api_key
+    api_key = settings.acontext_api_key
+    base_url = settings.acontext_base_url
+    user_identifier = f"manual-learning-{uuid4()}"
+    space_id: str | None = None
+    session_id: str | None = None
+    learned_skill_ids: list[str] = []
+
+    try:
+        async with AcontextAsyncClient(
+            api_key=api_key,
+            base_url=base_url,
+            timeout=settings.acontext_timeout,
+        ) as client:
+            space = await client.learning_spaces.create(
+                user=user_identifier,
+                meta={
+                    "source": "manual-test",
+                    "memory_scope": "debug-learning-v1",
+                },
+            )
+            space_id = space.id
+
+            session = await client.sessions.create(user=user_identifier)
+            session_id = session.id
+
+            await client.sessions.store_message(
+                session.id,
+                blob={
+                    "role": "user",
+                    "content": (
+                        "Remember this project rule: invoice requests with customer_id "
+                        "must route to the invoice agent. The planner must preserve "
+                        "customer_id in task args."
+                    ),
+                },
+            )
+            await client.sessions.store_message(
+                session.id,
+                blob={
+                    "role": "assistant",
+                    "content": (
+                        "Rule saved. Reusable convention: when the user asks for invoices "
+                        "and provides customer_id, create an invoice task with "
+                        "args.customer_id preserved and instruction like "
+                        "'Get latest invoice for customer_id=5'."
+                    ),
+                },
+            )
+
+            await client.sessions.flush(session.id)
+            await client.learning_spaces.learn(space.id, session_id=session.id)
+
+            learning = await client.learning_spaces.wait_for_learning(
+                space.id,
+                session_id=session.id,
+                timeout=settings.acontext_timeout,
+            )
+            assert learning.status == "completed", f"learning={learning!r}"
+
+            skills = await client.learning_spaces.list_skills(space.id)
+            learned_skill_ids = [skill.id for skill in skills]
+    finally:
+        async with AcontextAsyncClient(
+            api_key=api_key,
+            base_url=base_url,
+            timeout=settings.acontext_timeout,
+        ) as client:
+            if session_id is not None:
+                with suppress(APIError, TransportError):
+                    await client.sessions.delete(session_id)
+            if space_id is not None:
+                with suppress(APIError, TransportError):
+                    await client.learning_spaces.delete(space_id)
+            for skill_id in learned_skill_ids:
+                with suppress(APIError, TransportError):
+                    await client.skills.delete(skill_id)
+
+
+@pytest.mark.anyio
 async def test_visible_chat_session_reaches_learning_terminal_state() -> None:
     assert settings.acontext_api_key
     api_key = settings.acontext_api_key
@@ -44,6 +125,7 @@ async def test_visible_chat_session_reaches_learning_terminal_state() -> None:
         api_key=api_key,
         base_url=base_url,
         user_identifier=user_identifier,
+        timeout=settings.acontext_timeout,
     )
     response = PlannerServiceResponse(
         status="completed",
@@ -72,6 +154,7 @@ async def test_visible_chat_session_reaches_learning_terminal_state() -> None:
         async with AcontextAsyncClient(
             api_key=api_key,
             base_url=base_url,
+            timeout=settings.acontext_timeout,
         ) as client:
             spaces = await client.learning_spaces.list(
                 user=user_identifier,
@@ -86,7 +169,7 @@ async def test_visible_chat_session_reaches_learning_terminal_state() -> None:
             learning = await client.learning_spaces.wait_for_learning(
                 space_id,
                 session_id=acontext_session_id(thread_id),
-                timeout=1000,
+                timeout=settings.acontext_timeout,
             )
             if learning.status != "completed":
                 if hasattr(learning, "model_dump"):
@@ -102,6 +185,7 @@ async def test_visible_chat_session_reaches_learning_terminal_state() -> None:
         async with AcontextAsyncClient(
             api_key=api_key,
             base_url=base_url,
+            timeout=settings.acontext_timeout,
         ) as client:
             with suppress(APIError, TransportError):
                 await client.sessions.delete(acontext_session_id(thread_id))

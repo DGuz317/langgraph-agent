@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     acontext_api_key: str | None = None
     acontext_base_url: str = "http://localhost:8029/api/v1"
     acontext_user_identifier: str = "multi-agent-system"
-    acontext_timeout: float = 360.0
+    acontext_timeout: float = 1000.0
 
     model_config = SettingsConfigDict(
         env_file=".env",

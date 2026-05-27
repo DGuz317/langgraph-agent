@@ -115,8 +115,9 @@ curl -fsS http://localhost:8029/health
 Set `ACONTEXT_ENABLED=true`, `ACONTEXT_API_KEY`, and
 `ACONTEXT_BASE_URL=http://localhost:8029/api/v1` to capture planner-visible
 conversation turns. The current memory phase generates reviewable skills; it
-does not yet inject those skills back into planning. For slow local models,
-set `ACONTEXT_TIMEOUT=360` so terminal flush processing can finish.
+does not yet inject those skills back into planning. The local learning setup
+uses an Ollama container reachable by the Acontext containers; for slow local
+models, set `ACONTEXT_TIMEOUT=1000` so terminal flush processing can finish.
 
 Invoke the planner API:
 
