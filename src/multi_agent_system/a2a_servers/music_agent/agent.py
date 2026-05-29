@@ -7,7 +7,7 @@ from multi_agent_system.a2a_servers.music_agent.schemas import (
 )
 from multi_agent_system.common.mcp_tool_agent import MCPToolAgent
 
-
+# TODO: Let the model identify by itself.
 # Keep the longest / most specific genre names before shorter overlapping names.
 KNOWN_GENRES = (
     "Alternative & Punk",
@@ -35,7 +35,7 @@ KNOWN_GENRES = (
     "Pop",
 )
 
-
+# TODO: Reduce if else rule-based  more about dynamic and practical. IT should be the llm handle not configure by our definition. Use prompt to guide our agent
 class MusicAgent(MCPToolAgent):
     evidence_agent = "music"
 
@@ -47,6 +47,7 @@ class MusicAgent(MCPToolAgent):
             return error
 
         handlers = {
+            "music_query": self._run_music_query,
             "albums_by_artist": self._get_albums_by_artist,
             "tracks_by_artist": self._get_tracks_by_artist,
             "songs_by_genre": self._get_songs_by_genre,
@@ -93,6 +94,30 @@ class MusicAgent(MCPToolAgent):
         self,
         request: MusicRequest,
     ) -> MusicAgentResponse | None:
+        if request.intent == "music_query":
+            search_type = (request.search_type or "").strip()
+            if search_type in {"artist", "albums_by_artist"} and not request.artist:
+                return MusicAgentResponse(
+                    success=False,
+                    content="Missing required field: artist.",
+                )
+            if search_type == "genre" and not request.genre:
+                return MusicAgentResponse(
+                    success=False,
+                    content="Missing required field: genre.",
+                )
+            if search_type == "song_title" and not request.song_title:
+                return MusicAgentResponse(
+                    success=False,
+                    content="Missing required field: song_title.",
+                )
+            if search_type not in {"artist", "albums_by_artist", "genre", "song_title"}:
+                return MusicAgentResponse(
+                    success=False,
+                    content="Missing or unsupported field: search_type.",
+                )
+            return None
+
         if request.intent in {"albums_by_artist", "tracks_by_artist"}:
             if not request.artist:
                 return MusicAgentResponse(
@@ -113,6 +138,31 @@ class MusicAgent(MCPToolAgent):
             )
 
         return None
+
+    async def _run_music_query(
+        self,
+        request: MusicRequest,
+    ) -> MusicAgentResponse:
+        search_type = (request.search_type or "").strip()
+
+        if search_type == "artist":
+            return await self._get_tracks_by_artist(
+                request.model_copy(update={"intent": "tracks_by_artist"})
+            )
+
+        if search_type == "albums_by_artist":
+            return await self._get_albums_by_artist(
+                request.model_copy(update={"intent": "albums_by_artist"})
+            )
+
+        if search_type == "genre":
+            return await self._get_songs_by_genre(
+                request.model_copy(update={"intent": "songs_by_genre"})
+            )
+
+        return await self._check_song(
+            request.model_copy(update={"intent": "check_song"})
+        )
 
     async def _get_albums_by_artist(
         self,

@@ -7,7 +7,9 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 AgentName = Literal["invoice", "music"]
 TaskStatus = Literal["not_started", "completed", "failed"]
+# TODO: This is the rule-based tasks intent, can we switch out for more practical routing task. This will better at handling more unique queries such as: Show me 5 most recent invoices of customer id = 8,... Also combine some alike tasks
 TaskIntent = Literal[
+    "invoice_query",
     "latest_invoice",
     "invoice_detail",
     "invoice_summary",
@@ -15,6 +17,7 @@ TaskIntent = Literal[
     "all_invoices",
     "latest_invoice_support_employee",
     "invoices_by_unit_price",
+    "music_query",
     "tracks_by_artist",
     "albums_by_artist",
     "songs_by_genre",
@@ -24,6 +27,7 @@ TaskIntent = Literal[
 
 
 INVOICE_INTENTS = {
+    "invoice_query",
     "latest_invoice",
     "invoice_detail",
     "invoice_summary",
@@ -34,6 +38,7 @@ INVOICE_INTENTS = {
 }
 
 MUSIC_INTENTS = {
+    "music_query",
     "tracks_by_artist",
     "albums_by_artist",
     "songs_by_genre",
@@ -56,6 +61,12 @@ REQUIRED_ARGS_BY_INTENT = {
 }
 
 CLARIFY_MUSIC_FIELD = "music_search_type"
+MUSIC_QUERY_ARGS_BY_SEARCH_TYPE = {
+    "artist": "artist",
+    "albums_by_artist": "artist",
+    "genre": "genre",
+    "song_title": "song_title",
+}
 
 
 class PlannedTask(BaseModel):
@@ -149,6 +160,57 @@ class PlannedTask(BaseModel):
                 )
 
             return self
+
+        if self.intent == "invoice_query":
+            if _has_arg_value(self.args, "invoice_id") or _has_arg_value(
+                self.args,
+                "customer_id",
+            ):
+                self.args["include_support_employee"] = "true"
+                return self
+
+            if (
+                "invoice_id" in self.missing_fields
+                or "customer_id" in self.missing_fields
+            ):
+                self.args["include_support_employee"] = "true"
+                return self
+
+            raise ValueError(
+                "invoice_query requires invoice_id or customer_id, "
+                "or one of those fields in missing_fields."
+            )
+
+        if self.intent == "music_query":
+            search_type = str(self.args.get("search_type", "")).strip()
+
+            if not search_type:
+                if CLARIFY_MUSIC_FIELD in self.missing_fields:
+                    return self
+                raise ValueError(
+                    "music_query requires args.search_type or "
+                    f"missing_fields=['{CLARIFY_MUSIC_FIELD}']."
+                )
+
+            required_music_arg = MUSIC_QUERY_ARGS_BY_SEARCH_TYPE.get(search_type)
+
+            if required_music_arg is None:
+                raise ValueError(
+                    "music_query args.search_type must be one of: "
+                    "artist, albums_by_artist, genre, song_title."
+                )
+
+            if _has_arg_value(self.args, required_music_arg):
+                return self
+
+            if required_music_arg in self.missing_fields:
+                return self
+
+            raise ValueError(
+                f"music_query search_type '{search_type}' requires arg "
+                f"'{required_music_arg}' or missing_fields entry "
+                f"'{required_music_arg}'."
+            )
 
         required_arg = REQUIRED_ARGS_BY_INTENT.get(self.intent)
 

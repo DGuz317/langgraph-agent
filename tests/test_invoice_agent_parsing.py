@@ -1,6 +1,7 @@
 import pytest
 
 from multi_agent_system.a2a_servers.invoice_agent.agent import InvoiceAgent
+from multi_agent_system.a2a_servers.invoice_agent.schemas import InvoiceRequest
 
 
 @pytest.mark.parametrize(
@@ -291,6 +292,83 @@ async def test_invoice_agent_returns_all_invoices_with_support_employee() -> Non
                 "invoice_id": "78",
                 "customer_id": "5",
             },
+        ),
+    ]
+
+
+@pytest.mark.anyio
+async def test_invoice_agent_invoice_query_limits_recent_invoices_with_support_employee() -> None:
+    class StubInvoiceAgent(InvoiceAgent):
+        def __init__(self) -> None:
+            super().__init__()
+            self.calls: list[tuple[str, dict]] = []
+
+        async def call_tool(self, tool_name: str, args: dict):
+            self.calls.append((tool_name, args))
+
+            if tool_name == "get_invoices_by_customer_sorted_by_date":
+                return [
+                    {"InvoiceId": 80, "CustomerId": 8},
+                    {"InvoiceId": 79, "CustomerId": 8},
+                    {"InvoiceId": 78, "CustomerId": 8},
+                ]
+
+            if tool_name == "get_employee_by_invoice_and_customer":
+                return {
+                    "FirstName": "Jane",
+                    "Title": "Sales Support Agent",
+                    "Email": "jane@example.com",
+                }
+
+            raise AssertionError(f"Unexpected tool: {tool_name}")
+
+    agent = StubInvoiceAgent()
+
+    response = await agent.invoke_request(
+        InvoiceRequest(
+            intent="invoice_query",
+            customer_id="8",
+            limit="2",
+            sort_by="invoice_date",
+            sort_order="desc",
+            include_support_employee="true",
+        )
+    )
+
+    assert response.success is True
+    assert response.content == (
+        "Found 2 invoice(s) for customer_id=8 with support employee information."
+    )
+    assert response.data == [
+        {
+            "invoice": {"InvoiceId": 80, "CustomerId": 8},
+            "support_employee": {
+                "FirstName": "Jane",
+                "Title": "Sales Support Agent",
+                "Email": "jane@example.com",
+            },
+        },
+        {
+            "invoice": {"InvoiceId": 79, "CustomerId": 8},
+            "support_employee": {
+                "FirstName": "Jane",
+                "Title": "Sales Support Agent",
+                "Email": "jane@example.com",
+            },
+        },
+    ]
+    assert agent.calls == [
+        (
+            "get_invoices_by_customer_sorted_by_date",
+            {"customer_id": "8"},
+        ),
+        (
+            "get_employee_by_invoice_and_customer",
+            {"invoice_id": "80", "customer_id": "8"},
+        ),
+        (
+            "get_employee_by_invoice_and_customer",
+            {"invoice_id": "79", "customer_id": "8"},
         ),
     ]
 

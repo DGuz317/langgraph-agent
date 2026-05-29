@@ -19,6 +19,7 @@ class InvoiceAgent(MCPToolAgent):
             return error
 
         handlers = {
+            "invoice_query": self._run_invoice_query,
             "latest_invoice": self._get_latest_invoice,
             "invoice_detail": self._get_invoice_detail,
             "invoice_summary": self._get_invoice_summary,
@@ -30,6 +31,7 @@ class InvoiceAgent(MCPToolAgent):
 
         return await handlers[request.intent](request)
 
+    # TODO: Reduce if else rule-based  more about dynamic and practical. IT should be the llm handle not configure by our definition. Use prompt to guide our agent
     def _parse_request(self, query: str) -> InvoiceRequest:
         normalized = query.lower()
 
@@ -67,6 +69,15 @@ class InvoiceAgent(MCPToolAgent):
         self,
         request: InvoiceRequest,
     ) -> InvoiceAgentResponse | None:
+        if request.intent == "invoice_query":
+            if request.invoice_id or request.customer_id:
+                return None
+
+            return InvoiceAgentResponse(
+                success=False,
+                content="Missing required field: invoice_id or customer_id.",
+            )
+
         if request.intent == "invoice_detail":
             if not request.invoice_id:
                 return InvoiceAgentResponse(
@@ -83,6 +94,56 @@ class InvoiceAgent(MCPToolAgent):
             )
 
         return None
+
+    async def _run_invoice_query(
+        self,
+        request: InvoiceRequest,
+    ) -> InvoiceAgentResponse:
+        if request.invoice_id:
+            return await self._get_invoice_detail(
+                request.model_copy(update={"intent": "invoice_detail"})
+            )
+
+        sort_by = (request.sort_by or "invoice_date").strip().lower()
+
+        if sort_by == "unit_price":
+            invoices = await self.call_tool(
+                "get_invoices_sorted_by_unit_price",
+                {"customer_id": request.customer_id},
+            )
+        else:
+            invoices = await self.call_tool(
+                "get_invoices_by_customer_sorted_by_date",
+                {"customer_id": request.customer_id},
+            )
+
+        if not invoices:
+            return InvoiceAgentResponse(
+                success=True,
+                content=f"No invoices found for customer_id={request.customer_id}.",
+                data=[],
+            )
+
+        if (request.sort_order or "").strip().lower() == "asc":
+            invoices = list(reversed(invoices))
+
+        limit = _positive_int(request.limit)
+        if limit is not None:
+            invoices = invoices[:limit]
+
+        enriched_invoices = await self._enrich_invoices_with_support_employee(
+            invoices,
+            request,
+        )
+
+        return InvoiceAgentResponse(
+            success=True,
+            content=(
+                f"Found {len(enriched_invoices)} invoice(s) for "
+                f"customer_id={request.customer_id} with support employee information."
+            ),
+            data=enriched_invoices,
+        )
 
     async def _get_latest_invoice(
         self,
@@ -425,3 +486,18 @@ class InvoiceAgent(MCPToolAgent):
                 return match.group(1)
 
         return None
+
+
+def _positive_int(value: str | None) -> int | None:
+    if value is None:
+        return None
+
+    text = str(value).strip()
+    if not text.isdigit():
+        return None
+
+    parsed = int(text)
+    if parsed <= 0:
+        return None
+
+    return parsed

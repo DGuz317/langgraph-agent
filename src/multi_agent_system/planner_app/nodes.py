@@ -20,7 +20,14 @@ aggregator = AggregatorAgent()
 
 
 async def planner_node(state: PlannerAppState) -> dict:
-    output = await planner.ainvoke(state["user_input"])
+    memory_context = state.get("memory_context")
+    if memory_context:
+        output = await planner.ainvoke(
+            state["user_input"],
+            memory_context=memory_context,
+        )
+    else:
+        output = await planner.ainvoke(state["user_input"])
 
     return {
         "planner_output": output.model_dump(),
@@ -38,34 +45,67 @@ async def missing_info_node(state: PlannerAppState) -> dict:
 
     for task in tasks:
         if task["agent"] == "invoice" and extracted.get("invoice_id"):
-            task["args"] = {"invoice_id": extracted["invoice_id"]}
+            task["args"] = _updated_args(
+                task,
+                invoice_id=extracted["invoice_id"],
+                include_support_employee=(
+                    "true" if task.get("intent") == "invoice_query" else None
+                ),
+            )
             _attach_a2a_payload(task)
             task["missing_fields"] = []
             continue
 
         if task["agent"] == "invoice" and extracted.get("customer_id"):
-            task["args"] = {"customer_id": extracted["customer_id"]}
+            task["args"] = _updated_args(
+                task,
+                customer_id=extracted["customer_id"],
+                include_support_employee=(
+                    "true" if task.get("intent") == "invoice_query" else None
+                ),
+            )
             _attach_a2a_payload(task)
             task["missing_fields"] = []
             continue
 
         if task["agent"] == "music" and extracted.get("artist"):
-            task["intent"] = "tracks_by_artist"
-            task["args"] = {"artist": extracted["artist"]}
+            if task.get("intent") == "music_query":
+                task["args"] = _updated_args(
+                    task,
+                    search_type="artist",
+                    artist=extracted["artist"],
+                )
+            else:
+                task["intent"] = "tracks_by_artist"
+                task["args"] = {"artist": extracted["artist"]}
             _attach_a2a_payload(task)
             task["missing_fields"] = []
             continue
 
         if task["agent"] == "music" and extracted.get("genre"):
-            task["intent"] = "songs_by_genre"
-            task["args"] = {"genre": extracted["genre"]}
+            if task.get("intent") == "music_query":
+                task["args"] = _updated_args(
+                    task,
+                    search_type="genre",
+                    genre=extracted["genre"],
+                )
+            else:
+                task["intent"] = "songs_by_genre"
+                task["args"] = {"genre": extracted["genre"]}
             _attach_a2a_payload(task)
             task["missing_fields"] = []
             continue
 
         if task["agent"] == "music" and extracted.get("song_title"):
-            task["intent"] = "check_song"
-            task["args"] = {"song_title": extracted["song_title"]}
+            if task.get("intent") == "music_query":
+                task["args"] = _updated_args(
+                    task,
+                    search_type="song_title",
+                    song_title=extracted["song_title"],
+                )
+            else:
+                task["intent"] = "check_song"
+                task["args"] = {"song_title": extracted["song_title"]}
             _attach_a2a_payload(task)
             task["missing_fields"] = []
             continue
@@ -307,6 +347,14 @@ def _attach_a2a_payload(task: dict[str, Any]) -> dict[str, Any]:
 def _mark_task_failed(task: dict[str, Any] | None) -> None:
     if task is not None:
         task["status"] = "failed"
+
+
+def _updated_args(task: dict[str, Any], **updates: str | None) -> dict[str, Any]:
+    args = dict(task.get("args") or {})
+    for key, value in updates.items():
+        if value is not None:
+            args[key] = value
+    return args
 
 
 def _failure_result(agent_label: str, exc: Exception) -> str:

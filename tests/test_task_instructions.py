@@ -46,6 +46,35 @@ def test_build_invoice_detail_payload() -> None:
     }
 
 
+def test_build_invoice_query_payload_for_recent_invoices() -> None:
+    task = {
+        "agent": "invoice",
+        "intent": "invoice_query",
+        "args": {
+            "customer_id": "8",
+            "limit": "5",
+            "sort_by": "invoice_date",
+            "sort_order": "desc",
+            "include_support_employee": "true",
+        },
+    }
+
+    assert build_a2a_payload_from_task(task) == {
+        "agent": "invoice",
+        "intent": "invoice_query",
+        "args": {
+            "customer_id": "8",
+            "limit": "5",
+            "sort_by": "invoice_date",
+            "sort_order": "desc",
+            "include_support_employee": "true",
+        },
+        "instruction": (
+            "Get 5 most recent invoices for customer_id=8 with support employee"
+        ),
+    }
+
+
 def test_build_invoice_summary_payload() -> None:
     task = {
         "agent": "invoice",
@@ -172,6 +201,15 @@ def test_build_tracks_by_artist_instruction() -> None:
     task = {
         "intent": "tracks_by_artist",
         "args": {"artist": "AC/DC"},
+    }
+
+    assert build_instruction_from_task(task) == "Find tracks by artist AC/DC"
+
+
+def test_build_music_query_instruction() -> None:
+    task = {
+        "intent": "music_query",
+        "args": {"search_type": "artist", "artist": "AC/DC"},
     }
 
     assert build_instruction_from_task(task) == "Find tracks by artist AC/DC"

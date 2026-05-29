@@ -23,6 +23,12 @@ def build_instruction_from_task(task: dict[str, Any]) -> str:
     intent = task.get("intent")
     args = task.get("args") or {}
 
+    if intent == "invoice_query":
+        return _build_invoice_query_instruction(args)
+
+    if intent == "music_query":
+        return _build_music_query_instruction(args)
+
     if intent == "latest_invoice":
         customer_id = _require_arg(args, "customer_id", intent)
         return f"Get latest invoice for customer_id={customer_id}"
@@ -75,6 +81,60 @@ def build_instruction_from_task(task: dict[str, Any]) -> str:
     raise TaskInstructionError(f"Unsupported task intent: {intent}")
 
 
+def _build_invoice_query_instruction(args: dict[str, Any]) -> str:
+    if _has_arg(args, "invoice_id"):
+        invoice_id = _require_arg(args, "invoice_id", "invoice_query")
+        return f"Get invoice detail for invoice_id={invoice_id} with support employee"
+
+    customer_id = _require_arg(args, "customer_id", "invoice_query")
+    limit = _optional_arg(args, "limit")
+    sort_by = _optional_arg(args, "sort_by")
+    sort_order = _optional_arg(args, "sort_order")
+
+    parts = ["Get"]
+    if limit:
+        parts.append(limit)
+    if sort_by == "invoice_date" and sort_order == "desc":
+        parts.append("most recent")
+    elif sort_by == "unit_price":
+        parts.append("invoices sorted by unit price")
+        if sort_order:
+            parts.append(sort_order)
+        return " ".join(parts) + f" for customer_id={customer_id} with support employee"
+    else:
+        parts.append("invoices")
+
+    if "invoices" not in parts[-1]:
+        parts.append("invoices")
+
+    return " ".join(parts) + f" for customer_id={customer_id} with support employee"
+
+
+def _build_music_query_instruction(args: dict[str, Any]) -> str:
+    search_type = _require_arg(args, "search_type", "music_query")
+
+    if search_type == "artist":
+        artist = _require_arg(args, "artist", "music_query")
+        return f"Find tracks by artist {artist}"
+
+    if search_type == "albums_by_artist":
+        artist = _require_arg(args, "artist", "music_query")
+        return f"Find albums by artist {artist}"
+
+    if search_type == "genre":
+        genre = _require_arg(args, "genre", "music_query")
+        return f"Recommend songs by genre {genre}"
+
+    if search_type == "song_title":
+        song_title = _require_arg(args, "song_title", "music_query")
+        return f"Check for song {song_title}"
+
+    raise TaskInstructionError(
+        "music_query args.search_type must be one of: "
+        "artist, albums_by_artist, genre, song_title."
+    )
+
+
 def _require_task_field(task: dict[str, Any], key: str) -> str:
     value = task.get(key)
 
@@ -105,3 +165,16 @@ def _require_arg(args: dict[str, Any], key: str, intent: str) -> str:
         )
 
     return text
+
+
+def _optional_arg(args: dict[str, Any], key: str) -> str | None:
+    value = args.get(key)
+    if value is None:
+        return None
+
+    text = str(value).strip()
+    return text or None
+
+
+def _has_arg(args: dict[str, Any], key: str) -> bool:
+    return _optional_arg(args, key) is not None

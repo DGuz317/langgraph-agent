@@ -23,6 +23,13 @@ pytestmark = pytest.mark.skipif(
         "start its local API with a learning model to run skill-memory tests."
     ),
 )
+requires_learning_wait = pytest.mark.skipif(
+    os.getenv("RUN_ACONTEXT_LEARNING_INTEGRATION_TESTS") != "1",
+    reason=(
+        "Set RUN_ACONTEXT_LEARNING_INTEGRATION_TESTS=1 to run slow Acontext "
+        "learning-completion checks."
+    ),
+)
 
 
 @pytest.fixture
@@ -31,6 +38,7 @@ def anyio_backend() -> str:
 
 
 @pytest.mark.anyio
+@requires_learning_wait
 async def test_direct_acontext_learning_after_flush() -> None:
     assert settings.acontext_api_key
     api_key = settings.acontext_api_key
@@ -112,7 +120,7 @@ async def test_direct_acontext_learning_after_flush() -> None:
 
 
 @pytest.mark.anyio
-async def test_sanitized_execution_session_reaches_learning_terminal_state() -> None:
+async def test_sanitized_execution_session_is_stored_and_flushed() -> None:
     assert settings.acontext_api_key
     api_key = settings.acontext_api_key
     base_url = settings.acontext_base_url
@@ -193,21 +201,16 @@ async def test_sanitized_execution_session_reaches_learning_terminal_state() -> 
             assert "latest_invoice" in serialized_messages
             assert "customer_id=5" not in serialized_messages
 
-            learning = await client.learning_spaces.wait_for_learning(
-                space_id,
-                session_id=acontext_session_id(thread_id),
-                timeout=settings.acontext_timeout,
-            )
-            if learning.status != "completed":
-                if hasattr(learning, "model_dump"):
-                    print("learning:", learning.model_dump())
-                else:
-                    print("learning:", repr(learning))
+            if os.getenv("RUN_ACONTEXT_LEARNING_INTEGRATION_TESTS") == "1":
+                learning = await client.learning_spaces.wait_for_learning(
+                    space_id,
+                    session_id=acontext_session_id(thread_id),
+                    timeout=settings.acontext_timeout,
+                )
+                assert learning.status == "completed"
 
-            assert learning.status == "completed"
-
-            skills = await client.learning_spaces.list_skills(space_id)
-            learned_skill_ids = [skill.id for skill in skills]
+                skills = await client.learning_spaces.list_skills(space_id)
+                learned_skill_ids = [skill.id for skill in skills]
     finally:
         async with AcontextAsyncClient(
             api_key=api_key,

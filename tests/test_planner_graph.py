@@ -87,6 +87,56 @@ async def test_missing_info_node_rebuilds_customer_id_instruction(monkeypatch) -
 
 
 @pytest.mark.anyio
+async def test_missing_info_node_preserves_invoice_query_options(monkeypatch) -> None:
+    def fake_interrupt_for_missing_info(missing_fields: list[str]) -> dict:
+        assert missing_fields == ["customer_id"]
+        return {"customer_id": "8"}
+
+    monkeypatch.setattr(
+        nodes,
+        "interrupt_for_missing_info",
+        fake_interrupt_for_missing_info,
+    )
+
+    state = {
+        "user_input": "show me 5 most recent invoices",
+        "missing_fields": ["customer_id"],
+        "planner_output": {
+            "tasks": [
+                {
+                    "agent": "invoice",
+                    "intent": "invoice_query",
+                    "instruction": "Get 5 most recent invoices",
+                    "args": {
+                        "limit": "5",
+                        "sort_by": "invoice_date",
+                        "sort_order": "desc",
+                        "include_support_employee": "true",
+                    },
+                    "missing_fields": ["customer_id"],
+                }
+            ]
+        },
+    }
+
+    result = await nodes.missing_info_node(state)
+    task = result["planner_output"]["tasks"][0]
+
+    assert task["intent"] == "invoice_query"
+    assert task["instruction"] == (
+        "Get 5 most recent invoices for customer_id=8 with support employee"
+    )
+    assert task["args"] == {
+        "limit": "5",
+        "sort_by": "invoice_date",
+        "sort_order": "desc",
+        "include_support_employee": "true",
+        "customer_id": "8",
+    }
+    assert task["missing_fields"] == []
+
+
+@pytest.mark.anyio
 async def test_missing_info_node_rebuilds_invoice_id_instruction(monkeypatch) -> None:
     def fake_interrupt_for_missing_info(missing_fields: list[str]) -> dict:
         assert missing_fields == ["invoice_id"]

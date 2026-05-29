@@ -43,6 +43,42 @@ def test_planned_task_accepts_invoice_detail_task() -> None:
     assert task.args == {"invoice_id": "361"}
 
 
+def test_planned_task_accepts_invoice_query_and_enforces_support_employee() -> None:
+    task = PlannedTask(
+        id="task-1",
+        agent="invoice",
+        intent="invoice_query",
+        instruction="Get 5 most recent invoices for customer_id=8 with support employee",
+        args={
+            "customer_id": "8",
+            "limit": 5,
+            "sort_by": "invoice_date",
+            "sort_order": "desc",
+        },
+        missing_fields=[],
+    )
+
+    assert task.args == {
+        "customer_id": "8",
+        "limit": "5",
+        "sort_by": "invoice_date",
+        "sort_order": "desc",
+        "include_support_employee": "true",
+    }
+
+
+def test_planned_task_rejects_invoice_query_without_identifier() -> None:
+    with pytest.raises(ValidationError, match="invoice_id or customer_id"):
+        PlannedTask(
+            id="task-1",
+            agent="invoice",
+            intent="invoice_query",
+            instruction="Get invoices",
+            args={"include_support_employee": "true"},
+            missing_fields=[],
+        )
+
+
 def test_planned_task_allows_missing_invoice_id_when_declared() -> None:
     task = PlannedTask(
         id="task-1",
@@ -156,6 +192,22 @@ def test_planned_task_accepts_clarify_music_search_with_missing_search_type() ->
     )
 
     assert task.intent == "clarify_music_search"
+
+
+def test_planned_task_accepts_music_query() -> None:
+    task = PlannedTask(
+        id="task-1",
+        agent="music",
+        intent="music_query",
+        instruction="Find tracks by artist AC/DC",
+        args={"search_type": "artist", "artist": "AC/DC"},
+        missing_fields=[],
+    )
+
+    assert task.args == {
+        "search_type": "artist",
+        "artist": "AC/DC",
+    }
 
 
 def test_planned_task_rejects_clarify_music_search_without_missing_search_type() -> None:
