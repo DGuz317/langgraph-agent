@@ -13,15 +13,15 @@ from acontext.errors import APIError
 
 from multi_agent_system.common.execution_evidence import ExecutionEvidence
 from multi_agent_system.config import settings
+from multi_agent_system.orchestrator.acontext_memory import (
+    LEARNING_SPACE_META,
+    MEMORY_SCOPE,
+)
 from multi_agent_system.orchestrator.schemas import PlannerServiceResponse
 
 logger = logging.getLogger(__name__)
 
 _SESSION_NAMESPACE = UUID("cfcd8caa-f533-5ccd-a31c-c695f4f52142")
-_LEARNING_SPACE_META = {
-    "source": "multi_agent_system.planner",
-    "memory_scope": "sanitized-execution-v1",
-}
 
 
 class PlannerInteractionCapture(Protocol):
@@ -96,7 +96,7 @@ class AcontextCapture:
                     format="openai",
                     meta={
                         "resume": resume,
-                        "capture_policy": "sanitized-execution-v1",
+                        "capture_policy": MEMORY_SCOPE,
                     },
                 )
 
@@ -112,7 +112,7 @@ class AcontextCapture:
                     format="openai",
                     meta={
                         "planner_status": response.status,
-                        "capture_policy": "sanitized-execution-v1",
+                        "capture_policy": MEMORY_SCOPE,
                     },
                 )
 
@@ -151,7 +151,7 @@ class AcontextCapture:
             existing = await client.learning_spaces.list(
                 user=self._user_identifier,
                 limit=1,
-                filter_by_meta=_LEARNING_SPACE_META,
+                filter_by_meta=LEARNING_SPACE_META,
             )
 
             if existing.items:
@@ -159,7 +159,7 @@ class AcontextCapture:
             else:
                 created = await client.learning_spaces.create(
                     user=self._user_identifier,
-                    meta=_LEARNING_SPACE_META,
+                    meta=LEARNING_SPACE_META,
                 )
                 self._learning_space_id = created.id
 
@@ -202,7 +202,7 @@ def build_acontext_capture() -> PlannerInteractionCapture | None:
 
 def acontext_session_id(thread_id: str) -> str:
     """Map a LangGraph thread id into a stable Acontext UUID."""
-    return str(uuid5(_SESSION_NAMESPACE, f"planner:sanitized-execution-v1:{thread_id}"))
+    return str(uuid5(_SESSION_NAMESPACE, f"planner:{MEMORY_SCOPE}:{thread_id}"))
 
 
 async def _ensure_session(
@@ -216,8 +216,8 @@ async def _ensure_session(
             user=user_identifier,
             configs={
                 "source": "multi_agent_system.planner",
-                "memory_scope": "sanitized-execution-v1",
-                "capture_policy": "sanitized-execution-v1",
+                "memory_scope": MEMORY_SCOPE,
+                "capture_policy": MEMORY_SCOPE,
             },
             use_uuid=session_id,
         )
@@ -360,7 +360,7 @@ async def _store_evidence_message(
 ) -> None:
     meta = {
         "evidence_kind": evidence.kind,
-        "capture_policy": "sanitized-execution-v1",
+        "capture_policy": MEMORY_SCOPE,
     }
 
     if evidence.kind == "mcp_tool_call" and evidence.call_id is not None:

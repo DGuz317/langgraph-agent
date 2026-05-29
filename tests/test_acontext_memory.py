@@ -117,6 +117,7 @@ async def test_acontext_memory_recall_returns_relevant_sanitized_skill() -> None
         "recall_enabled": True,
         "recall_status": "ok",
         "skills_used": 1,
+        "skill_names": ["invoice-routing"],
     }
     assert client.learning_spaces.list_calls == [
         {
@@ -169,6 +170,7 @@ async def test_acontext_memory_recall_failed_when_client_errors() -> None:
         "recall_enabled": True,
         "recall_status": "failed",
         "skills_used": 0,
+        "skill_names": [],
     }
 
 
@@ -236,3 +238,4 @@ async def test_acontext_memory_recall_uses_injected_skill_selector() -> None:
 
     assert "music-routing" in result.context
     assert "invoice-routing" not in result.context
+    assert result.metadata["skill_names"] == ["music-routing"]

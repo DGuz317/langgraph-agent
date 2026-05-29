@@ -12,7 +12,7 @@ from multi_agent_system.mcp_server.tools.music_tools import register_music_tools
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
+# TODO: In the future, we will not separate into 2 tool sets, we will create query database tools to query all database
 def create_mcp_server() -> FastMCP:
     db = get_db()
     mcp = FastMCP("Multi Agent System MCP Server")

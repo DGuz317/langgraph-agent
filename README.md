@@ -265,17 +265,31 @@ When `ACONTEXT_ENABLED=true`, `PlannerService` stores sanitized workflow
 evidence for planning decisions, HITL field requests, domain dispatches, and
 MCP tool outcomes. It omits user-entered values and returned invoice/music
 records from Acontext memory, reuses a single learning space, and submits
-completed or failed sessions for skill generation. V1 does not inject learned
-skills back into planner routing or domain results. For a self-hosted local
-server, set the application `ACONTEXT_API_KEY` to `sk-ac-` followed by the
-`ROOT_API_BEARER_TOKEN` value in the ignored Acontext server `.env`. Keep
-`ACONTEXT_TIMEOUT` at or above the local model's worst-case response time;
-the Dockerized `gpt-oss` setup uses `1000` seconds for both application and
-Acontext Core timeouts.
+completed or failed sessions for skill generation. When
+`ACONTEXT_RECALL_ENABLED=true`, `PlannerService` also retrieves relevant
+skills from the same sanitized learning space and injects them as planner
+routing guidance. Recall is capped by `ACONTEXT_RECALL_LIMIT` and
+`ACONTEXT_RECALL_MAX_CHARS`, and failures are logged while the planner
+continues without memory. For a self-hosted local server, set the application
+`ACONTEXT_API_KEY` to `sk-ac-` followed by the `ROOT_API_BEARER_TOKEN` value
+in the ignored Acontext server `.env`. Keep `ACONTEXT_TIMEOUT` at or above the
+local model's worst-case response time; the Dockerized `gpt-oss` setup uses
+`1000` seconds for both application and Acontext Core timeouts.
 
 Sanitized capture uses a new `sanitized-execution-v1` memory scope and session
 identifier mapping. Existing `visible-chat-v1` sessions or skills created by
 raw transcript capture are not reused for new learning.
+
+Planner API responses include sanitized memory debug metadata under
+`raw_result.memory`:
+
+```json
+{
+  "recall_enabled": true,
+  "recall_status": "ok",
+  "skills_used": 1
+}
+```
 
 ### 1. Start MCP server
 
@@ -492,7 +506,7 @@ Recommended next improvements:
 - Improve graph-node error recovery for unavailable A2A/MCP services.
 - Parameterize all SQL queries.
 - Add persistent checkpointer for production usage.
-- Add Acontext skill recall only after captured skill content has been reviewed.
+- Review captured Acontext skills before enabling recall in production.
 - Add music tracks-by-album capability.
 - Add parallel task execution after the sequential path is stable.
 - Add deployment documentation for remote A2A service discovery.

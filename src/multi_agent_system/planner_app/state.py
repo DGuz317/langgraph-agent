@@ -4,6 +4,7 @@ from typing import Any, TypedDict
 class PlannerAppState(TypedDict, total=False):
     user_input: str
     resume_input: str | None
+    memory_context: str | None
 
     planner_output: dict[str, Any]
     missing_fields: list[str]

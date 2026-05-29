@@ -66,3 +66,42 @@ def test_normalize_output_preserves_task_args(monkeypatch) -> None:
     result = planner._normalize_output(output)
 
     assert result.tasks[0].args == {"genre": "rock"}
+
+
+@pytest.mark.anyio
+async def test_planner_injects_memory_context_as_system_guidance(monkeypatch) -> None:
+    class FakeStructuredLLM:
+        def __init__(self) -> None:
+            self.messages = []
+
+        async def ainvoke(self, messages):
+            self.messages = messages
+            return PlannerOutput(
+                status="completed",
+                tasks=[],
+                confidence=1.0,
+                requires_aggregation=False,
+                missing_fields=[],
+            )
+
+    fake_llm = FakeStructuredLLM()
+
+    class FakeLLM:
+        def with_structured_output(self, schema):
+            return fake_llm
+
+    monkeypatch.setattr(
+        "multi_agent_system.planner.agent.get_llm",
+        lambda: FakeLLM(),
+    )
+
+    planner = PlannerAgent()
+    await planner.ainvoke(
+        "Get my latest invoice",
+        memory_context="- invoice-memory: latest invoice routes to invoice.",
+    )
+
+    assert len(fake_llm.messages) == 3
+    assert fake_llm.messages[1].type == "system"
+    assert "Relevant sanitized memory skills" in fake_llm.messages[1].content
+    assert "Do not invent missing values from memory" in fake_llm.messages[1].content

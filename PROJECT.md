@@ -115,13 +115,15 @@ curl -fsS http://localhost:8029/health
 Set `ACONTEXT_ENABLED=true`, `ACONTEXT_API_KEY`, and
 `ACONTEXT_BASE_URL=http://localhost:8029/api/v1` to capture sanitized planner
 workflow evidence. Captured memory excludes raw user-entered values and
-invoice/music result payloads. The current memory phase generates reviewable
-skills; it does not yet inject those skills back into planning. The local
-learning setup uses an Ollama container reachable by the Acontext containers;
-for slow local models, set `ACONTEXT_TIMEOUT=1000` so terminal flush
-processing can finish. Sanitized capture writes to the new
-`sanitized-execution-v1` memory scope rather than reusing prior raw
-`visible-chat-v1` learning sessions.
+invoice/music result payloads. Set `ACONTEXT_RECALL_ENABLED=true` to retrieve
+reviewed skills from the same sanitized learning space and inject them into
+planner routing as guidance. Recall is capped by `ACONTEXT_RECALL_LIMIT` and
+`ACONTEXT_RECALL_MAX_CHARS`; if Acontext is unavailable, the planner continues
+and reports sanitized memory status in `raw_result.memory`. The local learning
+setup uses an Ollama container reachable by the Acontext containers; for slow
+local models, set `ACONTEXT_TIMEOUT=1000` so terminal flush processing can
+finish. Sanitized capture writes to the new `sanitized-execution-v1` memory
+scope rather than reusing prior raw `visible-chat-v1` learning sessions.
 
 Invoke the planner API:
 
@@ -169,7 +171,7 @@ RUN_ACONTEXT_INTEGRATION_TESTS=1 uv run pytest tests/test_acontext_capture_integ
 - `SQLITE_DB` has no default and must point at the Chinook SQLite database.
 - Default LLM provider is Ollama: `MODEL_PROVIDER=ollama`, `LLM_MODEL=gpt-oss`.
 - OpenAI, Google, and Anthropic require their matching API key.
-- Acontext is optional and fails open if its local API is unavailable; its SDK API defaults to port `8029`, not the sandbox worker on `8788`.
+- Acontext is optional and fails open if its local API is unavailable; capture and recall failures are logged, and recall status is exposed only as sanitized API debug metadata.
 - `langgraph.json` is empty; use the scripts above instead of assuming LangGraph dev-server config.
 
 ## Roadmap

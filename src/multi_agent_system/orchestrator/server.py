@@ -9,7 +9,7 @@ from multi_agent_system.orchestrator.schemas import (
 )
 from multi_agent_system.orchestrator.service import PlannerService
 
-
+# TODO: With this, can me create an chatbot interface ? With upload database function the mcp will handle the query stuff
 class PlannerServiceProtocol(Protocol):
     async def invoke(
         self,

@@ -10,7 +10,12 @@ class RepairablePlannerAgent(PlannerAgent):
         self.repair_output = repair_output
         self.repair_called = False
 
-    async def _invoke_planner_once(self, user_input: str) -> PlannerOutput:
+    async def _invoke_planner_once(
+        self,
+        user_input: str,
+        *,
+        memory_context: str | None = None,
+    ) -> PlannerOutput:
         return self._coerce_planner_output(self.first_output)
 
     async def _repair_planner_output(
@@ -18,6 +23,7 @@ class RepairablePlannerAgent(PlannerAgent):
         *,
         user_input: str,
         error: Exception,
+        memory_context: str | None = None,
     ) -> PlannerOutput:
         self.repair_called = True
         return self._coerce_planner_output(self.repair_output)
@@ -27,7 +33,12 @@ class FailingPlannerAgent(PlannerAgent):
     def __init__(self) -> None:
         self.repair_called = False
 
-    async def _invoke_planner_once(self, user_input: str) -> PlannerOutput:
+    async def _invoke_planner_once(
+        self,
+        user_input: str,
+        *,
+        memory_context: str | None = None,
+    ) -> PlannerOutput:
         raise ValueError("first planner attempt failed")
 
     async def _repair_planner_output(
@@ -35,6 +46,7 @@ class FailingPlannerAgent(PlannerAgent):
         *,
         user_input: str,
         error: Exception,
+        memory_context: str | None = None,
     ) -> PlannerOutput:
         self.repair_called = True
         raise ValueError("repair planner attempt failed")

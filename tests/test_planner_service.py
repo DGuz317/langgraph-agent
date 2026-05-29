@@ -1,5 +1,6 @@
 import pytest
 
+from multi_agent_system.orchestrator.acontext_memory import MemoryRecallResult
 from multi_agent_system.orchestrator.service import PlannerService
 
 
@@ -39,6 +40,30 @@ class FakeCapture:
             raise self.error
 
 
+class FakeMemoryRecall:
+    def __init__(
+        self,
+        result: MemoryRecallResult | None = None,
+        error: Exception | None = None,
+    ) -> None:
+        self.result = result or MemoryRecallResult(
+            context="- remembered skill",
+            metadata={
+                "recall_enabled": True,
+                "recall_status": "ok",
+                "skills_used": 1,
+            },
+        )
+        self.error = error
+        self.calls = []
+
+    async def recall(self, user_input: str) -> MemoryRecallResult:
+        self.calls.append(user_input)
+        if self.error is not None:
+            raise self.error
+        return self.result
+
+
 @pytest.fixture
 def anyio_backend() -> str:
     return "asyncio"
@@ -51,7 +76,7 @@ async def test_planner_service_returns_completed_response() -> None:
             "final_answer": "Done.",
         }
     )
-    service = PlannerService(graph=graph, capture=None)
+    service = PlannerService(graph=graph, capture=None, memory_recall=None)
 
     response = await service.invoke(
         "hello",
@@ -77,7 +102,7 @@ async def test_planner_service_generates_thread_id_when_missing() -> None:
             "final_answer": "Done.",
         }
     )
-    service = PlannerService(graph=graph, capture=None)
+    service = PlannerService(graph=graph, capture=None, memory_recall=None)
 
     response = await service.invoke("hello")
 
@@ -99,7 +124,7 @@ async def test_planner_service_returns_interrupt_response() -> None:
             ]
         }
     )
-    service = PlannerService(graph=graph, capture=None)
+    service = PlannerService(graph=graph, capture=None, memory_recall=None)
 
     response = await service.invoke(
         "latest invoice",
@@ -120,7 +145,7 @@ async def test_planner_service_resumes_with_command() -> None:
             "final_answer": "Latest invoice found.",
         }
     )
-    service = PlannerService(graph=graph, capture=None)
+    service = PlannerService(graph=graph, capture=None, memory_recall=None)
 
     response = await service.invoke(
         "5",
@@ -139,7 +164,7 @@ async def test_planner_service_resumes_with_command() -> None:
 @pytest.mark.anyio
 async def test_planner_service_returns_failed_response_when_graph_raises() -> None:
     graph = FakeGraph(error=RuntimeError("graph exploded"))
-    service = PlannerService(graph=graph, capture=None)
+    service = PlannerService(graph=graph, capture=None, memory_recall=None)
 
     response = await service.invoke(
         "hello",
@@ -154,7 +179,7 @@ async def test_planner_service_returns_failed_response_when_graph_raises() -> No
 @pytest.mark.anyio
 async def test_planner_service_uses_fallback_answer_when_final_answer_missing() -> None:
     graph = FakeGraph(result={})
-    service = PlannerService(graph=graph, capture=None)
+    service = PlannerService(graph=graph, capture=None, memory_recall=None)
 
     response = await service.invoke(
         "hello",
@@ -169,7 +194,7 @@ async def test_planner_service_uses_fallback_answer_when_final_answer_missing() 
 async def test_planner_service_captures_user_visible_interaction() -> None:
     graph = FakeGraph(result={"final_answer": "Done."})
     capture = FakeCapture()
-    service = PlannerService(graph=graph, capture=capture)
+    service = PlannerService(graph=graph, capture=capture, memory_recall=None)
 
     response = await service.invoke("hello", thread_id="thread-capture")
 
@@ -187,9 +212,75 @@ async def test_planner_service_captures_user_visible_interaction() -> None:
 async def test_planner_service_capture_failure_does_not_change_response() -> None:
     graph = FakeGraph(result={"final_answer": "Done."})
     capture = FakeCapture(error=RuntimeError("capture offline"))
-    service = PlannerService(graph=graph, capture=capture)
+    service = PlannerService(graph=graph, capture=capture, memory_recall=None)
 
     response = await service.invoke("hello", thread_id="thread-capture")
 
     assert response.status == "completed"
     assert response.final_answer == "Done."
+
+
+@pytest.mark.anyio
+async def test_planner_service_injects_recalled_memory_context() -> None:
+    graph = FakeGraph(
+        result={
+            "final_answer": "Done.",
+            "memory_context": "- remembered skill",
+        }
+    )
+    memory = FakeMemoryRecall()
+    service = PlannerService(graph=graph, capture=None, memory_recall=memory)
+
+    response = await service.invoke("latest invoice", thread_id="thread-memory")
+
+    assert memory.calls == ["latest invoice"]
+    assert graph.calls[0]["payload"] == {
+        "user_input": "latest invoice",
+        "memory_context": "- remembered skill",
+    }
+    assert response.raw_result["memory"] == {
+        "recall_enabled": True,
+        "recall_status": "ok",
+        "skills_used": 1,
+    }
+    assert "memory_context" not in response.raw_result
+
+
+@pytest.mark.anyio
+async def test_planner_service_omits_empty_memory_context() -> None:
+    graph = FakeGraph(result={"final_answer": "Done."})
+    memory = FakeMemoryRecall(
+        result=MemoryRecallResult(
+            context=None,
+            metadata={
+                "recall_enabled": True,
+                "recall_status": "empty",
+                "skills_used": 0,
+            },
+        )
+    )
+    service = PlannerService(graph=graph, capture=None, memory_recall=memory)
+
+    response = await service.invoke("hello", thread_id="thread-empty")
+
+    assert graph.calls[0]["payload"] == {"user_input": "hello"}
+    assert response.raw_result["memory"]["recall_status"] == "empty"
+
+
+@pytest.mark.anyio
+async def test_planner_service_memory_recall_failure_fails_open() -> None:
+    graph = FakeGraph(result={"final_answer": "Done."})
+    memory = FakeMemoryRecall(error=RuntimeError("acontext offline"))
+    service = PlannerService(graph=graph, capture=None, memory_recall=memory)
+
+    response = await service.invoke("hello", thread_id="thread-failed-memory")
+
+    assert response.status == "completed"
+    assert response.final_answer == "Done."
+    assert graph.calls[0]["payload"] == {"user_input": "hello"}
+    assert response.raw_result["memory"] == {
+        "recall_enabled": True,
+        "recall_status": "failed",
+        "skills_used": 0,
+        "skill_names": [],
+    }

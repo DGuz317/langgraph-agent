@@ -112,7 +112,11 @@ class AcontextMemoryRecall:
                 )
                 return MemoryRecallResult(
                     context=context,
-                    metadata=_memory_metadata("ok", skills_used=len(selected)),
+                    metadata=_memory_metadata(
+                        "ok",
+                        skills_used=len(selected),
+                        skill_names=_skill_names(selected),
+                    ),
                 )
         except Exception:
             logger.exception("Acontext recall failed; continuing without memory.")
@@ -186,6 +190,7 @@ def disabled_memory_result() -> MemoryRecallResult:
             "recall_enabled": False,
             "recall_status": "disabled",
             "skills_used": 0,
+            "skill_names": [],
         },
     )
 
@@ -353,13 +358,19 @@ def _compact(text: str) -> str:
     return "\n".join(line.strip() for line in text.splitlines() if line.strip())
 
 
+def _skill_names(candidates: list[dict[str, str]]) -> list[str]:
+    return [candidate["name"] for candidate in candidates if candidate["name"]]
+
+
 def _memory_metadata(
     status: RecallStatus,
     *,
     skills_used: int,
+    skill_names: list[str] | None = None,
 ) -> dict[str, Any]:
     return {
         "recall_enabled": True,
         "recall_status": status,
         "skills_used": skills_used,
+        "skill_names": skill_names or [],
     }
