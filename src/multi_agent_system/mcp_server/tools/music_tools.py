@@ -55,10 +55,12 @@ def register_music_tools(mcp: FastMCP, db: SQLDatabase) -> None:
         return ast.literal_eval(result)
 
     @mcp.tool()
-    def get_songs_by_genre(genre: str) -> list[dict]:
+    def get_songs_by_genre(genre: str, limit: int | None = None) -> list[dict]:
         """
         Fetch songs that match a specific genre.
         """
+        row_limit = limit if isinstance(limit, int) and limit > 0 else 8
+
         genre_query = """
             SELECT GenreId
             FROM Genre
@@ -85,10 +87,14 @@ def register_music_tools(mcp: FastMCP, db: SQLDatabase) -> None:
             LEFT JOIN Album ON Track.AlbumId = Album.AlbumId
             LEFT JOIN Artist ON Album.ArtistId = Artist.ArtistId
             WHERE Track.GenreId IN ({",".join(genre_id_values)})
-            LIMIT 8;
+            LIMIT :limit;
         """
 
-        songs = db.run(songs_query, include_columns=True)
+        songs = db.run(
+            songs_query,
+            parameters={"limit": row_limit},
+            include_columns=True,
+        )
 
         if not songs:
             return []

@@ -53,41 +53,31 @@ class FailingPlannerAgent(PlannerAgent):
 
 
 @pytest.mark.anyio
-async def test_planner_repairs_invalid_agent_intent_pair() -> None:
+async def test_planner_repairs_invalid_dispatch_output() -> None:
     planner = RepairablePlannerAgent(
         first_output={
             "status": "completed",
             "tasks": [
                 {
-                    "id": "task-1",
-                    "agent": "invoice",
-                    "intent": "tracks_by_artist",
-                    "instruction": "Find tracks by artist AC/DC",
-                    "args": {"artist": "AC/DC"},
+                    "agent": "music",
+                    "instruction": "",
                     "missing_fields": [],
-                    "status": "not_started",
                 }
             ],
             "confidence": 0.9,
             "requires_aggregation": False,
-            "missing_fields": [],
         },
         repair_output={
             "status": "completed",
             "tasks": [
                 {
-                    "id": "task-1",
                     "agent": "music",
-                    "intent": "tracks_by_artist",
-                    "instruction": "Find tracks by artist AC/DC",
-                    "args": {"artist": "AC/DC"},
+                    "instruction": "Find tracks by artist AC/DC.",
                     "missing_fields": [],
-                    "status": "not_started",
                 }
             ],
             "confidence": 0.9,
             "requires_aggregation": False,
-            "missing_fields": [],
         },
     )
 
@@ -95,101 +85,7 @@ async def test_planner_repairs_invalid_agent_intent_pair() -> None:
 
     assert planner.repair_called is True
     assert output.status == "completed"
-    assert output.tasks[0].agent == "music"
-    assert output.tasks[0].intent == "tracks_by_artist"
-
-
-@pytest.mark.anyio
-async def test_planner_repairs_missing_required_arg_with_hitl_missing_field() -> None:
-    planner = RepairablePlannerAgent(
-        first_output={
-            "status": "completed",
-            "tasks": [
-                {
-                    "id": "task-1",
-                    "agent": "invoice",
-                    "intent": "latest_invoice",
-                    "instruction": "Get latest invoice",
-                    "args": {},
-                    "missing_fields": [],
-                    "status": "not_started",
-                }
-            ],
-            "confidence": 0.9,
-            "requires_aggregation": False,
-            "missing_fields": [],
-        },
-        repair_output={
-            "status": "completed",
-            "tasks": [
-                {
-                    "id": "task-1",
-                    "agent": "invoice",
-                    "intent": "latest_invoice",
-                    "instruction": "Ask for customer_id",
-                    "args": {},
-                    "missing_fields": ["customer_id"],
-                    "status": "not_started",
-                }
-            ],
-            "confidence": 0.9,
-            "requires_aggregation": False,
-            "missing_fields": ["customer_id"],
-        },
-    )
-
-    output = await planner.ainvoke("What is my latest invoice?")
-
-    assert planner.repair_called is True
-    assert output.status == "completed"
-    assert output.tasks[0].missing_fields == ["customer_id"]
-    assert output.missing_fields == ["customer_id"]
-
-
-@pytest.mark.anyio
-async def test_planner_repairs_generic_music_request_to_clarify_search() -> None:
-    planner = RepairablePlannerAgent(
-        first_output={
-            "status": "completed",
-            "tasks": [
-                {
-                    "id": "task-1",
-                    "agent": "music",
-                    "intent": "songs_by_genre",
-                    "instruction": "Recommend some songs",
-                    "args": {},
-                    "missing_fields": [],
-                    "status": "not_started",
-                }
-            ],
-            "confidence": 0.7,
-            "requires_aggregation": False,
-            "missing_fields": [],
-        },
-        repair_output={
-            "status": "completed",
-            "tasks": [
-                {
-                    "id": "task-1",
-                    "agent": "music",
-                    "intent": "clarify_music_search",
-                    "instruction": "Ask whether the user wants music by artist or by genre.",
-                    "args": {},
-                    "missing_fields": ["music_search_type"],
-                    "status": "not_started",
-                }
-            ],
-            "confidence": 0.8,
-            "requires_aggregation": False,
-            "missing_fields": ["music_search_type"],
-        },
-    )
-
-    output = await planner.ainvoke("Recommend some songs")
-
-    assert planner.repair_called is True
-    assert output.tasks[0].intent == "clarify_music_search"
-    assert output.tasks[0].missing_fields == ["music_search_type"]
+    assert output.tasks[0].instruction == "Find tracks by artist AC/DC."
 
 
 @pytest.mark.anyio
@@ -211,10 +107,9 @@ def test_repair_prompt_contains_original_input_and_error() -> None:
 
     prompt = planner._build_repair_prompt(
         user_input="Recommend some songs",
-        error=ValueError("missing music_search_type"),
+        error=ValueError("blank instruction"),
     )
 
     assert "Recommend some songs" in prompt
-    assert "missing music_search_type" in prompt
-    assert "clarify_music_search" in prompt
-    assert "tasks=[]" in prompt
+    assert "blank instruction" in prompt
+    assert "agent, instruction, missing_fields" in prompt

@@ -1,6 +1,6 @@
 {
   "name": "Invoice Agent",
-  "description": "Retrieving and processing invoice information",
+  "description": "LLM-driven invoice database agent for invoice, customer, billing, and support employee questions",
   "supportedInterfaces": [
     {
       "protocolBinding": "JSONRPC",
@@ -18,8 +18,8 @@
     {
       "id": "invoice_retrieval",
       "name": "Invoice information retrieval",
-      "description": "Retrieving invoice information, billing summaries, and assigned support contacts by customer ID or invoice ID",
-      "tags": ["invoice", "customer", "billing", "unit price", "summary", "support employee"],
+      "description": "Uses invoice MCP tools and read-only invoice database queries to answer invoice information, billing summaries, and assigned support contact questions",
+      "tags": ["invoice", "customer", "billing", "unit price", "summary", "support employee", "database"],
       "examples": [
         "My customer id is 1. What is my recent invoice?",
         "Get latest invoice for customer_id=5",

@@ -7,66 +7,6 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 AgentName = Literal["invoice", "music"]
 TaskStatus = Literal["not_started", "completed", "failed"]
-# TODO: This is the rule-based tasks intent, can we switch out for more practical routing task. This will better at handling more unique queries such as: Show me 5 most recent invoices of customer id = 8,... Also combine some alike tasks
-TaskIntent = Literal[
-    "invoice_query",
-    "latest_invoice",
-    "invoice_detail",
-    "invoice_summary",
-    "customer_support_employee",
-    "all_invoices",
-    "latest_invoice_support_employee",
-    "invoices_by_unit_price",
-    "music_query",
-    "tracks_by_artist",
-    "albums_by_artist",
-    "songs_by_genre",
-    "check_song",
-    "clarify_music_search",
-]
-
-
-INVOICE_INTENTS = {
-    "invoice_query",
-    "latest_invoice",
-    "invoice_detail",
-    "invoice_summary",
-    "customer_support_employee",
-    "all_invoices",
-    "latest_invoice_support_employee",
-    "invoices_by_unit_price",
-}
-
-MUSIC_INTENTS = {
-    "music_query",
-    "tracks_by_artist",
-    "albums_by_artist",
-    "songs_by_genre",
-    "check_song",
-    "clarify_music_search",
-}
-
-REQUIRED_ARGS_BY_INTENT = {
-    "latest_invoice": "customer_id",
-    "invoice_detail": "invoice_id",
-    "invoice_summary": "customer_id",
-    "customer_support_employee": "customer_id",
-    "all_invoices": "customer_id",
-    "latest_invoice_support_employee": "customer_id",
-    "invoices_by_unit_price": "customer_id",
-    "tracks_by_artist": "artist",
-    "albums_by_artist": "artist",
-    "songs_by_genre": "genre",
-    "check_song": "song_title",
-}
-
-CLARIFY_MUSIC_FIELD = "music_search_type"
-MUSIC_QUERY_ARGS_BY_SEARCH_TYPE = {
-    "artist": "artist",
-    "albums_by_artist": "artist",
-    "genre": "genre",
-    "song_title": "song_title",
-}
 
 
 class PlannedTask(BaseModel):
@@ -77,15 +17,11 @@ class PlannedTask(BaseModel):
     agent: AgentName = Field(
         description="Target specialized agent. Must be invoice or music.",
     )
-    intent: TaskIntent = Field(
-        description="The exact intent the target agent should execute.",
-    )
     instruction: str = Field(
-        description="Executable natural-language instruction for the target agent.",
-    )
-    args: dict[str, str] = Field(
-        default_factory=dict,
-        description="Structured extracted arguments for the task.",
+        description=(
+            "Natural-language instruction for the target agent. Include all known "
+            "user constraints so the target agent can choose tools and arguments."
+        ),
     )
     missing_fields: list[str] = Field(
         default_factory=list,
@@ -100,30 +36,9 @@ class PlannedTask(BaseModel):
     @classmethod
     def _instruction_must_not_be_blank(cls, value: str) -> str:
         cleaned = value.strip()
-
         if not cleaned:
             raise ValueError("instruction must not be blank.")
-
         return cleaned
-
-    @field_validator("args", mode="before")
-    @classmethod
-    def _normalize_args(cls, value: Any) -> dict[str, str]:
-        if value is None:
-            return {}
-
-        if not isinstance(value, dict):
-            raise TypeError("args must be a dictionary.")
-
-        normalized: dict[str, str] = {}
-
-        for key, item in value.items():
-            if item is None:
-                continue
-
-            normalized[str(key)] = str(item).strip()
-
-        return normalized
 
     @field_validator("missing_fields", mode="before")
     @classmethod
@@ -137,96 +52,8 @@ class PlannedTask(BaseModel):
         return [
             str(item).strip()
             for item in value
-            if str(item).strip()
+            if item is not None and str(item).strip()
         ]
-
-    @model_validator(mode="after")
-    def _validate_agent_intent_and_required_fields(self) -> PlannedTask:
-        if self.agent == "invoice" and self.intent not in INVOICE_INTENTS:
-            raise ValueError(
-                f"Intent '{self.intent}' is not valid for invoice agent."
-            )
-
-        if self.agent == "music" and self.intent not in MUSIC_INTENTS:
-            raise ValueError(
-                f"Intent '{self.intent}' is not valid for music agent."
-            )
-
-        if self.intent == "clarify_music_search":
-            if CLARIFY_MUSIC_FIELD not in self.missing_fields:
-                raise ValueError(
-                    "clarify_music_search requires "
-                    f"missing_fields=['{CLARIFY_MUSIC_FIELD}']."
-                )
-
-            return self
-
-        if self.intent == "invoice_query":
-            if _has_arg_value(self.args, "invoice_id") or _has_arg_value(
-                self.args,
-                "customer_id",
-            ):
-                self.args["include_support_employee"] = "true"
-                return self
-
-            if (
-                "invoice_id" in self.missing_fields
-                or "customer_id" in self.missing_fields
-            ):
-                self.args["include_support_employee"] = "true"
-                return self
-
-            raise ValueError(
-                "invoice_query requires invoice_id or customer_id, "
-                "or one of those fields in missing_fields."
-            )
-
-        if self.intent == "music_query":
-            search_type = str(self.args.get("search_type", "")).strip()
-
-            if not search_type:
-                if CLARIFY_MUSIC_FIELD in self.missing_fields:
-                    return self
-                raise ValueError(
-                    "music_query requires args.search_type or "
-                    f"missing_fields=['{CLARIFY_MUSIC_FIELD}']."
-                )
-
-            required_music_arg = MUSIC_QUERY_ARGS_BY_SEARCH_TYPE.get(search_type)
-
-            if required_music_arg is None:
-                raise ValueError(
-                    "music_query args.search_type must be one of: "
-                    "artist, albums_by_artist, genre, song_title."
-                )
-
-            if _has_arg_value(self.args, required_music_arg):
-                return self
-
-            if required_music_arg in self.missing_fields:
-                return self
-
-            raise ValueError(
-                f"music_query search_type '{search_type}' requires arg "
-                f"'{required_music_arg}' or missing_fields entry "
-                f"'{required_music_arg}'."
-            )
-
-        required_arg = REQUIRED_ARGS_BY_INTENT.get(self.intent)
-
-        if required_arg is None:
-            return self
-
-        if _has_arg_value(self.args, required_arg):
-            return self
-
-        if required_arg in self.missing_fields:
-            return self
-
-        raise ValueError(
-            f"Intent '{self.intent}' requires arg '{required_arg}' "
-            f"or missing_fields entry '{required_arg}'."
-        )
 
 
 class PlannerOutput(BaseModel):
@@ -235,8 +62,8 @@ class PlannerOutput(BaseModel):
     )
     tasks: list[PlannedTask] = Field(
         description=(
-            "Planned tasks. Must contain at least one task for invoice or music requests. "
-            "Use an empty list only for requests unrelated to invoice or music."
+            "Dispatch tasks. Use an empty list only for requests unrelated to "
+            "available agents."
         ),
     )
     confidence: float = Field(
@@ -264,7 +91,7 @@ class PlannerOutput(BaseModel):
         return [
             str(item).strip()
             for item in value
-            if str(item).strip()
+            if item is not None and str(item).strip()
         ]
 
     @model_validator(mode="after")
@@ -273,14 +100,4 @@ class PlannerOutput(BaseModel):
             raise ValueError(
                 "requires_aggregation must be true when planner returns multiple tasks."
             )
-
         return self
-
-
-def _has_arg_value(args: dict[str, str], key: str) -> bool:
-    value = args.get(key)
-
-    if value is None:
-        return False
-
-    return bool(str(value).strip())

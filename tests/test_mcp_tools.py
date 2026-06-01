@@ -27,10 +27,12 @@ def mcp_server(db):
 
     from multi_agent_system.mcp_server.tools.invoice_tools import register_invoice_tools
     from multi_agent_system.mcp_server.tools.music_tools import register_music_tools
+    from multi_agent_system.mcp_server.tools.query_tools import register_query_tools
 
     mcp = FastMCP("MCP Tool Integration Tests")
     register_invoice_tools(mcp, db)
     register_music_tools(mcp, db)
+    register_query_tools(mcp, db)
     return mcp
 
 
@@ -147,6 +149,8 @@ def test_all_expected_tools_are_registered(mcp_server) -> None:
         "get_tracks_by_artist",
         "get_songs_by_genre",
         "check_for_songs",
+        "query_invoice_database",
+        "query_music_database",
     }.issubset(tool_names)
 
 
@@ -428,6 +432,20 @@ def test_get_songs_by_genre_returns_limited_song_recommendations(mcp_server) -> 
     assert all("ArtistName" in row for row in rows)
 
 
+def test_get_songs_by_genre_honors_requested_limit(mcp_server) -> None:
+    result = _call_tool(
+        mcp_server,
+        "get_songs_by_genre",
+        {"genre": "Jazz", "limit": 5},
+    )
+
+    rows = _assert_non_empty_list_of_dicts(result)
+
+    assert len(rows) == 5
+    assert all("SongName" in row for row in rows)
+    assert all("ArtistName" in row for row in rows)
+
+
 def test_get_songs_by_genre_returns_empty_list_for_unknown_genre(mcp_server) -> None:
     result = _call_tool(
         mcp_server,
@@ -461,3 +479,29 @@ def test_check_for_songs_returns_empty_list_for_unknown_song(mcp_server) -> None
     )
 
     assert result == []
+
+
+def test_query_invoice_database_runs_read_only_select(mcp_server) -> None:
+    result = _call_tool(
+        mcp_server,
+        "query_invoice_database",
+        {
+            "sql_query": (
+                "SELECT InvoiceId, CustomerId FROM Invoice "
+                "WHERE CustomerId = 5 ORDER BY InvoiceDate DESC LIMIT 2"
+            )
+        },
+    )
+
+    rows = _assert_non_empty_list_of_dicts(result)
+    assert len(rows) == 2
+    assert all(row["CustomerId"] == 5 for row in rows)
+
+
+def test_query_music_database_rejects_cross_domain_tables(mcp_server) -> None:
+    with pytest.raises(Exception, match="outside this agent domain"):
+        _call_tool(
+            mcp_server,
+            "query_music_database",
+            {"sql_query": "SELECT * FROM Invoice LIMIT 1"},
+        )

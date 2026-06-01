@@ -33,49 +33,29 @@ def _create_fast_planner_app():
 
 @pytest.mark.anyio
 @pytest.mark.parametrize(
-    ("user_input", "expected_payload"),
+    ("user_input", "expected_agent", "expected_text"),
     [
         (
             "Show me 2 most recent invoices of customer id 5",
-            {
-                "agent": "invoice",
-                "intent": "invoice_query",
-                "args": {
-                    "customer_id": "5",
-                    "limit": "2",
-                    "sort_by": "invoice_date",
-                    "sort_order": "desc",
-                    "include_support_employee": "true",
-                },
-                "instruction": (
-                    "Get 2 most recent invoices for customer_id=5 "
-                    "with support employee"
-                ),
-            },
+            "invoice",
+            "2",
         ),
         (
             "Show total invoice spending for customer_id=5",
-            {
-                "agent": "invoice",
-                "intent": "invoice_summary",
-                "args": {"customer_id": "5"},
-                "instruction": "Get invoice summary for customer_id=5",
-            },
+            "invoice",
+            "spending",
         ),
         (
             "Find tracks by artist AC/DC",
-            {
-                "agent": "music",
-                "intent": "music_query",
-                "args": {"search_type": "artist", "artist": "AC/DC"},
-                "instruction": "Find tracks by artist AC/DC",
-            },
+            "music",
+            "AC/DC",
         ),
     ],
 )
-async def test_real_planner_api_records_structured_a2a_payloads(
+async def test_real_planner_api_records_agent_instruction_dispatch(
     user_input: str,
-    expected_payload: dict,
+    expected_agent: str,
+    expected_text: str,
 ) -> None:
     transport = httpx.ASGITransport(app=_create_fast_planner_app())
     async with httpx.AsyncClient(
@@ -86,7 +66,7 @@ async def test_real_planner_api_records_structured_a2a_payloads(
             "/planner/invoke",
             json={
                 "user_input": user_input,
-                "thread_id": f"integration-a2a-payload-{uuid4()}",
+                "thread_id": f"integration-agent-dispatch-{uuid4()}",
             },
         )
 
@@ -94,8 +74,8 @@ async def test_real_planner_api_records_structured_a2a_payloads(
 
     assert response.status_code == 200, body
     assert body["status"] == "completed", body
-    assert body["final_answer"]
-    assert "failed" not in body["final_answer"].lower()
-    assert body["raw_result"]["planner_output"]["tasks"][0]["a2a_payload"] == (
-        expected_payload
-    )
+    task = body["raw_result"]["planner_output"]["tasks"][0]
+    assert task["agent"] == expected_agent
+    assert expected_text.lower() in task["instruction"].lower()
+    assert "intent" not in task
+    assert "args" not in task

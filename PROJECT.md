@@ -4,7 +4,7 @@
 
 This project is a Python multi-agent system for invoice and music queries. It uses LangGraph for orchestration, A2A services for domain agents, FastMCP tools for database access, and the Chinook SQLite database as the sample data source.
 
-The current implementation is past the initial demo stage. It has a tested planner runtime, CLI and API entrypoints, structured internal task payloads, structured-first A2A execution with text fallback, and invoice result enrichment with support employee data.
+The current implementation is past the initial demo stage. It has a tested planner runtime, CLI and API entrypoints, natural-language A2A dispatch, LangChain-driven domain agents, FastMCP database tools, and Acontext outcome capture.
 
 ## Current Architecture
 
@@ -16,11 +16,10 @@ User input
 -> PlannerAgent structured PlannerOutput
 -> LangGraph planner_app
 -> optional HITL interrupt/resume
--> task intent + args
--> build_a2a_payload_from_task()
--> A2A structured data part plus compatibility text instruction
+-> natural-language agent task instruction
+-> A2A text instruction
 -> Invoice/Music A2A service
--> MCP tools
+-> LangChain agent runtime with MCP tools
 -> Aggregator
 -> final answer
 ```
@@ -31,8 +30,8 @@ User input
 - `planner_app/` owns LangGraph nodes, edges, HITL, task execution, and final response flow.
 - `orchestrator/` owns the reusable `PlannerService` and FastAPI planner endpoint.
 - `a2a_client/` owns reusable JSON-RPC clients for A2A services.
-- `a2a_servers/invoice_agent/` owns invoice domain parsing and invoice MCP tool orchestration.
-- `a2a_servers/music_agent/` owns music domain parsing and music MCP tool orchestration.
+- `a2a_servers/invoice_agent/` owns the invoice LangChain MCP agent prompt and A2A executor.
+- `a2a_servers/music_agent/` owns the music LangChain MCP agent prompt and A2A executor.
 - `mcp_server/` owns database access and tool registration.
 - `aggregator/` owns final user-facing formatting.
 
@@ -40,23 +39,21 @@ User input
 
 Completed:
 
-- Planner schema validates agent/intent compatibility, required args or missing fields, confidence range, blank instructions, and aggregation consistency.
+- Planner schema validates generic agent dispatch tasks, missing fields, confidence range, blank instructions, and aggregation consistency.
 - Planner retries invalid structured LLM output once before returning a safe failed output.
 - Planner structured LLM initialization is lazy for easier unit testing.
 - `PlannerService` wraps graph invocation, thread ids, HITL resume, interrupt extraction, and final-answer extraction.
 - Optional Acontext capture records sanitized workflow decisions, domain dispatch, and MCP outcome summaries in a shared learning space and flushes terminal sessions for skill generation.
 - `scripts/run_planner.py` uses `PlannerService` and configurable memory or SQLite checkpointing.
 - `src/multi_agent_system/orchestrator/server.py` exposes `POST /planner/invoke`.
-- Graph nodes rebuild execution instructions from structured `task["args"]`, not stale planner instruction text.
-- `build_a2a_payload_from_task()` creates `{agent, intent, args, instruction}` for every executable task.
-- Planner task execution sends `a2a_payload` as native A2A structured data and retains `payload["instruction"]` as a text compatibility part.
-- Invoice and music A2A executors validate structured requests first and fall back to legacy text-only callers.
+- Graph nodes dispatch the planner's natural-language `task["instruction"]` directly to the selected A2A agent.
+- Invoice and music A2A executors pass natural-language instructions to their LangChain MCP runtimes.
 - Planner graph callbacks are asynchronous so API/CLI `ainvoke()` flows do not depend on thread-dispatched callbacks.
 - A2A client handles HTTP errors, timeouts, JSON-RPC errors, invalid JSON, missing result objects, and malformed response parts.
-- MCP tool agent handles tool loading, missing tools, invocation errors, invalid JSON payloads, and unsupported MCP result shapes.
-- Invoice agent supports `latest_invoice`, `invoice_detail`, `invoice_summary`, `customer_support_employee`, `all_invoices`, `latest_invoice_support_employee`, and `invoices_by_unit_price`.
+- Common LangChain agent runtime loads MCP tools, records tool-call/tool-result evidence, and lets the LLM choose tool names and arguments.
+- Invoice agent supports invoice/customer/support employee database questions through MCP tool schemas and a read-only invoice query tool.
 - Invoice MCP lookups use parameterized identifier queries, including summary totals and existing invoice/employee paths.
-- Music agent supports tracks by artist, albums by artist, songs by genre, and song existence checks.
+- Music agent supports tracks by artist, albums by artist, songs by genre, song existence checks, and richer music database questions through MCP tool schemas and a read-only music query tool.
 
 ## Current Invoice Rule
 
@@ -181,30 +178,21 @@ Priority: high.
 
 - Completed in automated coverage: invoice response-shape tests verify support employee enrichment for latest, all, and unit-price-sorted invoice flows.
 - Completed live validation on May 26, 2026: `scripts/run_planner.py` and the focused `/planner/invoke` integration flow completed through local Ollama `gpt-oss`, A2A, MCP, and Chinook.
-- Keep `task["args"]` and `a2a_payload` as the execution contract.
+- Keep `task["instruction"]` as the execution contract. Do not reintroduce intent/args instruction builders.
 
-### Phase 2: Replace Domain Text Parsing With Structured Inputs
+### Phase 2: Replace Rule-Based Domain Parsing With LLM Tool Agents
 
 Priority: high.
 
-Implemented transport contract:
+Implemented contract:
 
 ```text
-Get all invoices for customer_id=5
+task = {"agent": "invoice", "instruction": "Get all invoices for customer_id=5"}
 ```
 
-```json
-{
-  "agent": "invoice",
-  "intent": "all_invoices",
-  "args": {"customer_id": "5"},
-  "instruction": "Get all invoices for customer_id=5"
-}
-```
-
-- Planner nodes send this payload in an A2A data part and include `instruction` as a text part for compatibility.
-- Invoice and music executors dispatch typed structured requests when supplied and retain text parsing for direct legacy callers.
-- Existing text A2A tests remain as backward-compatibility coverage.
+- Planner nodes send instruction text to A2A agents.
+- Invoice and music executors run LangChain agents that choose MCP tools and arguments from tool schemas.
+- Protocol-level tests retain small fakes for A2A/Acontext boundaries; behavior tests exercise the new generic runtime contract.
 
 ### Phase 3: Add Focused Domain Capabilities
 
@@ -222,7 +210,7 @@ Music candidates:
 - top tracks by genre
 - playlist-style recommendations with limits
 
-Add each capability through the full stack: schema, prompt, task instruction or payload, agent path, MCP tool, unit tests, and opt-in real-service tests.
+Add new capabilities by exposing or documenting MCP tools. Avoid adding Python branches for every new user phrasing or argument.
 
 ### Phase 4: Parallel Multi-Agent Execution
 

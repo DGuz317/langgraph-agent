@@ -22,6 +22,10 @@ class FakeSessions:
         self.create_calls: list[dict] = []
         self.store_calls: list[tuple[str, dict]] = []
         self.flush_calls: list[str] = []
+        self.get_tasks_calls: list[dict] = []
+        self.update_configs_calls: list[dict] = []
+        self.disable_task_tracking = False
+        self.tasks: list[object] = []
 
     async def create(self, **kwargs):
         self.create_calls.append(kwargs)
@@ -35,6 +39,18 @@ class FakeSessions:
 
     async def flush(self, session_id):
         self.flush_calls.append(session_id)
+
+    async def get_tasks(self, session_id, **kwargs):
+        self.get_tasks_calls.append({"session_id": session_id, **kwargs})
+        return SimpleNamespace(items=self.tasks)
+
+    async def update_configs(self, session_id, *, configs):
+        self.update_configs_calls.append(
+            {"session_id": session_id, "configs": configs}
+        )
+
+    async def get_configs(self, session_id):
+        return SimpleNamespace(disable_task_tracking=self.disable_task_tracking)
 
 
 class FakeLearningSpaces:
@@ -150,10 +166,12 @@ async def test_completed_interaction_creates_learning_space_and_flushes() -> Non
     assert client.sessions.create_calls == [
         {
             "user": "planner-service",
+            "disable_task_tracking": False,
             "configs": {
                 "source": "multi_agent_system.planner",
                 "memory_scope": MEMORY_SCOPE,
                 "capture_policy": MEMORY_SCOPE,
+                "task_tracking": "enabled",
             },
             "use_uuid": session_id,
         }
@@ -255,6 +273,41 @@ async def test_interrupt_and_resume_share_learning_session_and_flush_at_end() ->
     assert client.sessions.store_calls[1][1]["blob"]["content"] == "Provide customer ID."
     assert client.sessions.store_calls[3][1]["blob"]["content"] == "Latest invoice found."
     assert client.sessions.flush_calls == [session_id]
+    assert client.sessions.update_configs_calls == [
+        {
+            "session_id": session_id,
+            "configs": {
+                "source": "multi_agent_system.planner",
+                "memory_scope": MEMORY_SCOPE,
+                "capture_policy": MEMORY_SCOPE,
+                "task_tracking": "enabled",
+            },
+        }
+    ]
+
+
+@pytest.mark.anyio
+async def test_existing_session_warns_when_task_tracking_is_disabled(caplog) -> None:
+    client = FakeClient()
+    client.sessions.disable_task_tracking = True
+    session_id = acontext_session_id("existing-disabled-session")
+    client.sessions.created_session_ids.add(session_id)
+    capture = _capture(client)
+    response = PlannerServiceResponse(
+        status="completed",
+        thread_id="existing-disabled-session",
+        final_answer="Done.",
+    )
+
+    with caplog.at_level("WARNING"):
+        await capture.capture(
+            user_input="hello",
+            thread_id="existing-disabled-session",
+            resume=False,
+            response=response,
+        )
+
+    assert "disable_task_tracking=true" in caplog.text
 
 
 @pytest.mark.anyio
@@ -304,6 +357,7 @@ async def test_capture_skips_acontext_transport_errors(caplog) -> None:
 @pytest.mark.anyio
 async def test_workflow_outcome_capture_stores_readable_trace_and_final_answer() -> None:
     client = FakeClient()
+    client.sessions.tasks = [SimpleNamespace(id="task-1")]
     capture = _capture(client)
     call_id = "tool-call-1"
     response = PlannerServiceResponse(
@@ -315,8 +369,6 @@ async def test_workflow_outcome_capture_stores_readable_trace_and_final_answer()
                 "tasks": [
                     {
                         "agent": "invoice",
-                        "intent": "latest_invoice",
-                        "args": {"customer_id": "5"},
                         "status": "completed",
                         "instruction": "Get latest invoice for customer_id=5",
                     }
@@ -326,10 +378,9 @@ async def test_workflow_outcome_capture_stores_readable_trace_and_final_answer()
                 ExecutionEvidence(
                     kind="planner_decision",
                     agent="planner",
-                    operation="latest_invoice",
+                    operation="invoice",
                     status="completed",
-                    fields=["customer_id"],
-                    summary="Planner selected an executable workflow; values omitted from memory.",
+                    summary="Planner selected an executable agent dispatch.",
                 ).model_dump(),
                 ExecutionEvidence(
                     kind="mcp_tool_call",
@@ -355,9 +406,9 @@ async def test_workflow_outcome_capture_stores_readable_trace_and_final_answer()
                 ExecutionEvidence(
                     kind="agent_result",
                     agent="invoice",
-                    operation="latest_invoice",
+                    operation="agent_instruction",
                     status="completed",
-                    summary="Domain workflow completed; returned values omitted from memory.",
+                    summary="Domain agent completed the instruction.",
                 ).model_dump(),
             ]
         },
@@ -377,8 +428,10 @@ async def test_workflow_outcome_capture_stores_readable_trace_and_final_answer()
         "role": "user",
         "content": "Get latest invoice for customer_id=5",
     }
-    assert "invoice agent -> latest_invoice" in captured_json
+    assert "Acontext task extraction summary" in captured_json
+    assert "Task 1: invoice agent should complete the instruction" in captured_json
     assert "Get latest invoice for customer_id=5" in captured_json
+    assert "completed tool get_invoices_by_customer_sorted_by_date" in captured_json
     assert "Invoice agent called MCP tool" not in captured_json
     assert "Invoice lookup completed. Outcome:" in captured_json
     tool_result_blob = next(blob for blob in blobs if blob.get("role") == "tool")
@@ -390,6 +443,41 @@ async def test_workflow_outcome_capture_stores_readable_trace_and_final_answer()
     assert json.loads(
         tool_call_blob["tool_calls"][0]["function"]["arguments"]
     ) == {"customer_id": "5"}
+    assert client.sessions.get_tasks_calls == [
+        {"session_id": acontext_session_id("sensitive-thread"), "limit": 1}
+    ]
+
+
+@pytest.mark.anyio
+async def test_capture_warns_when_acontext_extracts_no_tasks(caplog) -> None:
+    client = FakeClient()
+    capture = _capture(client)
+    response = PlannerServiceResponse(
+        status="completed",
+        thread_id="no-acontext-tasks",
+        final_answer="Done.",
+        raw_result={
+            "planner_output": {
+                "tasks": [
+                    {
+                        "agent": "music",
+                        "instruction": "Recommend Jazz songs.",
+                        "status": "completed",
+                    }
+                ]
+            }
+        },
+    )
+
+    with caplog.at_level("WARNING"):
+        await capture.capture(
+            user_input="recommend Jazz songs",
+            thread_id="no-acontext-tasks",
+            resume=False,
+            response=response,
+        )
+
+    assert "Acontext extracted no tasks for planner thread no-acontext-tasks" in caplog.text
 
 
 @pytest.mark.anyio

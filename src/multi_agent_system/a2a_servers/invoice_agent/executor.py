@@ -2,13 +2,8 @@ from a2a.helpers import get_data_parts, new_text_message
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.events import EventQueue
 from a2a.types import Role
-from pydantic import ValidationError
 
 from multi_agent_system.a2a_servers.invoice_agent.agent import InvoiceAgent
-from multi_agent_system.a2a_servers.invoice_agent.schemas import (
-    InvoiceAgentResponse,
-    InvoiceTaskPayload,
-)
 from multi_agent_system.common.execution_evidence import collect_execution_evidence
 
 
@@ -24,18 +19,9 @@ class InvoiceAgentExecutor(AgentExecutor):
         data_parts = get_data_parts(context.message.parts) if context.message else []
 
         with collect_execution_evidence() as evidence:
-            if data_parts:
-                try:
-                    payload = InvoiceTaskPayload.model_validate(data_parts[0])
-                except ValidationError:
-                    result = InvoiceAgentResponse(
-                        success=False,
-                        content="Invalid structured invoice request.",
-                    )
-                else:
-                    result = await self.agent.invoke_request(payload.to_request())
-            else:
-                result = await self.agent.ainvoke(context.get_user_input())
+            result = await self.agent.ainvoke(
+                _instruction_from_context(context, data_parts)
+            )
 
         result = result.model_copy(
             update={"execution_evidence": [*result.execution_evidence, *evidence]}
@@ -54,3 +40,15 @@ class InvoiceAgentExecutor(AgentExecutor):
         event_queue: EventQueue,
     ) -> None:
         raise NotImplementedError("Cancel is not supported by InvoiceAgentExecutor.")
+
+
+def _instruction_from_context(
+    context: RequestContext,
+    data_parts: list[dict],
+) -> str:
+    if data_parts and isinstance(data_parts[0], dict):
+        instruction = data_parts[0].get("instruction")
+        if isinstance(instruction, str) and instruction.strip():
+            return instruction.strip()
+
+    return context.get_user_input()

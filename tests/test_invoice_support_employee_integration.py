@@ -184,9 +184,8 @@ async def test_real_planner_api_returns_support_employee_for_invoice_query(
 
     task = body["raw_result"]["planner_output"]["tasks"][0]
     assert task["agent"] == "invoice"
-    assert task["intent"] == "invoice_query"
-    assert task["args"]["customer_id"] == "5"
-    assert task["args"]["include_support_employee"] == "true"
-    assert task["a2a_payload"]["intent"] == "invoice_query"
-    assert task["a2a_payload"]["args"]["customer_id"] == "5"
-    assert task["a2a_payload"]["args"]["include_support_employee"] == "true"
+    assert "customer" in task["instruction"].lower()
+    assert "5" in task["instruction"]
+    assert "intent" not in task
+    assert "args" not in task
+    assert "a2a_payload" not in task

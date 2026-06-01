@@ -101,6 +101,7 @@ class AcontextCapture:
                         client,
                         session_id=session_id,
                         response=response,
+                        evidence=evidence,
                     )
 
                     await self._store_new_trace_messages(
@@ -125,6 +126,12 @@ class AcontextCapture:
 
                     if response.status in {"completed", "failed"}:
                         await client.sessions.flush(session_id)
+                        if _has_planner_tasks(response):
+                            await _warn_if_no_acontext_tasks(
+                                client,
+                                session_id=session_id,
+                                thread_id=thread_id,
+                            )
         except AcontextError as exc:
             logger.warning(
                 "Acontext capture skipped for planner thread %s: %s",
@@ -138,8 +145,9 @@ class AcontextCapture:
         *,
         session_id: str,
         response: PlannerServiceResponse,
+        evidence: list[ExecutionEvidence],
     ) -> None:
-        trace = _planner_trace_text(response)
+        trace = _planner_trace_text(response, evidence)
         if trace is None:
             return
 
@@ -247,19 +255,31 @@ async def _ensure_session(
     session_id: str,
     user_identifier: str,
 ) -> None:
+    configs = {
+        "source": "multi_agent_system.planner",
+        "memory_scope": MEMORY_SCOPE,
+        "capture_policy": MEMORY_SCOPE,
+        "task_tracking": "enabled",
+    }
     try:
         await client.sessions.create(
             user=user_identifier,
-            configs={
-                "source": "multi_agent_system.planner",
-                "memory_scope": MEMORY_SCOPE,
-                "capture_policy": MEMORY_SCOPE,
-            },
+            disable_task_tracking=False,
+            configs=configs,
             use_uuid=session_id,
         )
     except APIError as exc:
         if exc.status_code != 409:
             raise
+
+        await client.sessions.update_configs(session_id, configs=configs)
+        session = await client.sessions.get_configs(session_id)
+        if session.disable_task_tracking:
+            logger.warning(
+                "Acontext session %s has disable_task_tracking=true; "
+                "dashboard tasks will not be extracted for this session.",
+                session_id,
+            )
 
 
 async def _ensure_learning_session(
@@ -282,6 +302,32 @@ async def _ensure_learning_session(
             raise
 
 
+async def _warn_if_no_acontext_tasks(
+    client: AcontextAsyncClient,
+    *,
+    session_id: str,
+    thread_id: str,
+) -> None:
+    try:
+        tasks = await client.sessions.get_tasks(session_id, limit=1)
+    except AcontextError as exc:
+        logger.debug(
+            "Could not verify Acontext task extraction for planner thread %s: %s",
+            thread_id,
+            exc,
+        )
+        return
+
+    if tasks.items:
+        return
+
+    logger.warning(
+        "Acontext extracted no tasks for planner thread %s after flush. "
+        "Check the Acontext Task Agent LLM/runtime if the dashboard shows No Task.",
+        thread_id,
+    )
+
+
 def _extract_execution_evidence(
     response: PlannerServiceResponse,
 ) -> list[ExecutionEvidence]:
@@ -298,7 +344,19 @@ def _extract_execution_evidence(
     return evidence
 
 
-def _planner_trace_text(response: PlannerServiceResponse) -> str | None:
+def _has_planner_tasks(response: PlannerServiceResponse) -> bool:
+    planner_output = response.raw_result.get("planner_output")
+    if not isinstance(planner_output, dict):
+        return False
+
+    tasks = planner_output.get("tasks", [])
+    return isinstance(tasks, list) and any(isinstance(task, dict) for task in tasks)
+
+
+def _planner_trace_text(
+    response: PlannerServiceResponse,
+    evidence: list[ExecutionEvidence],
+) -> str | None:
     planner_output = response.raw_result.get("planner_output")
     if not isinstance(planner_output, dict):
         return None
@@ -310,30 +368,60 @@ def _planner_trace_text(response: PlannerServiceResponse) -> str | None:
     if not tasks:
         return "Planner selected no executable invoice or music tasks."
 
-    lines = ["Planner selected workflow tasks:"]
+    tool_progress = _tool_progress_by_agent(evidence)
+    lines = [
+        "Acontext task extraction summary:",
+        f"- Overall status: {response.status}.",
+    ]
+    task_index = 0
     for task in tasks:
         if not isinstance(task, dict):
             continue
 
+        task_index += 1
         agent = str(task.get("agent") or "unknown")
-        intent = str(task.get("intent") or "unknown")
         status = str(task.get("status") or "not_started")
         details = [f"status: {status}"]
-
-        args = _format_task_args(task.get("args"))
-        if args:
-            details.append(f"args: {args}")
 
         instruction = _clean_text(task.get("instruction"))
         if instruction:
             details.append(f"instruction: {instruction}")
 
-        lines.append(f"- {agent} agent -> {intent} ({'; '.join(details)})")
+        progress = tool_progress.get(agent)
+        if progress:
+            details.append(f"progress: {', '.join(progress)}")
 
-    if len(lines) == 1:
+        lines.append(
+            f"- Task {task_index}: {agent} agent should complete the instruction "
+            f"({'; '.join(details)})"
+        )
+
+    if len(lines) == 2:
         return None
 
     return "\n".join(lines)
+
+
+def _tool_progress_by_agent(
+    evidence: list[ExecutionEvidence],
+) -> dict[str, list[str]]:
+    progress: dict[str, list[str]] = {}
+    seen: set[tuple[str, str]] = set()
+
+    for item in evidence:
+        if item.kind != "mcp_tool_result" or item.status != "completed":
+            continue
+
+        key = (item.agent, item.operation)
+        if key in seen:
+            continue
+
+        seen.add(key)
+        progress.setdefault(item.agent, []).append(
+            f"completed tool {item.operation}"
+        )
+
+    return progress
 
 
 def _format_task_args(value: object) -> str:

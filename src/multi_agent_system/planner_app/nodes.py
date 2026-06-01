@@ -9,10 +9,6 @@ from multi_agent_system.common.execution_evidence import ExecutionEvidence
 from multi_agent_system.planner.agent import PlannerAgent
 from multi_agent_system.planner_app.hitl import interrupt_for_missing_info
 from multi_agent_system.planner_app.state import PlannerAppState
-from multi_agent_system.planner_app.task_instructions import (
-    TaskInstructionError,
-    build_a2a_payload_from_task,
-)
 
 
 planner = PlannerAgent()
@@ -43,72 +39,14 @@ async def missing_info_node(state: PlannerAppState) -> dict:
     planner_output = _copy_planner_output(state)
     tasks = planner_output.get("tasks", [])
 
+    extra_context = _format_extracted_fields(extracted)
     for task in tasks:
-        if task["agent"] == "invoice" and extracted.get("invoice_id"):
-            task["args"] = _updated_args(
-                task,
-                invoice_id=extracted["invoice_id"],
-                include_support_employee=(
-                    "true" if task.get("intent") == "invoice_query" else None
-                ),
-            )
-            _attach_a2a_payload(task)
-            task["missing_fields"] = []
-            continue
-
-        if task["agent"] == "invoice" and extracted.get("customer_id"):
-            task["args"] = _updated_args(
-                task,
-                customer_id=extracted["customer_id"],
-                include_support_employee=(
-                    "true" if task.get("intent") == "invoice_query" else None
-                ),
-            )
-            _attach_a2a_payload(task)
-            task["missing_fields"] = []
-            continue
-
-        if task["agent"] == "music" and extracted.get("artist"):
-            if task.get("intent") == "music_query":
-                task["args"] = _updated_args(
-                    task,
-                    search_type="artist",
-                    artist=extracted["artist"],
-                )
-            else:
-                task["intent"] = "tracks_by_artist"
-                task["args"] = {"artist": extracted["artist"]}
-            _attach_a2a_payload(task)
-            task["missing_fields"] = []
-            continue
-
-        if task["agent"] == "music" and extracted.get("genre"):
-            if task.get("intent") == "music_query":
-                task["args"] = _updated_args(
-                    task,
-                    search_type="genre",
-                    genre=extracted["genre"],
-                )
-            else:
-                task["intent"] = "songs_by_genre"
-                task["args"] = {"genre": extracted["genre"]}
-            _attach_a2a_payload(task)
-            task["missing_fields"] = []
-            continue
-
-        if task["agent"] == "music" and extracted.get("song_title"):
-            if task.get("intent") == "music_query":
-                task["args"] = _updated_args(
-                    task,
-                    search_type="song_title",
-                    song_title=extracted["song_title"],
-                )
-            else:
-                task["intent"] = "check_song"
-                task["args"] = {"song_title": extracted["song_title"]}
-            _attach_a2a_payload(task)
-            task["missing_fields"] = []
-            continue
+        if extra_context:
+            task["instruction"] = (
+                f"{task.get('instruction', '').strip()} "
+                f"Additional user-provided information: {extra_context}."
+            ).strip()
+        task["missing_fields"] = []
 
     return {
         **extracted,
@@ -135,9 +73,7 @@ async def invoice_node(state: PlannerAppState) -> dict:
     try:
         task = _get_next_task_for_agent(planner_output, agent="invoice")
 
-        payload = _attach_a2a_payload(task)
-
-        result = await InvoiceA2AClient().ask_payload(payload)
+        result = await InvoiceA2AClient().ask(_task_instruction(task))
         task["status"] = "completed"
 
         return {
@@ -147,17 +83,11 @@ async def invoice_node(state: PlannerAppState) -> dict:
                 state,
                 _dispatch_evidence(task),
                 *_extract_remote_evidence(result),
-                _agent_result_evidence("invoice", task["intent"], completed=True),
+                _agent_result_evidence("invoice", completed=True),
             ),
         }
 
-    except (
-        TaskInstructionError,
-        ValueError,
-        TimeoutError,
-        ConnectionError,
-        RuntimeError,
-    ) as exc:
+    except (ValueError, TimeoutError, ConnectionError, RuntimeError) as exc:
         _mark_task_failed(task)
 
         return {
@@ -166,11 +96,7 @@ async def invoice_node(state: PlannerAppState) -> dict:
             "execution_evidence": _with_evidence(
                 state,
                 *([_dispatch_evidence(task)] if task is not None else []),
-                _agent_result_evidence(
-                    "invoice",
-                    str(task.get("intent", "unknown")) if task is not None else "unknown",
-                    completed=False,
-                ),
+                _agent_result_evidence("invoice", completed=False),
             ),
         }
 
@@ -182,9 +108,7 @@ async def music_node(state: PlannerAppState) -> dict:
     try:
         task = _get_next_task_for_agent(planner_output, agent="music")
 
-        payload = _attach_a2a_payload(task)
-
-        result = await MusicA2AClient().ask_payload(payload)
+        result = await MusicA2AClient().ask(_task_instruction(task))
         task["status"] = "completed"
 
         return {
@@ -194,17 +118,11 @@ async def music_node(state: PlannerAppState) -> dict:
                 state,
                 _dispatch_evidence(task),
                 *_extract_remote_evidence(result),
-                _agent_result_evidence("music", task["intent"], completed=True),
+                _agent_result_evidence("music", completed=True),
             ),
         }
 
-    except (
-        TaskInstructionError,
-        ValueError,
-        TimeoutError,
-        ConnectionError,
-        RuntimeError,
-    ) as exc:
+    except (ValueError, TimeoutError, ConnectionError, RuntimeError) as exc:
         _mark_task_failed(task)
 
         return {
@@ -213,11 +131,7 @@ async def music_node(state: PlannerAppState) -> dict:
             "execution_evidence": _with_evidence(
                 state,
                 *([_dispatch_evidence(task)] if task is not None else []),
-                _agent_result_evidence(
-                    "music",
-                    str(task.get("intent", "unknown")) if task is not None else "unknown",
-                    completed=False,
-                ),
+                _agent_result_evidence("music", completed=False),
             ),
         }
 
@@ -337,24 +251,25 @@ def _get_next_task_for_agent(
     raise ValueError(f"No pending task found for agent: {agent}")
 
 
-def _attach_a2a_payload(task: dict[str, Any]) -> dict[str, Any]:
-    payload = build_a2a_payload_from_task(task)
-    task["a2a_payload"] = payload
-    task["instruction"] = payload["instruction"]
-    return payload
+def _task_instruction(task: dict[str, Any]) -> str:
+    instruction = str(task.get("instruction") or "").strip()
+    if not instruction:
+        raise ValueError("Planner task is missing an instruction.")
+    return instruction
+
+
+def _format_extracted_fields(values: dict[str, Any]) -> str:
+    pairs = [
+        f"{key}={value}"
+        for key, value in values.items()
+        if str(value).strip()
+    ]
+    return ", ".join(pairs)
 
 
 def _mark_task_failed(task: dict[str, Any] | None) -> None:
     if task is not None:
         task["status"] = "failed"
-
-
-def _updated_args(task: dict[str, Any], **updates: str | None) -> dict[str, Any]:
-    args = dict(task.get("args") or {})
-    for key, value in updates.items():
-        if value is not None:
-            args[key] = value
-    return args
 
 
 def _failure_result(agent_label: str, exc: Exception) -> str:
@@ -377,18 +292,17 @@ def _planner_decision_evidence(planner_output: dict[str, Any]) -> list[dict[str,
     evidence: list[dict[str, Any]] = []
     for task in tasks:
         missing_fields = [str(field) for field in task.get("missing_fields", [])]
-        fields = sorted({*task.get("args", {}).keys(), *missing_fields})
         if missing_fields:
             summary = "Planner selected a workflow requiring additional fields."
         else:
-            summary = "Planner selected an executable workflow; values omitted from memory."
+            summary = "Planner selected an executable agent dispatch."
         evidence.append(
             ExecutionEvidence(
                 kind="planner_decision",
                 agent="planner",
-                operation=str(task.get("intent", "unknown")),
+                operation=str(task.get("agent", "unknown")),
                 status="interrupted" if missing_fields else "completed",
-                fields=fields,
+                fields=missing_fields,
                 summary=summary,
             ).model_dump()
         )
@@ -409,28 +323,26 @@ def _dispatch_evidence(task: dict[str, Any]) -> ExecutionEvidence:
     return ExecutionEvidence(
         kind="a2a_dispatch",
         agent=task["agent"],
-        operation=str(task.get("intent", "unknown")),
+        operation="agent_instruction",
         status="started",
-        fields=sorted(str(key) for key in task.get("args", {})),
-        summary="Dispatched domain workflow; supplied values omitted from memory.",
+        summary="Dispatched natural-language instruction to domain agent.",
     )
 
 
 def _agent_result_evidence(
     agent: str,
-    operation: str,
     *,
     completed: bool,
 ) -> ExecutionEvidence:
     return ExecutionEvidence(
         kind="agent_result",
         agent=agent,
-        operation=operation,
+        operation="agent_instruction",
         status="completed" if completed else "failed",
         summary=(
-            "Domain workflow completed; returned values omitted from memory."
+            "Domain agent completed the instruction."
             if completed
-            else "Domain workflow failed; failure details omitted from memory."
+            else "Domain agent failed the instruction."
         ),
     )
 

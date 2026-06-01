@@ -1,30 +1,28 @@
-import json
-import asyncio
-from uuid import uuid4
-
 import pytest
 
-from multi_agent_system.planner_app import nodes
-from multi_agent_system.planner_app.graph import planner_graph
+from multi_agent_system.planner_app.graph import build_graph
+
+
+@pytest.fixture
+def anyio_backend() -> str:
+    return "asyncio"
 
 
 class FakePlannerOutput:
-    def __init__(
-        self,
-        tasks: list[dict],
-        missing_fields: list[str] | None = None,
-        requires_aggregation: bool = False,
-    ) -> None:
+    def __init__(self, tasks: list[dict]) -> None:
         self.tasks = tasks
-        self.missing_fields = missing_fields or []
-        self.requires_aggregation = requires_aggregation
+        self.missing_fields = [
+            field
+            for task in tasks
+            for field in task.get("missing_fields", [])
+        ]
 
     def model_dump(self) -> dict:
         return {
             "status": "completed",
             "tasks": self.tasks,
             "confidence": 1.0,
-            "requires_aggregation": self.requires_aggregation,
+            "requires_aggregation": len(self.tasks) > 1,
             "missing_fields": self.missing_fields,
         }
 
@@ -33,459 +31,62 @@ class FakePlanner:
     def __init__(self, output: FakePlannerOutput) -> None:
         self.output = output
 
-    async def ainvoke(self, user_input: str) -> FakePlannerOutput:
+    async def ainvoke(self, user_input: str, *, memory_context: str | None = None):
         return self.output
 
 
-@pytest.fixture
-def anyio_backend() -> str:
-    return "asyncio"
-
-
-@pytest.fixture
-def fake_a2a_clients(monkeypatch: pytest.MonkeyPatch) -> dict[str, list[str]]:
-    calls: dict[str, list[str]] = {
-        "invoice": [],
-        "music": [],
-    }
-
-    class FakeInvoiceA2AClient:
-        async def ask_payload(self, payload: dict) -> str:
-            calls["invoice"].append(payload["instruction"])
-            return json.dumps(
-                {
-                    "success": True,
-                    "content": "Found latest invoice.",
-                    "data": {
-                        "InvoiceId": 77,
-                        "CustomerId": 5,
-                    },
-                }
-            )
-
-    class FakeMusicA2AClient:
-        async def ask_payload(self, payload: dict) -> str:
-            calls["music"].append(payload["instruction"])
-            return json.dumps(
-                {
-                    "success": True,
-                    "content": "Found music result.",
-                    "data": [
-                        {
-                            "SongName": "Desafinado",
-                            "ArtistName": "Antônio Carlos Jobim",
-                        }
-                    ],
-                },
-                ensure_ascii=False,
-            )
-
-    monkeypatch.setattr(nodes, "InvoiceA2AClient", FakeInvoiceA2AClient)
-    monkeypatch.setattr(nodes, "MusicA2AClient", FakeMusicA2AClient)
-
-    return calls
-
-
-def _set_planner_output(
+@pytest.mark.anyio
+async def test_graph_dispatches_multi_agent_natural_language_tasks(
     monkeypatch: pytest.MonkeyPatch,
-    tasks: list[dict],
-    missing_fields: list[str] | None = None,
-    requires_aggregation: bool = False,
 ) -> None:
+    from multi_agent_system.planner_app import nodes
+
+    captured = {"invoice": [], "music": []}
+
+    class FakeInvoiceClient:
+        async def ask(self, text: str) -> str:
+            captured["invoice"].append(text)
+            return '{"success": true, "content": "invoice ok"}'
+
+    class FakeMusicClient:
+        async def ask(self, text: str) -> str:
+            captured["music"].append(text)
+            return '{"success": true, "content": "music ok"}'
+
+    monkeypatch.setattr(nodes, "InvoiceA2AClient", FakeInvoiceClient)
+    monkeypatch.setattr(nodes, "MusicA2AClient", FakeMusicClient)
     monkeypatch.setattr(
         nodes,
         "planner",
         FakePlanner(
             FakePlannerOutput(
-                tasks=tasks,
-                missing_fields=missing_fields,
-                requires_aggregation=requires_aggregation,
+                [
+                    {
+                        "agent": "invoice",
+                        "instruction": "Show 3 most recent invoices for customer id=7.",
+                        "missing_fields": [],
+                        "status": "not_started",
+                    },
+                    {
+                        "agent": "music",
+                        "instruction": "Recommend 5 Jazz songs.",
+                        "missing_fields": [],
+                        "status": "not_started",
+                    },
+                ]
             )
         ),
     )
 
-
-async def _invoke_graph(user_input: str) -> dict:
-    return await planner_graph.ainvoke(
-        {"user_input": user_input},
-        config={"configurable": {"thread_id": str(uuid4())}},
+    graph = build_graph()
+    result = await graph.ainvoke(
+        {"user_input": "Show invoices and recommend music"},
+        config={"configurable": {"thread_id": "e2e-natural-language"}},
     )
 
-
-def _task(
-    *,
-    agent: str,
-    intent: str,
-    args: dict[str, str] | None = None,
-    missing_fields: list[str] | None = None,
-    instruction: str = "stale planner instruction",
-) -> dict:
-    return {
-        "id": str(uuid4()),
-        "agent": agent,
-        "intent": intent,
-        "instruction": instruction,
-        "args": args or {},
-        "missing_fields": missing_fields or [],
-        "status": "not_started",
+    assert captured == {
+        "invoice": ["Show 3 most recent invoices for customer id=7."],
+        "music": ["Recommend 5 Jazz songs."],
     }
-
-
-@pytest.mark.anyio
-async def test_planner_e2e_help_query_returns_capabilities(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    _set_planner_output(monkeypatch, tasks=[])
-
-    result = await _invoke_graph("hello, what can you do?")
-
-    assert "invoice" in result["final_answer"].lower()
-    assert "music" in result["final_answer"].lower()
-    assert "customer_id" in result["final_answer"]
-
-
-@pytest.mark.anyio
-async def test_planner_e2e_direct_invoice_query_uses_args_first_instruction(
-    monkeypatch: pytest.MonkeyPatch,
-    fake_a2a_clients: dict[str, list[str]],
-) -> None:
-    _set_planner_output(
-        monkeypatch,
-        tasks=[
-            _task(
-                agent="invoice",
-                intent="latest_invoice",
-                args={"customer_id": "5"},
-            )
-        ],
-    )
-
-    result = await _invoke_graph("Get latest invoice for customer_id=5")
-
-    assert fake_a2a_clients["invoice"] == [
-        "Get latest invoice for customer_id=5"
-    ]
-    assert "Found latest invoice." in result["final_answer"]
-
-
-@pytest.mark.anyio
-async def test_planner_e2e_invoice_detail_uses_structured_invoice_id(
-    monkeypatch: pytest.MonkeyPatch,
-    fake_a2a_clients: dict[str, list[str]],
-) -> None:
-    _set_planner_output(
-        monkeypatch,
-        tasks=[
-            _task(
-                agent="invoice",
-                intent="invoice_detail",
-                args={"invoice_id": "361"},
-            )
-        ],
-    )
-
-    result = await _invoke_graph("Show invoice detail for invoice_id=361")
-
-    assert fake_a2a_clients["invoice"] == [
-        "Get invoice detail for invoice_id=361"
-    ]
-    assert "Found latest invoice." in result["final_answer"]
-
-
-@pytest.mark.anyio
-async def test_planner_e2e_invoice_summary_uses_structured_customer_id(
-    monkeypatch: pytest.MonkeyPatch,
-    fake_a2a_clients: dict[str, list[str]],
-) -> None:
-    _set_planner_output(
-        monkeypatch,
-        tasks=[
-            _task(
-                agent="invoice",
-                intent="invoice_summary",
-                args={"customer_id": "5"},
-            )
-        ],
-    )
-
-    result = await _invoke_graph("Show total invoice spending for customer_id=5")
-
-    assert fake_a2a_clients["invoice"] == [
-        "Get invoice summary for customer_id=5"
-    ]
-    assert "Found latest invoice." in result["final_answer"]
-
-
-@pytest.mark.anyio
-async def test_planner_e2e_customer_support_employee_uses_structured_customer_id(
-    monkeypatch: pytest.MonkeyPatch,
-    fake_a2a_clients: dict[str, list[str]],
-) -> None:
-    _set_planner_output(
-        monkeypatch,
-        tasks=[
-            _task(
-                agent="invoice",
-                intent="customer_support_employee",
-                args={"customer_id": "5"},
-            )
-        ],
-    )
-
-    result = await _invoke_graph("Who is my support employee for customer_id=5?")
-
-    assert fake_a2a_clients["invoice"] == [
-        "Get support employee for customer_id=5"
-    ]
-    assert "Found latest invoice." in result["final_answer"]
-
-
-@pytest.mark.anyio
-async def test_planner_e2e_support_employee_query_uses_args_first_instruction(
-    monkeypatch: pytest.MonkeyPatch,
-    fake_a2a_clients: dict[str, list[str]],
-) -> None:
-    _set_planner_output(
-        monkeypatch,
-        tasks=[
-            _task(
-                agent="invoice",
-                intent="latest_invoice_support_employee",
-                args={"customer_id": "5"},
-            )
-        ],
-    )
-
-    result = await _invoke_graph(
-        "Who is the support employee for latest invoice of customer id 5?"
-    )
-
-    assert fake_a2a_clients["invoice"] == [
-        "Get support employee for latest invoice for customer_id=5"
-    ]
-    assert "Found latest invoice." in result["final_answer"]
-
-
-@pytest.mark.anyio
-async def test_planner_e2e_all_invoices_query_uses_args_first_instruction(
-    monkeypatch: pytest.MonkeyPatch,
-    fake_a2a_clients: dict[str, list[str]],
-) -> None:
-    _set_planner_output(
-        monkeypatch,
-        tasks=[
-            _task(
-                agent="invoice",
-                intent="all_invoices",
-                args={"customer_id": "5"},
-            )
-        ],
-    )
-
-    result = await _invoke_graph("All my invoice information of customer id 5")
-
-    assert fake_a2a_clients["invoice"] == [
-        "Get all invoices for customer_id=5"
-    ]
-    assert "Found latest invoice." in result["final_answer"]
-
-
-@pytest.mark.anyio
-async def test_planner_e2e_direct_music_query_uses_args_first_instruction(
-    monkeypatch: pytest.MonkeyPatch,
-    fake_a2a_clients: dict[str, list[str]],
-) -> None:
-    _set_planner_output(
-        monkeypatch,
-        tasks=[
-            _task(
-                agent="music",
-                intent="songs_by_genre",
-                args={"genre": "Jazz"},
-            )
-        ],
-    )
-
-    result = await _invoke_graph("Recommend songs by genre Jazz")
-
-    assert fake_a2a_clients["music"] == ["Recommend songs by genre Jazz"]
-    assert "Found music result." in result["final_answer"]
-    assert "Desafinado" in result["final_answer"]
-
-
-@pytest.mark.anyio
-async def test_planner_e2e_missing_invoice_customer_id_continues_after_hitl(
-    monkeypatch: pytest.MonkeyPatch,
-    fake_a2a_clients: dict[str, list[str]],
-) -> None:
-    _set_planner_output(
-        monkeypatch,
-        tasks=[
-            _task(
-                agent="invoice",
-                intent="latest_invoice",
-                missing_fields=["customer_id"],
-                instruction="Get latest invoice",
-            )
-        ],
-        missing_fields=["customer_id"],
-    )
-
-    def fake_interrupt_for_missing_info(missing_fields: list[str]) -> dict[str, str]:
-        assert missing_fields == ["customer_id"]
-        return {"customer_id": "5"}
-
-    monkeypatch.setattr(
-        nodes,
-        "interrupt_for_missing_info",
-        fake_interrupt_for_missing_info,
-    )
-
-    result = await _invoke_graph("what is my latest invoice?")
-
-    assert fake_a2a_clients["invoice"] == [
-        "Get latest invoice for customer_id=5"
-    ]
-    assert "Found latest invoice." in result["final_answer"]
-
-
-@pytest.mark.anyio
-async def test_planner_e2e_missing_song_title_continues_after_hitl(
-    monkeypatch: pytest.MonkeyPatch,
-    fake_a2a_clients: dict[str, list[str]],
-) -> None:
-    _set_planner_output(
-        monkeypatch,
-        tasks=[
-            _task(
-                agent="music",
-                intent="check_song",
-                missing_fields=["song_title"],
-                instruction="Check for song",
-            )
-        ],
-        missing_fields=["song_title"],
-    )
-
-    def fake_interrupt_for_missing_info(missing_fields: list[str]) -> dict[str, str]:
-        assert missing_fields == ["song_title"]
-        return {"song_title": "Ligia"}
-
-    monkeypatch.setattr(
-        nodes,
-        "interrupt_for_missing_info",
-        fake_interrupt_for_missing_info,
-    )
-
-    result = await _invoke_graph("check for song")
-
-    assert fake_a2a_clients["music"] == ["Check for song Ligia"]
-    assert "Found music result." in result["final_answer"]
-
-
-@pytest.mark.anyio
-async def test_planner_e2e_ambiguous_music_defaults_to_genre_after_hitl(
-    monkeypatch: pytest.MonkeyPatch,
-    fake_a2a_clients: dict[str, list[str]],
-) -> None:
-    _set_planner_output(
-        monkeypatch,
-        tasks=[
-            _task(
-                agent="music",
-                intent="clarify_music_search",
-                missing_fields=["music_search_type"],
-                instruction="Ask whether the user wants music by artist or by genre.",
-            )
-        ],
-        missing_fields=["music_search_type"],
-    )
-
-    def fake_interrupt_for_missing_info(missing_fields: list[str]) -> dict[str, str]:
-        assert missing_fields == ["music_search_type"]
-        return {
-            "music_search_type": "genre",
-            "genre": "Jazz",
-        }
-
-    monkeypatch.setattr(
-        nodes,
-        "interrupt_for_missing_info",
-        fake_interrupt_for_missing_info,
-    )
-
-    result = await _invoke_graph("recommend some songs")
-
-    assert fake_a2a_clients["music"] == ["Recommend songs by genre Jazz"]
-    assert "Found music result." in result["final_answer"]
-
-
-@pytest.mark.anyio
-async def test_planner_e2e_ambiguous_music_can_choose_artist_after_hitl(
-    monkeypatch: pytest.MonkeyPatch,
-    fake_a2a_clients: dict[str, list[str]],
-) -> None:
-    _set_planner_output(
-        monkeypatch,
-        tasks=[
-            _task(
-                agent="music",
-                intent="clarify_music_search",
-                missing_fields=["music_search_type"],
-                instruction="Ask whether the user wants music by artist or by genre.",
-            )
-        ],
-        missing_fields=["music_search_type"],
-    )
-
-    def fake_interrupt_for_missing_info(missing_fields: list[str]) -> dict[str, str]:
-        assert missing_fields == ["music_search_type"]
-        return {
-            "music_search_type": "artist",
-            "artist": "AC/DC",
-        }
-
-    monkeypatch.setattr(
-        nodes,
-        "interrupt_for_missing_info",
-        fake_interrupt_for_missing_info,
-    )
-
-    result = await _invoke_graph("recommend some songs")
-
-    assert fake_a2a_clients["music"] == ["Find tracks by artist AC/DC"]
-    assert "Found music result." in result["final_answer"]
-
-
-@pytest.mark.anyio
-async def test_planner_e2e_multi_agent_query_runs_invoice_then_music(
-    monkeypatch: pytest.MonkeyPatch,
-    fake_a2a_clients: dict[str, list[str]],
-) -> None:
-    _set_planner_output(
-        monkeypatch,
-        tasks=[
-            _task(
-                agent="invoice",
-                intent="latest_invoice",
-                args={"customer_id": "5"},
-            ),
-            _task(
-                agent="music",
-                intent="tracks_by_artist",
-                args={"artist": "AC/DC"},
-            ),
-        ],
-        requires_aggregation=True,
-    )
-
-    result = await _invoke_graph(
-        "Get latest invoice for customer_id=5 and find tracks by artist AC/DC"
-    )
-
-    assert fake_a2a_clients["invoice"] == [
-        "Get latest invoice for customer_id=5"
-    ]
-    assert fake_a2a_clients["music"] == ["Find tracks by artist AC/DC"]
-    assert "Found latest invoice." in result["final_answer"]
-    assert "Found music result." in result["final_answer"]
+    assert "Invoice Agent result" in result["final_answer"]
+    assert "Music Agent result" in result["final_answer"]

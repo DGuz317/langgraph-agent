@@ -43,12 +43,12 @@ Final answer
 
 ## Design Principles
 
-- **Planner owns intent detection.** It converts user input into structured tasks.
+- **Planner owns agent routing.** It converts user input into natural-language dispatch tasks.
 - **HITL owns missing information collection.** It resumes the same graph thread after the user replies.
-- **Task args are the source of truth.** `task["args"]` should drive execution.
-- **Structured A2A payloads drive domain execution.** Payloads are generated from `intent + args` and sent as native A2A data parts.
-- **Instruction strings are compatibility output.** Instructions are included as text parts so legacy text-only A2A requests remain supported.
-- **Domain agents stay focused.** Invoice and music agents parse clean instructions, call MCP tools, and return structured responses.
+- **Task instructions are the execution contract.** `task["instruction"]` is sent to the selected A2A agent.
+- **Domain agents are LLM-driven.** Invoice and music agents use LangChain tool calling over MCP tools instead of rule-based parsers.
+- **A2A carries natural-language agent work.** Generic payloads may include an `instruction`, but intent/args payload builders are not the execution path.
+- **Domain agents stay focused.** Invoice and music agents choose MCP tools in their domain and return concise responses.
 - **MCP tools only access data.** They should not own planning, routing, HITL, or aggregation logic.
 - **Aggregator formats results.** It combines one or more agent outputs into the final user-facing response.
 
@@ -63,9 +63,9 @@ Final answer
 | `a2a_client/` | Reusable JSON-RPC A2A clients |
 | `mcp_server/` | FastMCP server, SQLite access, invoice/music tools |
 | `aggregator/` | Final response formatting and result composition |
-| `common/` | Shared config, LLM setup, MCP tool agent base, utilities |
+| `common/` | Shared config, LLM setup, LangChain agent runtime, utilities |
 | `agent_cards/` | Static A2A agent card JSON files |
-| `tests/` | Unit, parser, planner, MCP, A2A, and integration tests |
+| `tests/` | Unit, planner, MCP, A2A, runtime, and integration tests |
 
 ## Project Structure
 
@@ -131,8 +131,7 @@ multi-agent-system/
 │       │   ├── hitl.py
 │       │   ├── nodes.py
 │       │   ├── schemas.py
-│       │   ├── state.py
-│       │   └── task_instructions.py
+│       │   └── state.py
 │       └── aggregator/
 │           ├── agent.py
 │           ├── prompts.py
@@ -147,8 +146,7 @@ multi-agent-system/
     ├── test_music_agent_parsing.py
     ├── test_music_a2a_client.py
     ├── test_planner_graph.py
-    ├── test_planner_hitl.py
-    └── test_task_instructions.py
+    └── test_planner_hitl.py
 ```
 
 ## Requirements
@@ -398,7 +396,6 @@ Run focused unit tests:
 
 ```bash
 uv run pytest tests/test_aggregator.py -q
-uv run pytest tests/test_task_instructions.py -q
 uv run pytest tests/test_invoice_agent_parsing.py -q
 uv run pytest tests/test_music_agent_parsing.py -q
 uv run pytest tests/test_planner_graph.py -q

@@ -1,16 +1,16 @@
 # Graph Report - langgraph-agent  (2026-06-01)
 
 ## Corpus Check
-- 102 files · ~34,489 words
+- 103 files · ~24,772 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2348 nodes · 3741 edges · 113 communities (100 shown, 13 thin omitted)
-- Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 447 edges (avg confidence: 0.77)
+- 2434 nodes · 3943 edges · 120 communities (107 shown, 13 thin omitted)
+- Extraction: 87% EXTRACTED · 13% INFERRED · 0% AMBIGUOUS · INFERRED: 515 edges (avg confidence: 0.77)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4d7a7595`
+- Built from commit: `6263ca1b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -87,37 +87,44 @@
 - [[_COMMUNITY_Community 103|Community 103]]
 - [[_COMMUNITY_Community 104|Community 104]]
 - [[_COMMUNITY_Community 105|Community 105]]
+- [[_COMMUNITY_Community 106|Community 106]]
+- [[_COMMUNITY_Community 107|Community 107]]
 - [[_COMMUNITY_Community 108|Community 108]]
 - [[_COMMUNITY_Community 109|Community 109]]
+- [[_COMMUNITY_Community 110|Community 110]]
 - [[_COMMUNITY_Community 111|Community 111]]
 - [[_COMMUNITY_Community 112|Community 112]]
 - [[_COMMUNITY_Community 113|Community 113]]
 - [[_COMMUNITY_Community 114|Community 114]]
 - [[_COMMUNITY_Community 115|Community 115]]
+- [[_COMMUNITY_Community 116|Community 116]]
+- [[_COMMUNITY_Community 117|Community 117]]
+- [[_COMMUNITY_Community 118|Community 118]]
+- [[_COMMUNITY_Community 119|Community 119]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `post()` - 37 edges
-2. `get()` - 37 edges
-3. `PlannerServiceResponse` - 36 edges
-4. `PlannerService` - 35 edges
-5. `ExecutionEvidence` - 31 edges
-6. `InvoiceAgent` - 31 edges
-7. `fetch()` - 29 edges
-8. `MusicAgent` - 28 edges
-9. `debug()` - 27 edges
-10. `getSandbox()` - 26 edges
+1. `PlannerServiceResponse` - 38 edges
+2. `post()` - 37 edges
+3. `get()` - 37 edges
+4. `InvoiceAgent` - 36 edges
+5. `PlannerService` - 35 edges
+6. `ExecutionEvidence` - 35 edges
+7. `MusicAgent` - 34 edges
+8. `MCPToolAgent` - 30 edges
+9. `fetch()` - 29 edges
+10. `_call_tool()` - 27 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Graphify PreToolUse Hook Check` --implements--> `Graphify Workflow`  [INFERRED]
-  .codex/hooks.json → AGENTS.md
-- `Design Principles` --semantically_similar_to--> `Domain Boundary Rule`  [INFERRED] [semantically similar]
-  README.md → AGENTS.md
-- `InvoiceAgent` --implements--> `Invoice Support Employee Enrichment Rule`  [INFERRED]
-  src/multi_agent_system/a2a_servers/invoice_agent/agent.py → PROJECT.md
-- `test_acontext_memory_recall_waits_for_thread_learning_before_skills()` --calls--> `acontext_session_id()`  [INFERRED]
-  tests/test_acontext_memory.py → src/multi_agent_system/orchestrator/acontext_common.py
-- `test_acontext_memory_recall_failed_when_client_errors()` --calls--> `AcontextMemoryRecall`  [INFERRED]
-  tests/test_acontext_memory.py → src/multi_agent_system/orchestrator/acontext_memory.py
+- `test_invoice_node_returns_readable_failure_when_a2a_client_fails()` --calls--> `invoice_node()`  [INFERRED]
+  tests/test_planner_error_recovery.py → src/multi_agent_system/planner_app/nodes.py
+- `test_music_node_returns_readable_failure_when_a2a_client_fails()` --calls--> `music_node()`  [INFERRED]
+  tests/test_planner_error_recovery.py → src/multi_agent_system/planner_app/nodes.py
+- `test_invoice_node_fails_readably_when_instruction_is_missing()` --calls--> `invoice_node()`  [INFERRED]
+  tests/test_planner_error_recovery.py → src/multi_agent_system/planner_app/nodes.py
+- `test_missing_info_node_appends_resume_context()` --calls--> `missing_info_node()`  [INFERRED]
+  tests/test_planner_graph.py → src/multi_agent_system/planner_app/nodes.py
+- `test_missing_info_appends_user_supplied_context()` --calls--> `missing_info_node()`  [INFERRED]
+  tests/test_node_instruction_rebuild.py → src/multi_agent_system/planner_app/nodes.py
 
 ## Hyperedges (group relationships)
 - **Runtime Architecture Flow** — project_planner_service, project_planner_output, project_hitl_interrupt_resume, project_task_args_source_of_truth, project_text_compatible_a2a_instruction, project_invoice_a2a_service, project_music_a2a_service, project_fastmcp_tools, project_chinook_sqlite_database, project_aggregator [EXTRACTED 1.00]
@@ -135,7 +142,7 @@
 - **Music Clarification Before Execution Flow** — test_planner_repair_music_clarification, test_planner_schema_clarify_music_search, test_planner_hitl_music_search_clarification, test_task_instructions_clarify_non_executable [INFERRED 0.92]
 - **Structured Task to A2A Payload Contract** — test_planner_schema_planned_task_validation, test_task_instructions_instruction_builder, test_task_instructions_a2a_payload [INFERRED 0.88]
 
-## Communities (113 total, 13 thin omitted)
+## Communities (120 total, 13 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.15
@@ -146,32 +153,32 @@ Cohesion: 0.05
 Nodes (36): Domain Boundary Rule, A2A Endpoint Settings, Model Provider Configuration, Settings, SQLITE_DB Configuration, InvoiceA2AClient, InvoiceAgent, InvoiceAgent.ainvoke() (+28 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.08
-Nodes (29): MCPToolError, MultiAgentSystemError, Raised when an MCP tool call fails., Base error for application-level failures., collect_execution_evidence(), Collect evidence for one request without leaking across concurrent tasks., Collect evidence for one request without leaking across concurrent tasks., Append evidence when a collection scope is active. (+21 more)
+Cohesion: 0.11
+Nodes (26): MCPToolError, MultiAgentSystemError, Raised when an MCP tool call fails., Base error for application-level failures., collect_execution_evidence(), Collect evidence for one request without leaking across concurrent tasks., Collect evidence for one request without leaking across concurrent tasks., MCPToolAgent (+18 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.08
-Nodes (40): get_db(), create_mcp_server(), main(), # TODO: In the future, we will not separate into 2 tool sets, we will create que, _assert_non_empty_list_of_dicts(), _call_tool(), _call_tool_async(), db() (+32 more)
+Cohesion: 0.07
+Nodes (49): get_db(), create_mcp_server(), main(), # TODO: In the future, we will not separate into 2 tool sets, we will create que, # TODO: In the future, we will not separate into 2 tool sets, we will create que, _assert_non_empty_list_of_dicts(), _call_tool(), _call_tool_async() (+41 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.02
-Nodes (50): assert(), binding(), cleanup(), cpuUsage(), createCodeContext(), createNotImplementedError(), currentEvent, decoder (+42 more)
+Nodes (38): assert(), binding(), cleanup(), cpuUsage(), createNotImplementedError(), currentEvent, decoder, desc (+30 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.07
-Nodes (35): type(), _memory_messages(), PlannerAgent, # TODO: Don't understand this code block, why we have this and what is does, # TODO: use the prompt.py only, not build random prompt repair, # TODO: explain why have safe fail ouput, if the planner failed, it should fail, # TODO: Explain this code block, # TODO: if we dont need the build repair prompt, does this code block still usef (+27 more)
+Nodes (39): type(), _memory_messages(), PlannerAgent, # TODO: Don't understand this code block, why we have this and what is does, # TODO: use the prompt.py only, not build random prompt repair, # TODO: explain why have safe fail ouput, if the planner failed, it should fail, # TODO: Explain this code block, # TODO: if we dont need the build repair prompt, does this code block still usef (+31 more)
 
 ### Community 6 - "Community 6"
 Cohesion: 0.06
-Nodes (14): InvoiceAgent, InvoiceRequest, _positive_int(), # TODO: Reduce if else rule-based  more about dynamic and practical. IT should b, InvoiceAgentResponse, InvoiceRequest, InvoiceTaskPayload, # TODO: This (+6 more)
+Nodes (15): InvoiceAgent, InvoiceRequest, _positive_int(), # TODO: Reduce if else rule-based  more about dynamic and practical. IT should b, InvoiceAgentResponse, MCPToolAgent, RecordingRuntime, test_invoice_agent_delegates_instruction_to_runtime() (+7 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.05
-Nodes (53): get_llm(), PlannerInvokeRequest, API request for invoking or resuming the planner., _resume_requires_thread_id(), _thread_id_must_not_be_blank(), _user_input_must_not_be_blank(), _agent_result_evidence(), _attach_a2a_payload() (+45 more)
+Cohesion: 0.19
+Nodes (18): _attach_a2a_payload(), _copy_planner_output(), _dispatch_evidence(), _extract_remote_evidence(), final_response_node(), _format_extracted_fields(), _mark_task_failed(), missing_info_node() (+10 more)
 
 ### Community 8 - "Community 8"
 Cohesion: 0.06
-Nodes (30): AggregatorAgent, AgentResult, AggregatorInput, AggregatorOutput, BaseModel, MCPToolAgent, MusicAgent, MusicRequest (+22 more)
+Nodes (30): AgentRunResult, _content_text(), LangChainAgentRuntime, _last_assistant_text(), _preview_json(), LangChain tool-calling runtime backed by MCP tools., _result_messages(), _structured_result() (+22 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.00
@@ -179,23 +186,23 @@ Nodes (661): AbortController, Ai_Cf_Ai4Bharat_Indictrans2_En_Indic_1B_Input, Ai_
 
 ### Community 10 - "Community 10"
 Cohesion: 0.12
-Nodes (32): build_a2a_payload_from_task(), build_instruction_from_task(), _build_invoice_query_instruction(), _build_music_query_instruction(), _has_arg(), _optional_arg(), Raised when a planner task cannot be converted into an executable instruction., _require_arg() (+24 more)
+Nodes (33): build_a2a_payload_from_task(), build_instruction_from_task(), _build_invoice_query_instruction(), _build_music_query_instruction(), _has_arg(), _optional_arg(), Raised when a planner task cannot be converted into an executable instruction., _require_arg() (+25 more)
 
 ### Community 11 - "Community 11"
 Cohesion: 0.11
 Nodes (17): dependencies, @cloudflare/sandbox, description, devDependencies, @cloudflare/workers-types, typescript, wrangler, engines (+9 more)
 
 ### Community 12 - "Community 12"
-Cohesion: 0.10
-Nodes (20): AgentExecutor, load_agent_card(), Invoice Agent Card, InvoiceAgentExecutor, create_app(), main(), Music Agent Card, MusicAgentExecutor (+12 more)
+Cohesion: 0.08
+Nodes (27): AgentExecutor, load_agent_card(), Invoice Agent Card, _instruction_from_context(), InvoiceAgentExecutor, create_app(), main(), Music Agent Card (+19 more)
 
 ### Community 13 - "Community 13"
 Cohesion: 0.12
 Nodes (21): Task Args Are the Source of Executable Instructions, build_a2a_payload_from_task, build_instruction_from_task, TaskInstructionError, Typed A2A Client Instruction Construction Tests, Planner A2A Payload Integration Tests, Aggregator Result Formatting and Ordering Tests, Planner Checkpointer Backend Tests (+13 more)
 
 ### Community 14 - "Community 14"
-Cohesion: 0.22
-Nodes (18): FakePlanner, FakePlannerOutput, _invoke_graph(), _set_planner_output(), _task(), test_planner_e2e_all_invoices_query_uses_args_first_instruction(), test_planner_e2e_ambiguous_music_can_choose_artist_after_hitl(), test_planner_e2e_ambiguous_music_defaults_to_genre_after_hitl() (+10 more)
+Cohesion: 0.10
+Nodes (33): path(), build_async_checkpointer_context(), build_memory_checkpointer(), Checkpointer factory for the planner LangGraph app., Build an in-memory checkpointer for tests and simple local runs., Build the configured checkpointer.      Supported backends:     - memory: volati, build_graph(), main() (+25 more)
 
 ### Community 15 - "Community 15"
 Cohesion: 0.16
@@ -210,8 +217,8 @@ Cohesion: 0.13
 Nodes (18): Planner Invoke HTTP Endpoint, PlannerInvokeRequest, PlannerService.invoke, PlannerServiceResponse, Planner LangGraph Workflow, Final Response Graph Node, Missing Information Interrupt Flow, Invoice Execution Graph Node (+10 more)
 
 ### Community 18 - "Community 18"
-Cohesion: 0.13
-Nodes (14): path(), build_async_checkpointer_context(), build_memory_checkpointer(), Checkpointer factory for the planner LangGraph app., Build an in-memory checkpointer for tests and simple local runs., Build the configured checkpointer.      Supported backends:     - memory: volati, build_graph(), main() (+6 more)
+Cohesion: 0.18
+Nodes (14): AggregatorAgent, AgentResult, AggregatorInput, AggregatorOutput, aggregate(), test_aggregator_combines_multiple_agent_results_in_order(), test_aggregator_formats_dict_result_without_data(), test_aggregator_formats_empty_list_result() (+6 more)
 
 ### Community 19 - "Community 19"
 Cohesion: 0.13
@@ -224,6 +231,10 @@ Nodes (10): capabilities, pushNotifications, streaming, defaultInputModes, defau
 ### Community 21 - "Community 21"
 Cohesion: 0.18
 Nodes (10): capabilities, pushNotifications, streaming, defaultInputModes, defaultOutputModes, description, name, skills (+2 more)
+
+### Community 22 - "Community 22"
+Cohesion: 0.12
+Nodes (7): route_after_invoice(), route_after_planner(), test_missing_info_node_appends_resume_context(), test_route_after_invoice_runs_music_when_pending(), test_route_after_missing_info_goes_to_music(), test_route_after_planner_routes_by_agent(), test_route_after_planner_routes_missing_info()
 
 ### Community 23 - "Community 23"
 Cohesion: 0.36
@@ -251,19 +262,19 @@ Nodes (4): BaseSettings, # TODO: Langsmith can not track eventhough i had enable
 
 ### Community 33 - "Community 33"
 Cohesion: 0.15
-Nodes (4): _create_fast_planner_app(), FakePlanner, FakePlannerOutput, test_real_planner_api_records_structured_a2a_payloads()
+Nodes (5): _create_fast_planner_app(), FakePlanner, FakePlannerOutput, test_real_planner_api_records_agent_instruction_dispatch(), test_real_planner_api_records_structured_a2a_payloads()
 
 ### Community 73 - "Community 73"
-Cohesion: 0.11
-Nodes (23): AcontextCapture, _agent_result_text(), _clean_text(), _ensure_learning_session(), _ensure_session(), _extract_execution_evidence(), _field_names(), _final_response_text() (+15 more)
+Cohesion: 0.15
+Nodes (21): _agent_result_text(), _clean_text(), _ensure_learning_session(), _ensure_session(), _extract_execution_evidence(), _field_names(), _final_response_text(), _format_task_args() (+13 more)
 
 ### Community 74 - "Community 74"
 Cohesion: 0.07
 Nodes (31): code:text (User input), code:bash (uv run pytest tests -q), code:bash (uv run pytest tests/test_invoice_agent_parsing.py tests/test), code:bash (RUN_INVOICE_SUPPORT_INTEGRATION_TESTS=1 uv run pytest tests/), code:text (Get all invoices for customer_id=5), code:json ({), code:text (invoice -> music -> final_response), code:text (invoice -\) (+23 more)
 
 ### Community 75 - "Community 75"
-Cohesion: 0.07
-Nodes (48): abort(), addEventListener(), addTimeoutSignal(), buildLogData(), connectViaFetch(), containerFetch(), containerPathToR2Key(), debug() (+40 more)
+Cohesion: 0.08
+Nodes (42): buildLogData(), buildMessage(), checkVersionCompatibility(), connectViaFetch(), containerPathToR2Key(), debug(), deleteFile(), emitWarning() (+34 more)
 
 ### Community 76 - "Community 76"
 Cohesion: 0.06
@@ -275,19 +286,19 @@ Nodes (8): Architecture Notes, Commands, Graphify, graphify, Repository Instruct
 
 ### Community 78 - "Community 78"
 Cohesion: 0.06
-Nodes (46): base64ToUint8Array(), checkout(), click(), createProcessFromDTO(), createSession(), doubleClick(), drag(), ensureBackupSession() (+38 more)
+Nodes (46): base64ToUint8Array(), checkout(), click(), createProcessFromDTO(), createSession(), doubleClick(), drag(), ensureDefaultSession() (+38 more)
 
 ### Community 79 - "Community 79"
 Cohesion: 0.08
-Nodes (41): buildSandboxConfiguration(), checkAuth(), constructPreviewUrl(), createErrorFromResponse(), determinePort(), exec(), exposePort(), fetch() (+33 more)
+Nodes (37): checkAuth(), constructPreviewUrl(), createErrorFromResponse(), determinePort(), exec(), exposePort(), fetch(), fromHeaders() (+29 more)
 
 ### Community 80 - "Community 80"
-Cohesion: 0.11
-Nodes (25): alarm(), callOnStop(), deleteSchedules(), generateId(), getEntriesByName(), getSchedule(), getState(), isActivityExpired() (+17 more)
+Cohesion: 0.06
+Nodes (44): abort(), addEventListener(), addTimeoutSignal(), alarm(), callOnStop(), containerFetch(), deleteSchedules(), generateId() (+36 more)
 
 ### Community 81 - "Community 81"
-Cohesion: 0.19
-Nodes (15): checkAuth(), CreateSandboxRequest, DownloadFileRequest, Env, ExecCommandRequest, fetch(), handleCreateSandbox(), handleDownloadFile() (+7 more)
+Cohesion: 0.16
+Nodes (20): buildSandboxConfiguration(), getSandbox(), hasSandboxConfiguration(), mergeSandboxConfiguration(), sameContainerTimeouts(), checkAuth(), CreateSandboxRequest, DownloadFileRequest (+12 more)
 
 ### Community 82 - "Community 82"
 Cohesion: 0.15
@@ -330,24 +341,24 @@ Cohesion: 0.67
 Nodes (3): code:bash (POST /sandbox/{sandbox_id}/upload), code:json ({), Upload File
 
 ### Community 93 - "Community 93"
-Cohesion: 0.12
-Nodes (17): build_acontext_memory_recall(), _call_skill_selector(), _compact(), disabled_memory_result(), failed_memory_result(), _FailedMemoryRecall, _format_memory_context(), _get_skill_markdown() (+9 more)
+Cohesion: 0.16
+Nodes (13): _call_skill_selector(), _compact(), disabled_memory_result(), failed_memory_result(), _FailedMemoryRecall, _format_memory_context(), _get_skill_markdown(), _llm_select_relevant_skills() (+5 more)
 
 ### Community 94 - "Community 94"
 Cohesion: 0.11
-Nodes (26): createArchive(), createBackup(), deleteSession(), doCreateBackup(), doRestoreBackup(), downloadBackupPresigned(), enqueueBackupOp(), execStream() (+18 more)
+Nodes (27): createArchive(), createBackup(), deleteSession(), doCreateBackup(), doRestoreBackup(), downloadBackupPresigned(), enqueueBackupOp(), ensureBackupSession() (+19 more)
 
 ### Community 95 - "Community 95"
 Cohesion: 0.09
 Nodes (26): buildStreamOptions(), buildUrl(), connect(), connectViaWebSocket(), doConnect(), doFetch(), doStreamFetch(), fetchStream() (+18 more)
 
 ### Community 96 - "Community 96"
-Cohesion: 0.23
-Nodes (13): applySandboxConfiguration(), computeRetryTimeoutMs(), configure(), createSandboxClient(), parseTimeExpression(), renewActivityTimeout(), setBaseUrl(), setContainerTimeouts() (+5 more)
+Cohesion: 0.27
+Nodes (11): applySandboxConfiguration(), computeRetryTimeoutMs(), configure(), createSandboxClient(), setBaseUrl(), setContainerTimeouts(), setKeepAlive(), setRetryTimeoutMs() (+3 more)
 
 ### Community 97 - "Community 97"
 Cohesion: 0.20
-Nodes (14): buildMessage(), checkVersionCompatibility(), child(), getVersion(), logCanonicalEvent(), onStart(), redactCommand(), redactCredentials() (+6 more)
+Nodes (12): createCodeContext(), deleteCodeContext(), executeWithRetry(), getOrCreateDefaultContext(), isRetryableError(), listCodeContexts(), operation(), runCode() (+4 more)
 
 ### Community 98 - "Community 98"
 Cohesion: 0.25
@@ -358,12 +369,12 @@ Cohesion: 0.13
 Nodes (15): AcontextMemoryRecall, Retrieve sanitized Acontext skills for planner guidance., Retrieve sanitized Acontext skills for planner guidance., Retrieve sanitized Acontext skills for planner guidance., FakeClient, FakeLearningSpaces, FakeSkills, _skill() (+7 more)
 
 ### Community 100 - "Community 100"
-Cohesion: 0.33
-Nodes (5): PlannerInteractionCapture, Store one planner interaction., Store one user-visible planner interaction., Store one user-visible planner interaction., Store one user-visible planner interaction.
+Cohesion: 0.17
+Nodes (9): AgentRuntime, Run an agent against one natural-language instruction., PlannerInteractionCapture, Store one planner interaction., Store one user-visible planner interaction., Store one user-visible planner interaction., Store one user-visible planner interaction., PlannerServiceProtocol (+1 more)
 
 ### Community 101 - "Community 101"
-Cohesion: 0.19
-Nodes (13): bind(), constructor(), createLogger(), createNoOpLogger(), createTransport(), encodeRfc3986(), generate(), getDefaultTimeouts() (+5 more)
+Cohesion: 0.18
+Nodes (14): bind(), child(), constructor(), createLogger(), createNoOpLogger(), createTransport(), encodeRfc3986(), generate() (+6 more)
 
 ### Community 103 - "Community 103"
 Cohesion: 0.67
@@ -374,32 +385,56 @@ Cohesion: 0.12
 Nodes (15): command(), _extract_final_answer(), _extract_interrupt_message(), _has_interrupt(), Return result as-is when possible.      Kept as a helper so future API layers ca, Return result as-is when possible.      Kept as a helper so future API layers ca, Return result as-is when possible.      Kept as a helper so future API layers ca, Return graph result without internal prompt-injection context.      Kept as a he (+7 more)
 
 ### Community 105 - "Community 105"
-Cohesion: 0.17
-Nodes (8): PlannerMemoryRecall, Return sanitized memory guidance for one planner request., Return sanitized memory guidance for one planner request., Return sanitized memory guidance for one planner request., create_app(), PlannerServiceProtocol, # TODO: With this, can me create an chatbot interface ? With upload database fun, Protocol
+Cohesion: 0.40
+Nodes (4): PlannerMemoryRecall, Return sanitized memory guidance for one planner request., Return sanitized memory guidance for one planner request., Return sanitized memory guidance for one planner request.
+
+### Community 106 - "Community 106"
+Cohesion: 0.15
+Nodes (11): get_llm(), _resume_requires_thread_id(), _thread_id_must_not_be_blank(), _user_input_must_not_be_blank(), _get_next_task_for_agent(), _has_arg_value(), _instruction_must_not_be_blank(), # TODO: This is the rule-based tasks intent, can we switch out for more practica (+3 more)
+
+### Community 107 - "Community 107"
+Cohesion: 0.18
+Nodes (9): PlannerAgent, FailingPlannerAgent, RepairablePlannerAgent, test_planner_repairs_generic_music_request_to_clarify_search(), test_planner_repairs_invalid_agent_intent_pair(), test_planner_repairs_invalid_dispatch_output(), test_planner_repairs_missing_required_arg_with_hitl_missing_field(), test_planner_returns_safe_failed_output_when_repair_fails() (+1 more)
 
 ### Community 108 - "Community 108"
-Cohesion: 0.27
-Nodes (13): PlannerServiceResponse, User-facing response returned by PlannerService., User-facing response returned by PlannerService., User-facing response returned by PlannerService., FakePlannerService, _post(), test_planner_api_allows_omitted_resume_for_existing_thread(), test_planner_api_passes_resume_request_to_service() (+5 more)
+Cohesion: 0.33
+Nodes (9): FakePlannerService, _post(), test_planner_api_allows_omitted_resume_for_existing_thread(), test_planner_api_passes_resume_request_to_service(), test_planner_api_rejects_blank_user_input(), test_planner_api_rejects_resume_without_thread_id(), test_planner_api_returns_completed_response(), test_planner_api_returns_interrupted_response() (+1 more)
 
 ### Community 109 - "Community 109"
-Cohesion: 0.16
-Nodes (12): acontext_session_id(), Map existing planner thread identifiers into stable Acontext UUIDs., Map a LangGraph thread id into a stable Acontext UUID., Map a LangGraph thread id into a stable Acontext UUID., Map a LangGraph thread id into a stable Acontext UUID., acontext_session_id(), Map a LangGraph thread id into a stable Acontext UUID., test_sanitized_execution_session_is_stored_and_flushed() (+4 more)
+Cohesion: 0.12
+Nodes (16): ExecutionEvidence, Sanitized workflow evidence eligible for long-lived memory storage., acontext_session_id(), AcontextCapture, Map existing planner thread identifiers into stable Acontext UUIDs., Map a LangGraph thread id into a stable Acontext UUID., Map a LangGraph thread id into a stable Acontext UUID., Map a LangGraph thread id into a stable Acontext UUID. (+8 more)
 
-### Community 111 - "Community 111"
-Cohesion: 0.26
-Nodes (15): ExecutionEvidence, Sanitized workflow evidence eligible for long-lived memory storage., _capture(), FakeClient, test_capture_skips_acontext_transport_errors(), test_completed_interaction_creates_learning_space_and_flushes(), test_completed_interaction_is_stored_and_flushed(), test_execution_evidence_is_stored_without_raw_business_values() (+7 more)
-
-### Community 112 - "Community 112"
+### Community 110 - "Community 110"
 Cohesion: 0.36
 Nodes (9): authHeader(), buf2hex(), canonicalString(), hash(), hexBodyHash(), hmac(), sign(), signature() (+1 more)
+
+### Community 111 - "Community 111"
+Cohesion: 0.20
+Nodes (22): acontext_session_id(), Map a LangGraph thread id into a stable Acontext UUID., PlannerServiceResponse, User-facing response returned by PlannerService., User-facing response returned by PlannerService., User-facing response returned by PlannerService., _capture(), FakeClient (+14 more)
+
+### Community 112 - "Community 112"
+Cohesion: 0.18
+Nodes (15): _agent_result_evidence(), _failure_result(), invoice_node(), test_invoice_node_dispatches_instruction_text(), test_invoice_node_merges_sanitized_remote_tool_evidence(), test_invoice_node_rebuilds_all_invoices_instruction_from_args(), test_invoice_node_rebuilds_customer_support_employee_payload_from_args(), test_invoice_node_rebuilds_instruction_from_args() (+7 more)
 
 ### Community 113 - "Community 113"
 Cohesion: 0.25
 Nodes (8): conditionToString(), createReadyTimeoutError(), getProcessLogs(), matchPattern(), startProcessCallbackStream(), streamProcessLogs(), waitForLogPattern(), waitForProcessExit()
 
 ### Community 115 - "Community 115"
-Cohesion: 0.22
-Nodes (9): build_acontext_capture(), Build capture only when explicitly enabled and configured., Build capture only when explicitly enabled and configured., Build capture only when explicitly enabled and configured., Build capture only when explicitly enabled and configured., Build capture only when explicitly enabled and configured., Build runtime capture only when explicitly enabled and configured., test_build_capture_requires_enabled_configuration() (+1 more)
+Cohesion: 0.20
+Nodes (10): build_acontext_capture(), Build capture only when explicitly enabled and configured., Build capture only when explicitly enabled and configured., Build capture only when explicitly enabled and configured., Build capture only when explicitly enabled and configured., Build capture only when explicitly enabled and configured., Build capture only when explicitly enabled and configured., Build runtime capture only when explicitly enabled and configured. (+2 more)
+
+### Community 116 - "Community 116"
+Cohesion: 0.21
+Nodes (9): BaseModel, InvoiceRequest, InvoiceTaskPayload, # TODO: This, MusicRequest, MusicTaskPayload, # TODO: THis, PlannerInvokeRequest (+1 more)
+
+### Community 117 - "Community 117"
+Cohesion: 0.29
+Nodes (6): test_invoice_node_fails_readably_when_instruction_building_fails(), test_invoice_node_fails_readably_when_instruction_is_missing(), test_invoice_node_returns_readable_failure_when_a2a_client_fails(), test_invoice_node_returns_readable_failure_when_no_pending_task(), test_music_node_returns_readable_failure_when_a2a_client_fails(), test_music_node_returns_readable_failure_when_no_pending_task()
+
+### Community 118 - "Community 118"
+Cohesion: 0.33
+Nodes (5): build_acontext_memory_recall(), Build Acontext recall only when explicitly enabled and configured., Build Acontext recall only when explicitly enabled and configured., Build Acontext recall only when explicitly enabled and configured., Build Acontext recall only when explicitly enabled and configured.
 
 ## Knowledge Gaps
 - **830 isolated node(s):** `PreToolUse`, `name`, `description`, `supportedInterfaces`, `version` (+825 more)
@@ -409,17 +444,17 @@ Nodes (9): build_acontext_capture(), Build capture only when explicitly enabled 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `command()` connect `Community 104` to `Community 4`?**
-  _High betweenness centrality (0.063) - this node is a cross-community bridge._
-- **Why does `PlannerServiceResponse` connect `Community 108` to `Community 0`, `Community 100`, `Community 7`, `Community 8`, `Community 105`, `Community 73`, `Community 104`, `Community 109`, `Community 111`, `Community 114`?**
-  _High betweenness centrality (0.057) - this node is a cross-community bridge._
-- **Why does `ExecutionEvidence` connect `Community 111` to `Community 2`, `Community 100`, `Community 6`, `Community 7`, `Community 8`, `Community 73`, `Community 12`, `Community 109`, `Community 114`?**
-  _High betweenness centrality (0.054) - this node is a cross-community bridge._
-- **Are the 31 inferred relationships involving `PlannerServiceResponse` (e.g. with `FakePlannerService` and `FakeSessions`) actually correct?**
-  _`PlannerServiceResponse` has 31 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `ExecutionEvidence` connect `Community 109` to `Community 2`, `Community 100`, `Community 6`, `Community 7`, `Community 8`, `Community 73`, `Community 12`, `Community 111`, `Community 112`, `Community 114`, `Community 116`?**
+  _High betweenness centrality (0.078) - this node is a cross-community bridge._
+- **Why does `type()` connect `Community 5` to `Community 2`, `Community 4`, `Community 78`?**
+  _High betweenness centrality (0.062) - this node is a cross-community bridge._
+- **Why does `MCPToolAgent` connect `Community 2` to `Community 8`, `Community 109`, `Community 6`?**
+  _High betweenness centrality (0.046) - this node is a cross-community bridge._
+- **Are the 33 inferred relationships involving `PlannerServiceResponse` (e.g. with `FakePlannerService` and `FakeSessions`) actually correct?**
+  _`PlannerServiceResponse` has 33 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 11 inferred relationships involving `InvoiceAgent` (e.g. with `AgentRuntime` and `LangChainAgentRuntime`) actually correct?**
+  _`InvoiceAgent` has 11 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 25 inferred relationships involving `PlannerService` (e.g. with `FakeGraph` and `FakeInterrupt`) actually correct?**
   _`PlannerService` has 25 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 28 inferred relationships involving `ExecutionEvidence` (e.g. with `FakeSessions` and `FakeLearningSpaces`) actually correct?**
-  _`ExecutionEvidence` has 28 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `Normalize FastMCP CallToolResult output into plain Python values.      FastMCP c`, `PreToolUse`, `# TODO: Langsmith can not track eventhough i had enabled langsmith tracing` to the rest of the system?**
-  _917 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _922 weakly-connected nodes found - possible documentation gaps or missing edges._

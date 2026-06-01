@@ -74,7 +74,7 @@ async def test_direct_acontext_learning_after_flush() -> None:
                     "content": (
                         "Remember this project rule: invoice requests with customer_id "
                         "must route to the invoice agent. The planner must preserve "
-                        "customer_id in task args."
+                        "customer_id in the natural-language task instruction."
                     ),
                 },
             )
@@ -84,9 +84,8 @@ async def test_direct_acontext_learning_after_flush() -> None:
                     "role": "assistant",
                     "content": (
                         "Rule saved. Reusable convention: when the user asks for invoices "
-                        "and provides customer_id, create an invoice task with "
-                        "args.customer_id preserved and instruction like "
-                        "'Get latest invoice for customer_id=5'."
+                        "and provides customer_id, create an invoice task instruction "
+                        "like 'Get latest invoice for customer_id=5'."
                     ),
                 },
             )
@@ -144,7 +143,7 @@ async def test_workflow_outcome_session_is_stored_and_flushed() -> None:
             "Completed project convention update. "
             "Reusable rule: In this multi-agent system, invoice requests with "
             "customer_id must be routed to the invoice agent. The planner should "
-            "preserve customer_id in task args and build an instruction such as "
+            "preserve customer_id in the task instruction, such as "
             "'Get latest invoice for customer_id=5'."
         ),
         raw_result={
@@ -152,8 +151,6 @@ async def test_workflow_outcome_session_is_stored_and_flushed() -> None:
                 "tasks": [
                     {
                         "agent": "invoice",
-                        "intent": "latest_invoice",
-                        "args": {"customer_id": "5"},
                         "status": "completed",
                         "instruction": "Get latest invoice for customer_id=5",
                     }
@@ -163,17 +160,16 @@ async def test_workflow_outcome_session_is_stored_and_flushed() -> None:
                 ExecutionEvidence(
                     kind="planner_decision",
                     agent="planner",
-                    operation="latest_invoice",
+                    operation="invoice",
                     status="completed",
-                    fields=["customer_id"],
-                    summary="Planner selected an executable workflow; values omitted from memory.",
+                    summary="Planner selected an executable agent dispatch.",
                 ).model_dump(),
                 ExecutionEvidence(
                     kind="agent_result",
                     agent="invoice",
-                    operation="latest_invoice",
+                    operation="agent_instruction",
                     status="completed",
-                    summary="Domain workflow completed; returned values omitted from memory.",
+                    summary="Domain agent completed the instruction.",
                 ).model_dump(),
             ]
         },
@@ -184,7 +180,7 @@ async def test_workflow_outcome_session_is_stored_and_flushed() -> None:
             user_input=(
                 "Remember this project convention: invoice requests with customer_id "
                 "must be routed to the invoice agent, and customer_id must be preserved "
-                "in task args."
+                "in the task instruction."
             ),
             thread_id=thread_id,
             resume=False,
@@ -210,7 +206,6 @@ async def test_workflow_outcome_session_is_stored_and_flushed() -> None:
                 format="openai",
             )
             serialized_messages = str(messages.items)
-            assert "latest_invoice" in serialized_messages
             assert "customer_id=5" in serialized_messages
             assert "Remember this project convention" in serialized_messages
 

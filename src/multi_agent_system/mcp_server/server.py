@@ -8,6 +8,7 @@ from multi_agent_system.config import settings
 from multi_agent_system.mcp_server.db import get_db
 from multi_agent_system.mcp_server.tools.invoice_tools import register_invoice_tools
 from multi_agent_system.mcp_server.tools.music_tools import register_music_tools
+from multi_agent_system.mcp_server.tools.query_tools import register_query_tools
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -19,6 +20,7 @@ def create_mcp_server() -> FastMCP:
 
     register_invoice_tools(mcp, db)
     register_music_tools(mcp, db)
+    register_query_tools(mcp, db)
 
     return mcp
 
