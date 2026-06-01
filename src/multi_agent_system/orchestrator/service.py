@@ -48,14 +48,15 @@ class PlannerService:
         user_input: str,
         *,
         thread_id: str | None = None,
-        resume: bool = False,
+        resume: bool | None = None,
     ) -> PlannerServiceResponse:
         """Invoke or resume the planner graph.
 
         Args:
             user_input: New user query, or HITL resume answer when resume=True.
             thread_id: Existing thread id for resume, or None for a new thread.
-            resume: Whether to send user_input as Command(resume=...).
+            resume: Whether to send user_input as Command(resume=...). When
+                omitted, an existing interrupted thread is auto-resumed.
 
         Returns:
             PlannerServiceResponse with completed/interrupted/failed status.
@@ -66,10 +67,16 @@ class PlannerService:
                 "thread_id": active_thread_id,
             }
         }
-        memory = await self._recall_memory(user_input)
+        should_resume = await self._should_resume(
+            thread_id=thread_id,
+            active_thread_id=active_thread_id,
+            resume=resume,
+            config=config,
+        )
+        memory = await self._recall_memory(user_input, thread_id=active_thread_id)
 
         payload: Any
-        if resume:
+        if should_resume:
             payload = Command(resume=user_input)
         else:
             payload = {"user_input": user_input}
@@ -114,10 +121,42 @@ class PlannerService:
         await self._capture_interaction(
             user_input=user_input,
             thread_id=active_thread_id,
-            resume=resume,
+            resume=should_resume,
             response=response,
         )
         return response
+
+    async def _should_resume(
+        self,
+        *,
+        thread_id: str | None,
+        active_thread_id: str,
+        resume: bool | None,
+        config: dict[str, Any],
+    ) -> bool:
+        if resume is True:
+            if not thread_id:
+                raise ValueError("resume=True requires an existing thread_id.")
+            return True
+
+        if resume is False or thread_id is None:
+            return False
+
+        aget_state = getattr(self.graph, "aget_state", None)
+        if aget_state is None:
+            return False
+
+        try:
+            snapshot = await aget_state(config)
+        except Exception:
+            logger.debug(
+                "Unable to inspect planner thread %s for auto-resume.",
+                active_thread_id,
+                exc_info=True,
+            )
+            return False
+
+        return bool(getattr(snapshot, "interrupts", ()))
 
     async def _capture_interaction(
         self,
@@ -143,7 +182,7 @@ class PlannerService:
                 thread_id,
             )
 
-    async def _recall_memory(self, user_input: str):
+    async def _recall_memory(self, user_input: str, *, thread_id: str):
         from multi_agent_system.orchestrator.acontext_memory import (
             disabled_memory_result,
             failed_memory_result,
@@ -153,7 +192,7 @@ class PlannerService:
             return disabled_memory_result()
 
         try:
-            return await self.memory_recall.recall(user_input)
+            return await self.memory_recall.recall(user_input, thread_id=thread_id)
         except Exception:
             logger.exception("Planner memory recall failed; continuing without memory.")
             return failed_memory_result()

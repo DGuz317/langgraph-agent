@@ -6,22 +6,20 @@ import logging
 import re
 from collections.abc import Callable
 from typing import Protocol
-from uuid import UUID, uuid5
 
 from acontext import AcontextAsyncClient
-from acontext.errors import APIError
+from acontext.errors import APIError, AcontextError
 
 from multi_agent_system.common.execution_evidence import ExecutionEvidence
 from multi_agent_system.config import settings
-from multi_agent_system.orchestrator.acontext_memory import (
+from multi_agent_system.orchestrator.acontext_common import (
     LEARNING_SPACE_META,
     MEMORY_SCOPE,
+    acontext_session_id,
 )
 from multi_agent_system.orchestrator.schemas import PlannerServiceResponse
 
 logger = logging.getLogger(__name__)
-
-_SESSION_NAMESPACE = UUID("cfcd8caa-f533-5ccd-a31c-c695f4f52142")
 
 
 class PlannerInteractionCapture(Protocol):
@@ -69,57 +67,99 @@ class AcontextCapture:
     ) -> None:
         session_id = acontext_session_id(thread_id)
         evidence = _extract_execution_evidence(response)
-        evidence.extend(_interaction_evidence(response=response, evidence=evidence))
-        user_text = _summarize_user_turn(resume=resume, evidence=evidence)
-        assistant_text = _summarize_assistant_turn(response=response, evidence=evidence)
 
-        async with self._session_lock(session_id):
-            async with self._client_factory() as client:
-                space_id = await self._get_or_create_learning_space(client)
-                await _ensure_session(
-                    client,
-                    session_id=session_id,
-                    user_identifier=self._user_identifier,
-                )
-
-                if session_id not in self._attached_session_ids:
-                    await _ensure_learning_session(
+        try:
+            async with self._session_lock(session_id):
+                async with self._client_factory() as client:
+                    space_id = await self._get_or_create_learning_space(client)
+                    await _ensure_session(
                         client,
-                        space_id=space_id,
                         session_id=session_id,
+                        user_identifier=self._user_identifier,
                     )
-                    self._attached_session_ids.add(session_id)
 
-                await client.sessions.store_message(
-                    session_id,
-                    blob={"role": "user", "content": user_text},
-                    format="openai",
-                    meta={
-                        "resume": resume,
-                        "capture_policy": MEMORY_SCOPE,
-                    },
-                )
+                    if session_id not in self._attached_session_ids:
+                        await _ensure_learning_session(
+                            client,
+                            space_id=space_id,
+                            session_id=session_id,
+                        )
+                        self._attached_session_ids.add(session_id)
 
-                await self._store_new_evidence(
-                    client,
-                    session_id=session_id,
-                    evidence=evidence,
-                )
+                    await client.sessions.store_message(
+                        session_id,
+                        blob={"role": "user", "content": user_input},
+                        format="openai",
+                        meta={
+                            "message_kind": "user_input",
+                            "resume": resume,
+                            "capture_policy": MEMORY_SCOPE,
+                        },
+                    )
 
-                await client.sessions.store_message(
-                    session_id,
-                    blob={"role": "assistant", "content": assistant_text},
-                    format="openai",
-                    meta={
-                        "planner_status": response.status,
-                        "capture_policy": MEMORY_SCOPE,
-                    },
-                )
+                    await self._store_planner_trace(
+                        client,
+                        session_id=session_id,
+                        response=response,
+                    )
 
-                if response.status in {"completed", "failed"}:
-                    await client.sessions.flush(session_id)
+                    await self._store_new_trace_messages(
+                        client,
+                        session_id=session_id,
+                        evidence=evidence,
+                    )
 
-    async def _store_new_evidence(
+                    await client.sessions.store_message(
+                        session_id,
+                        blob={
+                            "role": "assistant",
+                            "content": _final_response_text(response),
+                        },
+                        format="openai",
+                        meta={
+                            "message_kind": "final_response",
+                            "planner_status": response.status,
+                            "capture_policy": MEMORY_SCOPE,
+                        },
+                    )
+
+                    if response.status in {"completed", "failed"}:
+                        await client.sessions.flush(session_id)
+        except AcontextError as exc:
+            logger.warning(
+                "Acontext capture skipped for planner thread %s: %s",
+                thread_id,
+                exc,
+            )
+
+    async def _store_planner_trace(
+        self,
+        client: AcontextAsyncClient,
+        *,
+        session_id: str,
+        response: PlannerServiceResponse,
+    ) -> None:
+        trace = _planner_trace_text(response)
+        if trace is None:
+            return
+
+        stored = self._stored_evidence_signatures.setdefault(session_id, set())
+        signature = f"planner_trace:{trace}"
+        if signature in stored:
+            return
+
+        await client.sessions.store_message(
+            session_id,
+            blob={"role": "assistant", "content": trace},
+            format="openai",
+            meta={
+                "message_kind": "planner_trace",
+                "capture_policy": MEMORY_SCOPE,
+            },
+        )
+        stored.add(signature)
+
+    async def _store_new_trace_messages(
         self,
         client: AcontextAsyncClient,
         *,
@@ -133,12 +173,13 @@ class AcontextCapture:
             if signature in stored:
                 continue
 
-            await _store_evidence_message(
+            stored_message = await _store_trace_message(
                 client,
                 session_id=session_id,
                 evidence=item,
             )
-            stored.add(signature)
+            if stored_message:
+                stored.add(signature)
 
     async def _get_or_create_learning_space(self, client: AcontextAsyncClient) -> str:
         if self._learning_space_id is not None:
@@ -200,11 +241,6 @@ def build_acontext_capture() -> PlannerInteractionCapture | None:
     )
 
 
-def acontext_session_id(thread_id: str) -> str:
-    """Map a LangGraph thread id into a stable Acontext UUID."""
-    return str(uuid5(_SESSION_NAMESPACE, f"planner:{MEMORY_SCOPE}:{thread_id}"))
-
-
 async def _ensure_session(
     client: AcontextAsyncClient,
     *,
@@ -262,104 +298,103 @@ def _extract_execution_evidence(
     return evidence
 
 
-def _summarize_user_turn(
-    *,
-    resume: bool,
-    evidence: list[ExecutionEvidence],
-) -> str:
-    fields = _field_names(evidence)
-    if resume:
-        if fields:
-            return (
-                f"Supplied required fields: {', '.join(fields)}. "
-                "Values omitted from memory."
-            )
-        return "Supplied requested follow-up information. Value omitted from memory."
+def _planner_trace_text(response: PlannerServiceResponse) -> str | None:
+    planner_output = response.raw_result.get("planner_output")
+    if not isinstance(planner_output, dict):
+        return None
 
-    operations = _operations(evidence, kind="planner_decision")
-    if operations and operations != ["no_task"]:
-        return (
-            f"Requested workflow: {', '.join(operations)}. "
-            "Supplied values omitted from memory."
-        )
-    return "Submitted a planner request. User content omitted from memory."
+    tasks = planner_output.get("tasks", [])
+    if not isinstance(tasks, list):
+        return None
 
+    if not tasks:
+        return "Planner selected no executable invoice or music tasks."
 
-def _interaction_evidence(
-    *,
-    response: PlannerServiceResponse,
-    evidence: list[ExecutionEvidence],
-) -> list[ExecutionEvidence]:
-    if response.status != "interrupted":
-        return []
+    lines = ["Planner selected workflow tasks:"]
+    for task in tasks:
+        if not isinstance(task, dict):
+            continue
 
-    return [
-        ExecutionEvidence(
-            kind="hitl_request",
-            agent="planner",
-            operation="required_fields",
-            status="interrupted",
-            fields=_field_names(evidence),
-            summary="Additional required fields requested; values omitted from memory.",
-        )
-    ]
+        agent = str(task.get("agent") or "unknown")
+        intent = str(task.get("intent") or "unknown")
+        status = str(task.get("status") or "not_started")
+        details = [f"status: {status}"]
+
+        args = _format_task_args(task.get("args"))
+        if args:
+            details.append(f"args: {args}")
+
+        instruction = _clean_text(task.get("instruction"))
+        if instruction:
+            details.append(f"instruction: {instruction}")
+
+        lines.append(f"- {agent} agent -> {intent} ({'; '.join(details)})")
+
+    if len(lines) == 1:
+        return None
+
+    return "\n".join(lines)
 
 
-def _summarize_assistant_turn(
-    *,
-    response: PlannerServiceResponse,
-    evidence: list[ExecutionEvidence],
-) -> str:
-    fields = _field_names(evidence)
+def _format_task_args(value: object) -> str:
+    if not isinstance(value, dict) or not value:
+        return ""
+
+    pairs: list[str] = []
+    for key, raw in list(value.items())[:8]:
+        cleaned = _clean_text(raw)
+        if cleaned:
+            pairs.append(f"{key}={cleaned}")
+
+    if len(value) > 8:
+        pairs.append("...")
+
+    return ", ".join(pairs)
+
+
+def _clean_text(value: object, *, max_chars: int = 240) -> str:
+    if value is None:
+        return ""
+
+    text = str(value).strip()
+    if not text:
+        return ""
+
+    text = " ".join(text.split())
+    if len(text) <= max_chars:
+        return text
+
+    return f"{text[: max_chars - 3]}..."
+
+
+def _final_response_text(response: PlannerServiceResponse) -> str:
     if response.status == "interrupted":
-        if fields:
-            return f"Additional required fields requested: {', '.join(fields)}."
-        return "Additional information was requested."
+        return (
+            response.interrupt_message
+            or "Additional information is required before the workflow can continue."
+        )
 
     if response.status == "failed":
-        return "Planner workflow failed. Failure details omitted from memory."
+        return response.final_answer or "Planner workflow failed."
 
-    operations = _operations(evidence, kind="agent_result")
-    if operations:
-        return (
-            f"Workflow completed successfully: {', '.join(operations)}. "
-            "Returned values omitted from memory."
-        )
-    return "Planner workflow completed. Returned content omitted from memory."
+    return response.final_answer or "Planner workflow completed."
 
 
-def _field_names(evidence: list[ExecutionEvidence]) -> list[str]:
-    return sorted(
-        {
-            field
-            for item in evidence
-            for field in item.fields
-        }
-    )
-
-
-def _operations(
-    evidence: list[ExecutionEvidence],
-    *,
-    kind: str,
-) -> list[str]:
-    return list(
-        dict.fromkeys(
-            item.operation
-            for item in evidence
-            if item.kind == kind
-        )
-    )
-
-
-async def _store_evidence_message(
+async def _store_trace_message(
     client: AcontextAsyncClient,
     *,
     session_id: str,
     evidence: ExecutionEvidence,
-) -> None:
+) -> bool:
+    if evidence.kind == "planner_decision":
+        return False
+
+    if evidence.kind in {"hitl_request", "hitl_resume", "aggregation"}:
+        return False
+
     meta = {
-        "evidence_kind": evidence.kind,
+        "message_kind": "workflow_trace",
+        "trace_kind": evidence.kind,
         "capture_policy": MEMORY_SCOPE,
     }
 
@@ -368,14 +403,18 @@ async def _store_evidence_message(
             session_id,
             blob={
                 "role": "assistant",
-                "content": evidence.summary,
+                "content": "",
                 "tool_calls": [
                     {
                         "id": evidence.call_id,
                         "type": "function",
                         "function": {
                             "name": _safe_tool_name(evidence),
-                            "arguments": json.dumps({"fields": evidence.fields}),
+                            "arguments": json.dumps(
+                                _tool_call_arguments(evidence),
+                                ensure_ascii=False,
+                                default=str,
+                            ),
                         },
                     }
                 ],
@@ -383,7 +422,7 @@ async def _store_evidence_message(
             format="openai",
             meta=meta,
         )
-        return
+        return True
 
     if evidence.kind == "mcp_tool_result" and evidence.call_id is not None:
         await client.sessions.store_message(
@@ -396,14 +435,19 @@ async def _store_evidence_message(
             format="openai",
             meta=meta,
         )
-        return
+        return True
 
-    await client.sessions.store_message(
-        session_id,
-        blob={"role": "assistant", "content": evidence.summary},
-        format="openai",
-        meta=meta,
-    )
+    if evidence.kind == "agent_result":
+        return False
+
+    return False
+
+
+def _tool_call_arguments(evidence: ExecutionEvidence) -> dict[str, object]:
+    if evidence.arguments:
+        return evidence.arguments
+
+    return {"fields": evidence.fields}
 
 
 def _safe_tool_name(evidence: ExecutionEvidence) -> str:

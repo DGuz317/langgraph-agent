@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -30,6 +30,7 @@ class ExecutionEvidence(BaseModel):
     status: EvidenceStatus
     call_id: str | None = None
     fields: list[str] = Field(default_factory=list)
+    arguments: dict[str, Any] = Field(default_factory=dict)
     summary: str
 
 

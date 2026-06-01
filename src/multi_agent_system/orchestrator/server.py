@@ -16,7 +16,7 @@ class PlannerServiceProtocol(Protocol):
         user_input: str,
         *,
         thread_id: str | None = None,
-        resume: bool = False,
+        resume: bool | None = None,
     ) -> PlannerServiceResponse:
         ...
 

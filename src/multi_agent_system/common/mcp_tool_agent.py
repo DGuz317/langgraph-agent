@@ -55,7 +55,8 @@ class MCPToolAgent:
                 status="started",
                 call_id=call_id,
                 fields=sorted(str(key) for key in args),
-                summary=f"Invoked {tool_name}; supplied values omitted from memory.",
+                arguments=dict(args),
+                summary=f"Called {tool_name}.",
             )
         )
         try:
@@ -208,9 +209,28 @@ def _summarize_tool_result(tool_name: str, result: Any) -> str:
         return f"{tool_name} completed; no matching records returned."
 
     if isinstance(result, list):
+        preview = _preview_tool_result(result[:3])
+        suffix = f" Preview: {preview}" if preview else ""
         return (
-            f"{tool_name} completed; {len(result)} record(s) returned, "
-            "with values omitted from memory."
+            f"{tool_name} completed; {len(result)} record(s) returned."
+            f"{suffix}"
         )
 
-    return f"{tool_name} completed; returned values omitted from memory."
+    preview = _preview_tool_result(result)
+    if preview:
+        return f"{tool_name} completed. Outcome: {preview}"
+
+    return f"{tool_name} completed."
+
+
+def _preview_tool_result(result: Any, *, max_chars: int = 1200) -> str:
+    try:
+        text = json.dumps(result, ensure_ascii=False, default=str, sort_keys=True)
+    except (TypeError, ValueError):
+        text = str(result)
+
+    text = " ".join(text.split())
+    if len(text) <= max_chars:
+        return text
+
+    return f"{text[: max_chars - 3]}..."

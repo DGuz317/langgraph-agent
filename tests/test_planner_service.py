@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 import pytest
 
 from multi_agent_system.orchestrator.acontext_memory import MemoryRecallResult
@@ -5,10 +7,18 @@ from multi_agent_system.orchestrator.service import PlannerService
 
 
 class FakeGraph:
-    def __init__(self, result=None, error: Exception | None = None) -> None:
+    def __init__(
+        self,
+        result=None,
+        error: Exception | None = None,
+        *,
+        state_interrupts=(),
+    ) -> None:
         self.result = result or {}
         self.error = error
+        self.state_interrupts = state_interrupts
         self.calls = []
+        self.state_calls = []
 
     async def ainvoke(self, payload, config):
         self.calls.append(
@@ -22,6 +32,10 @@ class FakeGraph:
             raise self.error
 
         return self.result
+
+    async def aget_state(self, config):
+        self.state_calls.append(config)
+        return SimpleNamespace(interrupts=self.state_interrupts)
 
 
 class FakeInterrupt:
@@ -57,8 +71,18 @@ class FakeMemoryRecall:
         self.error = error
         self.calls = []
 
-    async def recall(self, user_input: str) -> MemoryRecallResult:
-        self.calls.append(user_input)
+    async def recall(
+        self,
+        user_input: str,
+        *,
+        thread_id: str | None = None,
+    ) -> MemoryRecallResult:
+        self.calls.append(
+            {
+                "user_input": user_input,
+                "thread_id": thread_id,
+            }
+        )
         if self.error is not None:
             raise self.error
         return self.result
@@ -93,6 +117,13 @@ async def test_planner_service_returns_completed_response() -> None:
             "thread_id": "thread-1",
         }
     }
+    assert graph.state_calls == [
+        {
+            "configurable": {
+                "thread_id": "thread-1",
+            }
+        }
+    ]
 
 
 @pytest.mark.anyio
@@ -159,6 +190,38 @@ async def test_planner_service_resumes_with_command() -> None:
     assert response.final_answer == "Latest invoice found."
     assert payload.__class__.__name__ == "Command"
     assert graph.calls[0]["config"]["configurable"]["thread_id"] == "thread-1"
+
+
+@pytest.mark.anyio
+async def test_planner_service_auto_resumes_interrupted_thread() -> None:
+    graph = FakeGraph(
+        result={
+            "final_answer": "Latest invoice found.",
+        },
+        state_interrupts=(FakeInterrupt("Provide customer ID."),),
+    )
+    service = PlannerService(graph=graph, capture=None, memory_recall=None)
+
+    response = await service.invoke(
+        "5",
+        thread_id="thread-1",
+    )
+
+    payload = graph.calls[0]["payload"]
+
+    assert response.status == "completed"
+    assert payload.__class__.__name__ == "Command"
+
+
+@pytest.mark.anyio
+async def test_planner_service_explicit_resume_requires_thread_id() -> None:
+    graph = FakeGraph(result={"final_answer": "Done."})
+    service = PlannerService(graph=graph, capture=None, memory_recall=None)
+
+    with pytest.raises(ValueError, match="thread_id"):
+        await service.invoke("5", resume=True)
+
+    assert graph.calls == []
 
 
 @pytest.mark.anyio
@@ -233,7 +296,12 @@ async def test_planner_service_injects_recalled_memory_context() -> None:
 
     response = await service.invoke("latest invoice", thread_id="thread-memory")
 
-    assert memory.calls == ["latest invoice"]
+    assert memory.calls == [
+        {
+            "user_input": "latest invoice",
+            "thread_id": "thread-memory",
+        }
+    ]
     assert graph.calls[0]["payload"] == {
         "user_input": "latest invoice",
         "memory_context": "- remembered skill",

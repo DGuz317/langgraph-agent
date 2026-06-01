@@ -7,21 +7,23 @@ from dataclasses import dataclass
 from typing import Any, Literal, Protocol
 
 from acontext import AcontextAsyncClient
+from acontext.errors import APIError, AcontextError
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 
 from multi_agent_system.common.llm import get_llm
 from multi_agent_system.config import settings
+from multi_agent_system.orchestrator.acontext_common import (
+    LEARNING_SPACE_META,
+    MEMORY_SCOPE,
+    acontext_session_id,
+)
 
 logger = logging.getLogger(__name__)
 
-MEMORY_SCOPE = "sanitized-execution-v1"
-LEARNING_SPACE_META = {
-    "source": "multi_agent_system.planner",
-    "memory_scope": MEMORY_SCOPE,
-}
-
 RecallStatus = Literal["disabled", "ok", "empty", "failed"]
+LEARNING_WAIT_TIMEOUT_SECONDS = 1000
+LEARNING_WAIT_POLL_SECONDS = 1.0
 
 
 @dataclass(frozen=True)
@@ -31,7 +33,12 @@ class MemoryRecallResult:
 
 
 class PlannerMemoryRecall(Protocol):
-    async def recall(self, user_input: str) -> MemoryRecallResult:
+    async def recall(
+        self,
+        user_input: str,
+        *,
+        thread_id: str | None = None,
+    ) -> MemoryRecallResult:
         """Return sanitized memory guidance for one planner request."""
 
 
@@ -72,7 +79,12 @@ class AcontextMemoryRecall:
         self._client_factory = client_factory or self._build_client
         self._skill_selector = skill_selector or _select_relevant_skills
 
-    async def recall(self, user_input: str) -> MemoryRecallResult:
+    async def recall(
+        self,
+        user_input: str,
+        *,
+        thread_id: str | None = None,
+    ) -> MemoryRecallResult:
         if self._limit == 0 or self._max_chars == 0:
             return MemoryRecallResult(
                 context=None,
@@ -87,6 +99,9 @@ class AcontextMemoryRecall:
                         context=None,
                         metadata=_memory_metadata("empty", skills_used=0),
                     )
+
+                if thread_id is not None:
+                    await self._wait_for_learning(client, space_id, thread_id)
 
                 skills = await client.learning_spaces.list_skills(space_id)
                 candidates = [
@@ -136,6 +151,49 @@ class AcontextMemoryRecall:
             return None
 
         return spaces.items[0].id
+
+    async def _wait_for_learning(
+        self,
+        client: AcontextAsyncClient,
+        space_id: str,
+        thread_id: str,
+    ) -> None:
+        session_id = acontext_session_id(thread_id)
+
+        try:
+            learning = await client.learning_spaces.wait_for_learning(
+                space_id,
+                session_id=session_id,
+                timeout=LEARNING_WAIT_TIMEOUT_SECONDS,
+                poll_interval=LEARNING_WAIT_POLL_SECONDS,
+            )
+        except APIError as exc:
+            if exc.status_code == 404:
+                logger.debug(
+                    "No Acontext learning session exists for planner thread %s.",
+                    thread_id,
+                )
+                return
+            logger.warning(
+                "Acontext learning wait failed for planner thread %s: %s",
+                thread_id,
+                exc,
+            )
+            return
+        except (TimeoutError, AcontextError) as exc:
+            logger.warning(
+                "Acontext learning wait skipped for planner thread %s: %s",
+                thread_id,
+                exc,
+            )
+            return
+
+        status = str(getattr(learning, "status", "") or "").lower()
+        if "failed" in status:
+            logger.warning(
+                "Acontext learning finished with failed status for planner thread %s.",
+                thread_id,
+            )
 
     async def _skill_candidate(
         self,
@@ -203,7 +261,12 @@ def failed_memory_result() -> MemoryRecallResult:
 
 
 class _FailedMemoryRecall:
-    async def recall(self, user_input: str) -> MemoryRecallResult:
+    async def recall(
+        self,
+        user_input: str,
+        *,
+        thread_id: str | None = None,
+    ) -> MemoryRecallResult:
         return failed_memory_result()
 
 

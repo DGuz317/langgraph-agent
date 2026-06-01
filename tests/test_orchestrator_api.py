@@ -15,7 +15,7 @@ class FakePlannerService:
         user_input: str,
         *,
         thread_id: str | None = None,
-        resume: bool = False,
+        resume: bool | None = None,
     ) -> PlannerServiceResponse:
         self.calls.append(
             {
@@ -73,7 +73,7 @@ async def test_planner_api_returns_completed_response() -> None:
         {
             "user_input": "Get latest invoice for customer_id=5",
             "thread_id": "thread-1",
-            "resume": False,
+            "resume": None,
         }
     ]
 
@@ -129,6 +129,54 @@ async def test_planner_api_passes_resume_request_to_service() -> None:
             "resume": True,
         }
     ]
+
+
+@pytest.mark.anyio
+async def test_planner_api_allows_omitted_resume_for_existing_thread() -> None:
+    service = FakePlannerService(
+        PlannerServiceResponse(
+            status="completed",
+            thread_id="thread-2",
+            final_answer="Song found.",
+        )
+    )
+    response = await _post(
+        service,
+        {
+            "user_input": "Ligia",
+            "thread_id": "thread-2",
+        },
+    )
+
+    assert response.status_code == 200
+    assert service.calls == [
+        {
+            "user_input": "Ligia",
+            "thread_id": "thread-2",
+            "resume": None,
+        }
+    ]
+
+
+@pytest.mark.anyio
+async def test_planner_api_rejects_resume_without_thread_id() -> None:
+    service = FakePlannerService(
+        PlannerServiceResponse(
+            status="completed",
+            thread_id="unused",
+        )
+    )
+    response = await _post(
+        service,
+        {
+            "user_input": "5",
+            "thread_id": None,
+            "resume": True,
+        },
+    )
+
+    assert response.status_code == 422
+    assert service.calls == []
 
 
 @pytest.mark.anyio

@@ -2,15 +2,29 @@ from types import SimpleNamespace
 
 import pytest
 
+from multi_agent_system.orchestrator.acontext_common import (
+    MEMORY_SCOPE,
+    acontext_session_id,
+)
 from multi_agent_system.orchestrator.acontext_memory import AcontextMemoryRecall
 
 
 class FakeLearningSpaces:
-    def __init__(self, *, space_id: str | None = "space-1", skills=None) -> None:
+    def __init__(
+        self,
+        *,
+        space_id: str | None = "space-1",
+        skills=None,
+        wait_error: Exception | None = None,
+        wait_status: str = "completed",
+    ) -> None:
         self.space_id = space_id
         self.skills = skills or []
+        self.wait_error = wait_error
+        self.wait_status = wait_status
         self.list_calls = []
         self.list_skills_calls = []
+        self.wait_for_learning_calls = []
 
     async def list(self, **kwargs):
         self.list_calls.append(kwargs)
@@ -20,6 +34,12 @@ class FakeLearningSpaces:
     async def list_skills(self, space_id: str):
         self.list_skills_calls.append(space_id)
         return self.skills
+
+    async def wait_for_learning(self, space_id: str, **kwargs):
+        self.wait_for_learning_calls.append((space_id, kwargs))
+        if self.wait_error is not None:
+            raise self.wait_error
+        return SimpleNamespace(status=self.wait_status)
 
 
 class FakeSkills:
@@ -47,10 +67,14 @@ class FakeClient:
         skills=None,
         files=None,
         error: Exception | None = None,
+        wait_error: Exception | None = None,
+        wait_status: str = "completed",
     ) -> None:
         self.learning_spaces = FakeLearningSpaces(
             space_id=space_id,
             skills=skills,
+            wait_error=wait_error,
+            wait_status=wait_status,
         )
         self.skills = FakeSkills(files=files, error=error)
 
@@ -125,10 +149,74 @@ async def test_acontext_memory_recall_returns_relevant_sanitized_skill() -> None
             "limit": 1,
             "filter_by_meta": {
                 "source": "multi_agent_system.planner",
-                "memory_scope": "sanitized-execution-v1",
+                "memory_scope": MEMORY_SCOPE,
             },
         }
     ]
+    assert client.learning_spaces.wait_for_learning_calls == []
+
+
+@pytest.mark.anyio
+async def test_acontext_memory_recall_waits_for_thread_learning_before_skills() -> None:
+    skill = _skill(
+        skill_id="skill-1",
+        name="invoice-routing",
+        description="Route invoice requests.",
+    )
+    client = FakeClient(
+        skills=[skill],
+        files={
+            ("skill-1", "SKILL.md"): "invoice skill",
+        },
+    )
+    recall = AcontextMemoryRecall(
+        api_key="test-key",
+        base_url="https://example.test/api/v1",
+        user_identifier="planner-service",
+        client_factory=lambda: client,
+    )
+
+    result = await recall.recall("invoice", thread_id="thread-1")
+
+    assert result.metadata["recall_status"] == "ok"
+    assert client.learning_spaces.wait_for_learning_calls == [
+        (
+            "space-1",
+            {
+                "session_id": acontext_session_id("thread-1"),
+                "timeout": 1000.0,
+                "poll_interval": 1.0,
+            },
+        )
+    ]
+    assert client.learning_spaces.list_skills_calls == ["space-1"]
+
+
+@pytest.mark.anyio
+async def test_acontext_memory_recall_continues_when_learning_wait_fails() -> None:
+    skill = _skill(
+        skill_id="skill-1",
+        name="invoice-routing",
+        description="Route invoice requests.",
+    )
+    client = FakeClient(
+        skills=[skill],
+        files={
+            ("skill-1", "SKILL.md"): "invoice skill",
+        },
+        wait_error=TimeoutError("learning timeout"),
+    )
+    recall = AcontextMemoryRecall(
+        api_key="test-key",
+        base_url="https://example.test/api/v1",
+        user_identifier="planner-service",
+        client_factory=lambda: client,
+    )
+
+    result = await recall.recall("invoice", thread_id="thread-timeout")
+
+    assert result.metadata["recall_status"] == "ok"
+    assert result.metadata["skill_names"] == ["invoice-routing"]
 
 
 @pytest.mark.anyio

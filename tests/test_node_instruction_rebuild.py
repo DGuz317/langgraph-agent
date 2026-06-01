@@ -72,6 +72,7 @@ async def test_invoice_node_rebuilds_instruction_from_args(
             "status": "started",
             "call_id": None,
             "fields": ["customer_id"],
+            "arguments": {},
             "summary": "Dispatched domain workflow; supplied values omitted from memory.",
         },
         {
@@ -81,6 +82,7 @@ async def test_invoice_node_rebuilds_instruction_from_args(
             "status": "completed",
             "call_id": None,
             "fields": [],
+            "arguments": {},
             "summary": "Domain workflow completed; returned values omitted from memory.",
         },
     ]

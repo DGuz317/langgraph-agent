@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from acontext.errors import APIError
+from acontext.errors import APIError, TransportError
 
 from multi_agent_system.common.execution_evidence import ExecutionEvidence
 from multi_agent_system.config import settings
@@ -12,6 +12,7 @@ from multi_agent_system.orchestrator.acontext_capture import (
     acontext_session_id,
     build_acontext_capture,
 )
+from multi_agent_system.orchestrator.acontext_common import MEMORY_SCOPE
 from multi_agent_system.orchestrator.schemas import PlannerServiceResponse
 
 
@@ -37,8 +38,14 @@ class FakeSessions:
 
 
 class FakeLearningSpaces:
-    def __init__(self, *, existing_space: bool = False) -> None:
+    def __init__(
+        self,
+        *,
+        existing_space: bool = False,
+        list_error: Exception | None = None,
+    ) -> None:
         self.space_id = "existing-space" if existing_space else None
+        self.list_error = list_error
         self.associated_session_ids: set[str] = set()
         self.list_calls: list[dict] = []
         self.create_calls: list[dict] = []
@@ -47,6 +54,8 @@ class FakeLearningSpaces:
 
     async def list(self, **kwargs):
         self.list_calls.append(kwargs)
+        if self.list_error is not None:
+            raise self.list_error
         items = [SimpleNamespace(id=self.space_id)] if self.space_id else []
         return SimpleNamespace(items=items)
 
@@ -67,9 +76,17 @@ class FakeLearningSpaces:
 
 
 class FakeClient:
-    def __init__(self, *, existing_space: bool = False) -> None:
+    def __init__(
+        self,
+        *,
+        existing_space: bool = False,
+        list_error: Exception | None = None,
+    ) -> None:
         self.sessions = FakeSessions()
-        self.learning_spaces = FakeLearningSpaces(existing_space=existing_space)
+        self.learning_spaces = FakeLearningSpaces(
+            existing_space=existing_space,
+            list_error=list_error,
+        )
 
     async def __aenter__(self):
         return self
@@ -116,7 +133,7 @@ async def test_completed_interaction_creates_learning_space_and_flushes() -> Non
             "limit": 1,
             "filter_by_meta": {
                 "source": "multi_agent_system.planner",
-                "memory_scope": "sanitized-execution-v1",
+                "memory_scope": MEMORY_SCOPE,
             },
         }
     ]
@@ -125,7 +142,7 @@ async def test_completed_interaction_creates_learning_space_and_flushes() -> Non
             "user": "planner-service",
             "meta": {
                 "source": "multi_agent_system.planner",
-                "memory_scope": "sanitized-execution-v1",
+                "memory_scope": MEMORY_SCOPE,
             },
         }
     ]
@@ -135,8 +152,8 @@ async def test_completed_interaction_creates_learning_space_and_flushes() -> Non
             "user": "planner-service",
             "configs": {
                 "source": "multi_agent_system.planner",
-                "memory_scope": "sanitized-execution-v1",
-                "capture_policy": "sanitized-execution-v1",
+                "memory_scope": MEMORY_SCOPE,
+                "capture_policy": MEMORY_SCOPE,
             },
             "use_uuid": session_id,
         }
@@ -147,12 +164,13 @@ async def test_completed_interaction_creates_learning_space_and_flushes() -> Non
             {
                 "blob": {
                     "role": "user",
-                    "content": "Submitted a planner request. User content omitted from memory.",
+                    "content": "hello",
                 },
                 "format": "openai",
                 "meta": {
+                    "message_kind": "user_input",
                     "resume": False,
-                    "capture_policy": "sanitized-execution-v1",
+                    "capture_policy": MEMORY_SCOPE,
                 },
             },
         ),
@@ -161,12 +179,13 @@ async def test_completed_interaction_creates_learning_space_and_flushes() -> Non
             {
                 "blob": {
                     "role": "assistant",
-                    "content": "Planner workflow completed. Returned content omitted from memory.",
+                    "content": "Done.",
                 },
                 "format": "openai",
                 "meta": {
+                    "message_kind": "final_response",
                     "planner_status": "completed",
-                    "capture_policy": "sanitized-execution-v1",
+                    "capture_policy": MEMORY_SCOPE,
                 },
             },
         ),
@@ -232,7 +251,9 @@ async def test_interrupt_and_resume_share_learning_session_and_flush_at_end() ->
         session_id,
     ]
     assert client.learning_spaces.learn_calls == [("created-space", session_id)]
-    assert len(client.sessions.store_calls) == 5
+    assert len(client.sessions.store_calls) == 4
+    assert client.sessions.store_calls[1][1]["blob"]["content"] == "Provide customer ID."
+    assert client.sessions.store_calls[3][1]["blob"]["content"] == "Latest invoice found."
     assert client.sessions.flush_calls == [session_id]
 
 
@@ -259,7 +280,29 @@ async def test_failed_interaction_is_stored_and_flushed() -> None:
 
 
 @pytest.mark.anyio
-async def test_execution_evidence_is_stored_without_raw_business_values() -> None:
+async def test_capture_skips_acontext_transport_errors(caplog) -> None:
+    client = FakeClient(list_error=TransportError("All connection attempts failed"))
+    capture = _capture(client)
+    response = PlannerServiceResponse(
+        status="completed",
+        thread_id="thread-offline",
+        final_answer="Done.",
+    )
+
+    with caplog.at_level("WARNING"):
+        await capture.capture(
+            user_input="hello",
+            thread_id="thread-offline",
+            resume=False,
+            response=response,
+        )
+
+    assert "Acontext capture skipped for planner thread thread-offline" in caplog.text
+    assert client.sessions.store_calls == []
+
+
+@pytest.mark.anyio
+async def test_workflow_outcome_capture_stores_readable_trace_and_final_answer() -> None:
     client = FakeClient()
     capture = _capture(client)
     call_id = "tool-call-1"
@@ -268,6 +311,17 @@ async def test_execution_evidence_is_stored_without_raw_business_values() -> Non
         thread_id="sensitive-thread",
         final_answer="customer_id=5 BillingAddress=Example email=support@example.com",
         raw_result={
+            "planner_output": {
+                "tasks": [
+                    {
+                        "agent": "invoice",
+                        "intent": "latest_invoice",
+                        "args": {"customer_id": "5"},
+                        "status": "completed",
+                        "instruction": "Get latest invoice for customer_id=5",
+                    }
+                ],
+            },
             "execution_evidence": [
                 ExecutionEvidence(
                     kind="planner_decision",
@@ -284,7 +338,8 @@ async def test_execution_evidence_is_stored_without_raw_business_values() -> Non
                     status="started",
                     call_id=call_id,
                     fields=["customer_id"],
-                    summary="Invoked invoice lookup; supplied values omitted from memory.",
+                    arguments={"customer_id": "5"},
+                    summary="Called invoice lookup.",
                 ).model_dump(),
                 ExecutionEvidence(
                     kind="mcp_tool_result",
@@ -292,7 +347,10 @@ async def test_execution_evidence_is_stored_without_raw_business_values() -> Non
                     operation="get_invoices_by_customer_sorted_by_date",
                     status="completed",
                     call_id=call_id,
-                    summary="Invoice lookup completed; returned values omitted from memory.",
+                    summary=(
+                        "Invoice lookup completed. Outcome: "
+                        '{"InvoiceId": 1, "CustomerId": 5}'
+                    ),
                 ).model_dump(),
                 ExecutionEvidence(
                     kind="agent_result",
@@ -315,25 +373,37 @@ async def test_execution_evidence_is_stored_without_raw_business_values() -> Non
     blobs = [kwargs["blob"] for _, kwargs in client.sessions.store_calls]
     captured_json = json.dumps(blobs)
 
-    assert "customer_id=5" not in captured_json
-    assert "BillingAddress" not in captured_json
-    assert "support@example.com" not in captured_json
-    assert blobs[0]["content"].startswith("Requested workflow: latest_invoice")
-    assert any(blob.get("tool_calls") for blob in blobs)
-    assert any(blob.get("role") == "tool" for blob in blobs)
+    assert blobs[0] == {
+        "role": "user",
+        "content": "Get latest invoice for customer_id=5",
+    }
+    assert "invoice agent -> latest_invoice" in captured_json
+    assert "Get latest invoice for customer_id=5" in captured_json
+    assert "Invoice agent called MCP tool" not in captured_json
+    assert "Invoice lookup completed. Outcome:" in captured_json
+    tool_result_blob = next(blob for blob in blobs if blob.get("role") == "tool")
+    assert '"InvoiceId": 1' in tool_result_blob["content"]
+    assert "Invoice agent completed latest_invoice." not in captured_json
+    assert "customer_id=5 BillingAddress=Example email=support@example.com" in captured_json
+    tool_call_blob = next(blob for blob in blobs if blob.get("tool_calls"))
+    assert tool_call_blob["content"] == ""
+    assert json.loads(
+        tool_call_blob["tool_calls"][0]["function"]["arguments"]
+    ) == {"customer_id": "5"}
 
 
 @pytest.mark.anyio
-async def test_resume_does_not_store_repeated_execution_evidence() -> None:
+async def test_resume_does_not_store_repeated_trace_messages() -> None:
     client = FakeClient()
     capture = _capture(client)
-    decision = ExecutionEvidence(
-        kind="planner_decision",
-        agent="planner",
-        operation="latest_invoice",
-        status="interrupted",
+    tool_call = ExecutionEvidence(
+        kind="mcp_tool_call",
+        agent="invoice",
+        operation="get_invoices_by_customer_sorted_by_date",
+        status="started",
+        call_id="tool-call-1",
         fields=["customer_id"],
-        summary="Planner selected a workflow requiring additional fields.",
+        summary="Invoked invoice lookup.",
     ).model_dump()
 
     await capture.capture(
@@ -344,7 +414,7 @@ async def test_resume_does_not_store_repeated_execution_evidence() -> None:
             status="interrupted",
             thread_id="resume-evidence",
             interrupt_message="Provide a customer identifier.",
-            raw_result={"execution_evidence": [decision]},
+            raw_result={"execution_evidence": [tool_call]},
         ),
     )
     await capture.capture(
@@ -355,16 +425,16 @@ async def test_resume_does_not_store_repeated_execution_evidence() -> None:
             status="completed",
             thread_id="resume-evidence",
             final_answer="Sensitive response",
-            raw_result={"execution_evidence": [decision]},
+            raw_result={"execution_evidence": [tool_call]},
         ),
     )
 
-    evidence_messages = [
+    trace_messages = [
         kwargs
         for _, kwargs in client.sessions.store_calls
-        if kwargs["meta"].get("evidence_kind") == "planner_decision"
+        if kwargs["meta"].get("trace_kind") == "mcp_tool_call"
     ]
-    assert len(evidence_messages) == 1
+    assert len(trace_messages) == 1
 
 
 def test_session_identifier_is_stable_for_existing_thread_ids() -> None:

@@ -13,6 +13,7 @@ from multi_agent_system.orchestrator.acontext_capture import (
     AcontextCapture,
     acontext_session_id,
 )
+from multi_agent_system.orchestrator.acontext_common import MEMORY_SCOPE
 from multi_agent_system.orchestrator.schemas import PlannerServiceResponse
 
 
@@ -120,7 +121,7 @@ async def test_direct_acontext_learning_after_flush() -> None:
 
 
 @pytest.mark.anyio
-async def test_sanitized_execution_session_is_stored_and_flushed() -> None:
+async def test_workflow_outcome_session_is_stored_and_flushed() -> None:
     assert settings.acontext_api_key
     api_key = settings.acontext_api_key
     base_url = settings.acontext_base_url
@@ -147,6 +148,17 @@ async def test_sanitized_execution_session_is_stored_and_flushed() -> None:
             "'Get latest invoice for customer_id=5'."
         ),
         raw_result={
+            "planner_output": {
+                "tasks": [
+                    {
+                        "agent": "invoice",
+                        "intent": "latest_invoice",
+                        "args": {"customer_id": "5"},
+                        "status": "completed",
+                        "instruction": "Get latest invoice for customer_id=5",
+                    }
+                ],
+            },
             "execution_evidence": [
                 ExecutionEvidence(
                     kind="planner_decision",
@@ -188,7 +200,7 @@ async def test_sanitized_execution_session_is_stored_and_flushed() -> None:
                 user=user_identifier,
                 filter_by_meta={
                     "source": "multi_agent_system.planner",
-                    "memory_scope": "sanitized-execution-v1",
+                    "memory_scope": MEMORY_SCOPE,
                 },
             )
             assert spaces.items
@@ -199,7 +211,8 @@ async def test_sanitized_execution_session_is_stored_and_flushed() -> None:
             )
             serialized_messages = str(messages.items)
             assert "latest_invoice" in serialized_messages
-            assert "customer_id=5" not in serialized_messages
+            assert "customer_id=5" in serialized_messages
+            assert "Remember this project convention" in serialized_messages
 
             if os.getenv("RUN_ACONTEXT_LEARNING_INTEGRATION_TESTS") == "1":
                 learning = await client.learning_spaces.wait_for_learning(

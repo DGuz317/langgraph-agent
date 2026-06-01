@@ -64,7 +64,7 @@ async def test_call_tool_returns_parsed_text_payload() -> None:
 
 
 @pytest.mark.anyio
-async def test_call_tool_records_sanitized_execution_evidence() -> None:
+async def test_call_tool_records_outcome_execution_evidence() -> None:
     tool = FakeTool(
         name="get_items",
         result=[{"type": "text", "text": "[{\"private\": \"value\"}]"}],
@@ -77,8 +77,10 @@ async def test_call_tool_records_sanitized_execution_evidence() -> None:
 
     assert [item.kind for item in evidence] == ["mcp_tool_call", "mcp_tool_result"]
     assert evidence[0].fields == ["customer_id"]
-    assert "5" not in evidence[0].summary
-    assert "private" not in evidence[1].summary
+    assert evidence[0].arguments == {"customer_id": "5"}
+    assert evidence[0].summary == "Called get_items."
+    assert "private" in evidence[1].summary
+    assert "value" in evidence[1].summary
 
 
 @pytest.mark.anyio

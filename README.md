@@ -330,8 +330,7 @@ POST http://localhost:12000/planner/invoke
 ```json
 {
   "user_input": "Get latest invoice for customer_id=5",
-  "thread_id": null,
-  "resume": false
+  "thread_id": null
 }
 ```
 
