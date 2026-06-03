@@ -43,7 +43,7 @@ class AcontextCapture:
         api_key: str,
         base_url: str,
         user_identifier: str,
-        timeout: float = 1000.0,
+        timeout: float = 2000.0,
         task_check_attempts: int = 6,
         task_check_interval: float = 0.5,
         client_factory: Callable[[], AcontextAsyncClient] | None = None,

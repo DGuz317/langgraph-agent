@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     # LLM
     model_provider: ModelProvider = "ollama"
     llm_model: str = "gpt-oss"
-    llm_temperature: float = 0.0
+    llm_temperature: float = 0
 
     # Ollama
     ollama_api_url: str = "http://localhost:11434"
