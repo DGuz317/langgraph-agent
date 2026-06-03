@@ -44,12 +44,16 @@ class AcontextCapture:
         base_url: str,
         user_identifier: str,
         timeout: float = 1000.0,
+        task_check_attempts: int = 6,
+        task_check_interval: float = 0.5,
         client_factory: Callable[[], AcontextAsyncClient] | None = None,
     ) -> None:
         self._api_key = api_key
         self._base_url = base_url
         self._user_identifier = user_identifier
         self._timeout = timeout
+        self._task_check_attempts = task_check_attempts
+        self._task_check_interval = task_check_interval
         self._client_factory = client_factory or self._build_client
         self._learning_space_id: str | None = None
         self._learning_space_lock = asyncio.Lock()
@@ -77,14 +81,6 @@ class AcontextCapture:
                         session_id=session_id,
                         user_identifier=self._user_identifier,
                     )
-
-                    if session_id not in self._attached_session_ids:
-                        await _ensure_learning_session(
-                            client,
-                            space_id=space_id,
-                            session_id=session_id,
-                        )
-                        self._attached_session_ids.add(session_id)
 
                     await client.sessions.store_message(
                         session_id,
@@ -125,12 +121,31 @@ class AcontextCapture:
                     )
 
                     if response.status in {"completed", "failed"}:
-                        await client.sessions.flush(session_id)
+                        flushed = await _flush_and_wait_for_observing(
+                            client,
+                            session_id=session_id,
+                            thread_id=thread_id,
+                            attempts=self._task_check_attempts,
+                            interval_seconds=self._task_check_interval,
+                        )
+                        if not flushed:
+                            return
+
+                        if session_id not in self._attached_session_ids:
+                            await _ensure_learning_session(
+                                client,
+                                space_id=space_id,
+                                session_id=session_id,
+                            )
+                            self._attached_session_ids.add(session_id)
                         if _has_planner_tasks(response):
                             await _warn_if_no_acontext_tasks(
                                 client,
                                 session_id=session_id,
                                 thread_id=thread_id,
+                                planner_status=response.status,
+                                attempts=self._task_check_attempts,
+                                interval_seconds=self._task_check_interval,
                             )
         except AcontextError as exc:
             logger.warning(
@@ -302,30 +317,138 @@ async def _ensure_learning_session(
             raise
 
 
+async def _flush_and_wait_for_observing(
+    client: AcontextAsyncClient,
+    *,
+    session_id: str,
+    thread_id: str,
+    attempts: int,
+    interval_seconds: float,
+) -> bool:
+    try:
+        await client.sessions.flush(session_id)
+    except AcontextError as exc:
+        logger.warning(
+            "Acontext capture skipped task extraction for planner thread %s: "
+            "failed to flush session: %s",
+            thread_id,
+            exc,
+        )
+        return False
+
+    status_method = getattr(client.sessions, "messages_observing_status", None)
+    if not callable(status_method):
+        return True
+
+    max_attempts = max(1, attempts)
+    for attempt in range(max_attempts):
+        try:
+            status = await status_method(session_id)
+        except AcontextError as exc:
+            logger.debug(
+                "Could not verify Acontext observing status for planner thread %s: %s",
+                thread_id,
+                exc,
+            )
+            return True
+
+        if _observing_is_complete(status):
+            return True
+
+        if attempt < max_attempts - 1 and interval_seconds > 0:
+            await asyncio.sleep(interval_seconds)
+
+    logger.debug(
+        "Acontext observing status still has pending or in-process messages "
+        "for planner thread %s after flush.",
+        thread_id,
+    )
+    return True
+
+
+def _observing_is_complete(status: object) -> bool:
+    pending = _status_count(status, "pending")
+    in_process = _status_count(status, "in_process")
+    return pending == 0 and in_process == 0
+
+
+def _status_count(status: object, field: str) -> int:
+    if isinstance(status, dict):
+        raw_value = status.get(field)
+    else:
+        raw_value = getattr(status, field, None)
+
+    try:
+        return int(raw_value or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
 async def _warn_if_no_acontext_tasks(
     client: AcontextAsyncClient,
     *,
     session_id: str,
     thread_id: str,
+    planner_status: str,
+    attempts: int,
+    interval_seconds: float,
 ) -> None:
-    try:
-        tasks = await client.sessions.get_tasks(session_id, limit=1)
-    except AcontextError as exc:
-        logger.debug(
-            "Could not verify Acontext task extraction for planner thread %s: %s",
-            thread_id,
-            exc,
-        )
-        return
+    for attempt in range(max(1, attempts)):
+        try:
+            tasks = await client.sessions.get_tasks(session_id, limit=10)
+        except AcontextError as exc:
+            logger.debug(
+                "Could not verify Acontext task extraction for planner thread %s: %s",
+                thread_id,
+                exc,
+            )
+            return
 
-    if tasks.items:
-        return
+        if tasks.items:
+            _warn_if_acontext_tasks_not_terminal(
+                tasks.items,
+                thread_id=thread_id,
+                planner_status=planner_status,
+            )
+            return
+
+        if attempt < max(1, attempts) - 1 and interval_seconds > 0:
+            await asyncio.sleep(interval_seconds)
 
     logger.warning(
         "Acontext extracted no tasks for planner thread %s after flush. "
         "Check the Acontext Task Agent LLM/runtime if the dashboard shows No Task.",
         thread_id,
     )
+
+
+def _warn_if_acontext_tasks_not_terminal(
+    tasks: list[object],
+    *,
+    thread_id: str,
+    planner_status: str,
+) -> None:
+    if planner_status != "completed":
+        return
+
+    nonterminal = [
+        str(getattr(task, "id", getattr(task, "order", "unknown")))
+        for task in tasks
+        if _acontext_task_status(task) in {"pending", "running"}
+    ]
+    if not nonterminal:
+        return
+
+    logger.warning(
+        "Acontext task status stayed non-terminal for completed planner thread %s: "
+        "%s. Check capture completion wording or the Acontext Task Agent runtime.",
+        thread_id,
+        ", ".join(nonterminal),
+    )
+
+
+def _acontext_task_status(task: object) -> str:
+    return str(getattr(task, "status", "") or "").strip().lower()
 
 
 def _extract_execution_evidence(
@@ -381,7 +504,10 @@ def _planner_trace_text(
         task_index += 1
         agent = str(task.get("agent") or "unknown")
         status = str(task.get("status") or "not_started")
-        details = [f"status: {status}"]
+        details = [
+            f"planner status: {status}",
+            f"Acontext task status: {_acontext_status_for_planner_task(status)}",
+        ]
 
         instruction = _clean_text(task.get("instruction"))
         if instruction:
@@ -391,8 +517,12 @@ def _planner_trace_text(
         if progress:
             details.append(f"progress: {', '.join(progress)}")
 
+        completion = _completion_detail(response.status, status)
+        if completion:
+            details.append(completion)
+
         lines.append(
-            f"- Task {task_index}: {agent} agent should complete the instruction "
+            f"- Task {task_index}: {agent} agent {_task_action_phrase(status)} "
             f"({'; '.join(details)})"
         )
 
@@ -400,6 +530,30 @@ def _planner_trace_text(
         return None
 
     return "\n".join(lines)
+
+
+def _task_action_phrase(status: str) -> str:
+    if status == "completed":
+        return "completed the instruction successfully"
+    if status == "failed":
+        return "failed the instruction"
+    return "has not completed the instruction yet"
+
+
+def _acontext_status_for_planner_task(status: str) -> str:
+    if status == "completed":
+        return "success"
+    if status == "failed":
+        return "failed"
+    return "pending"
+
+
+def _completion_detail(response_status: str, task_status: str) -> str:
+    if response_status == "completed" and task_status == "completed":
+        return "completion: Task completed successfully; final answer returned to user."
+    if response_status == "failed" or task_status == "failed":
+        return "completion: Task failed."
+    return ""
 
 
 def _tool_progress_by_agent(

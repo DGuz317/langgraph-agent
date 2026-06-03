@@ -1,5 +1,6 @@
 from multi_agent_system.planner_app.hitl import (
     ask_for_missing_info,
+    ensure_required_task_fields,
     extract_missing_fields,
 )
 
@@ -129,6 +130,104 @@ def test_extract_invoice_id_from_sentence() -> None:
     )
 
     assert result == {"invoice_id": "361"}
+
+
+def test_required_field_guard_adds_missing_customer_id() -> None:
+    result = ensure_required_task_fields(
+        {
+            "tasks": [
+                {
+                    "agent": "invoice",
+                    "instruction": "Show the latest invoice.",
+                    "missing_fields": [],
+                }
+            ]
+        }
+    )
+
+    assert result["missing_fields"] == ["customer_id"]
+    assert result["tasks"][0]["missing_fields"] == ["customer_id"]
+
+
+def test_required_field_guard_accepts_existing_customer_id() -> None:
+    result = ensure_required_task_fields(
+        {
+            "tasks": [
+                {
+                    "agent": "invoice",
+                    "instruction": "Show the latest invoice for customer_id=5.",
+                    "missing_fields": ["customer_id"],
+                }
+            ]
+        }
+    )
+
+    assert result["missing_fields"] == []
+    assert result["tasks"][0]["missing_fields"] == []
+
+
+def test_required_field_guard_adds_missing_invoice_id() -> None:
+    result = ensure_required_task_fields(
+        {
+            "tasks": [
+                {
+                    "agent": "invoice",
+                    "instruction": "Get invoice detail.",
+                    "missing_fields": [],
+                }
+            ]
+        }
+    )
+
+    assert result["missing_fields"] == ["invoice_id"]
+
+
+def test_required_field_guard_adds_music_search_type_for_vague_search() -> None:
+    result = ensure_required_task_fields(
+        {
+            "tasks": [
+                {
+                    "agent": "music",
+                    "instruction": "Recommend some songs.",
+                    "missing_fields": [],
+                }
+            ]
+        }
+    )
+
+    assert result["missing_fields"] == ["music_search_type"]
+
+
+def test_required_field_guard_accepts_music_genre_descriptor() -> None:
+    result = ensure_required_task_fields(
+        {
+            "tasks": [
+                {
+                    "agent": "music",
+                    "instruction": "Recommend 5 Jazz songs.",
+                    "missing_fields": [],
+                }
+            ]
+        }
+    )
+
+    assert result["missing_fields"] == []
+
+
+def test_required_field_guard_adds_missing_artist_value() -> None:
+    result = ensure_required_task_fields(
+        {
+            "tasks": [
+                {
+                    "agent": "music",
+                    "instruction": "Find tracks by artist.",
+                    "missing_fields": [],
+                }
+            ]
+        }
+    )
+
+    assert result["missing_fields"] == ["artist"]
 
 
 def test_extract_music_search_type_genre_without_colon() -> None:

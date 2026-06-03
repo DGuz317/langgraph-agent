@@ -1,13 +1,42 @@
 import json
 from typing import Any
 
+from langchain_core.messages import HumanMessage, SystemMessage
+
 from multi_agent_system.aggregator.schemas import (
     AggregatorInput,
     AggregatorOutput,
 )
+from multi_agent_system.common.llm import get_llm
+
+
+AGGREGATOR_GENERAL_RESPONSE_PROMPT = """
+You are the internal response composer for a LangGraph multi-agent system.
+
+The planner selected no executable invoice or music agent task for the current
+user message. Answer the user directly using your general knowledge. If the
+user asks what this system can do, describe the available invoice and music
+capabilities naturally. Do not claim that invoice or music tools were called.
+Keep the answer concise and helpful.
+"""
 
 
 class AggregatorAgent:
+    async def ainvoke(self, data: AggregatorInput) -> AggregatorOutput:
+        if data.results:
+            return self.invoke(data)
+
+        result = await get_llm().ainvoke(
+            [
+                SystemMessage(content=AGGREGATOR_GENERAL_RESPONSE_PROMPT),
+                HumanMessage(content=data.user_input),
+            ]
+        )
+        return AggregatorOutput(
+            final_answer=_content_text(getattr(result, "content", ""))
+            or "I could not generate a response for that request."
+        )
+
     def invoke(self, data: AggregatorInput) -> AggregatorOutput:
         if not data.results:
             return AggregatorOutput(
@@ -82,3 +111,21 @@ class AggregatorAgent:
 
     def _format_agent_name(self, agent: str) -> str:
         return agent.replace("_", " ").title()
+
+
+def _content_text(content: Any) -> str:
+    if isinstance(content, str):
+        return content.strip()
+
+    if isinstance(content, list):
+        parts: list[str] = []
+        for item in content:
+            if isinstance(item, str):
+                parts.append(item)
+            elif isinstance(item, dict):
+                text = item.get("text") or item.get("content")
+                if isinstance(text, str):
+                    parts.append(text)
+        return "\n".join(part.strip() for part in parts if part.strip())
+
+    return str(content).strip() if content is not None else ""

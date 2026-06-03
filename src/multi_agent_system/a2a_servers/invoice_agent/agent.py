@@ -18,6 +18,16 @@ INVOICE_TOOL_NAMES = {
     "query_invoice_database",
 }
 
+INVOICE_TOOL_REQUIRED_ARGS = {
+    "get_invoice_by_id": {"invoice_id"},
+    "get_invoices_by_customer_sorted_by_date": {"customer_id"},
+    "get_invoice_summary_by_customer": {"customer_id"},
+    "get_invoices_sorted_by_unit_price": {"customer_id"},
+    "get_employee_by_invoice_and_customer": {"invoice_id", "customer_id"},
+    "get_employee_by_customer": {"customer_id"},
+    "query_invoice_database": {"sql_query"},
+}
+
 
 class InvoiceAgent:
     def __init__(self, runtime: AgentRuntime | None = None) -> None:
@@ -25,6 +35,7 @@ class InvoiceAgent:
             agent_name="invoice",
             system_prompt=INVOICE_AGENT_SYSTEM_PROMPT,
             allowed_tools=INVOICE_TOOL_NAMES,
+            required_tool_args=INVOICE_TOOL_REQUIRED_ARGS,
         )
 
     async def ainvoke(self, query: str) -> InvoiceAgentResponse:

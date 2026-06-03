@@ -29,7 +29,7 @@ User: Show me 5 most recent invoices of customer id 8
 Task:
 {
   "agent": "invoice",
-  "instruction": "Show 5 most recent invoices for customer id 8 and include the support employee for each invoice.",
+  "instruction": "Show 5 most recent invoices for customer id 8.",
   "missing_fields": []
 }
 
@@ -54,7 +54,7 @@ Tasks:
 [
   {
     "agent": "invoice",
-    "instruction": "Show 3 most recent invoices for customer id=7 and include the support employee for each invoice.",
+    "instruction": "Show 3 most recent invoices for customer id=7.",
     "missing_fields": []
   },
   {

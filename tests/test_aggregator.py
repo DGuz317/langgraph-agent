@@ -1,5 +1,8 @@
 import json
 
+import pytest
+
+from langchain_core.messages import AIMessage
 from multi_agent_system.aggregator.agent import AggregatorAgent
 from multi_agent_system.aggregator.schemas import (
     AgentResult,
@@ -23,6 +26,28 @@ def test_aggregator_returns_empty_message_when_no_results() -> None:
     final_answer = aggregate([])
 
     assert final_answer == "No agent results were returned."
+
+
+@pytest.mark.anyio
+async def test_aggregator_generates_general_response_with_llm(monkeypatch) -> None:
+    class FakeLLM:
+        async def ainvoke(self, messages):
+            assert "Hello, what can you do?" in messages[-1].content
+            return AIMessage(content="I can answer questions and route invoice or music work.")
+
+    monkeypatch.setattr(
+        "multi_agent_system.aggregator.agent.get_llm",
+        lambda: FakeLLM(),
+    )
+
+    output = await AggregatorAgent().ainvoke(
+        AggregatorInput(
+            user_input="Hello, what can you do?",
+            results=[],
+        )
+    )
+
+    assert output.final_answer == "I can answer questions and route invoice or music work."
 
 
 def test_aggregator_formats_structured_success_result_with_data() -> None:

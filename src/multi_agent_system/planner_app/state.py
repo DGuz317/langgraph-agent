@@ -17,6 +17,7 @@ class PlannerAppState(TypedDict, total=False):
     song_title: str | None
     music_search_type: str | None
 
+    invoice_context: dict[str, Any]
     invoice_result: str | None
     music_result: str | None
 

@@ -1,4 +1,5 @@
 import json
+import re
 from typing import Any
 
 from multi_agent_system.a2a_client.invoice_client import InvoiceA2AClient
@@ -7,7 +8,10 @@ from multi_agent_system.aggregator.agent import AggregatorAgent
 from multi_agent_system.aggregator.schemas import AggregatorInput, AgentResult
 from multi_agent_system.common.execution_evidence import ExecutionEvidence
 from multi_agent_system.planner.agent import PlannerAgent
-from multi_agent_system.planner_app.hitl import interrupt_for_missing_info
+from multi_agent_system.planner_app.hitl import (
+    ensure_required_task_fields,
+    interrupt_for_missing_info,
+)
 from multi_agent_system.planner_app.state import PlannerAppState
 
 
@@ -16,7 +20,10 @@ aggregator = AggregatorAgent()
 
 
 async def planner_node(state: PlannerAppState) -> dict:
-    memory_context = state.get("memory_context")
+    memory_context = _planner_memory_context(
+        state.get("memory_context"),
+        state.get("invoice_context"),
+    )
     if memory_context:
         output = await planner.ainvoke(
             state["user_input"],
@@ -25,10 +32,18 @@ async def planner_node(state: PlannerAppState) -> dict:
     else:
         output = await planner.ainvoke(state["user_input"])
 
+    planner_output = _apply_invoice_thread_context(
+        output.model_dump(),
+        state,
+    )
+    planner_output = ensure_required_task_fields(planner_output)
     return {
-        "planner_output": output.model_dump(),
-        "missing_fields": output.missing_fields,
-        "execution_evidence": _planner_decision_evidence(output.model_dump()),
+        "planner_output": planner_output,
+        "missing_fields": planner_output.get("missing_fields", []),
+        "execution_evidence": _planner_decision_evidence(planner_output),
+        "invoice_result": None,
+        "music_result": None,
+        "final_answer": None,
     }
 
 
@@ -46,12 +61,13 @@ async def missing_info_node(state: PlannerAppState) -> dict:
                 f"{task.get('instruction', '').strip()} "
                 f"Additional user-provided information: {extra_context}."
             ).strip()
-        task["missing_fields"] = []
+
+    planner_output = ensure_required_task_fields(planner_output)
 
     return {
         **extracted,
         "planner_output": planner_output,
-        "missing_fields": [],
+        "missing_fields": planner_output.get("missing_fields", []),
         "execution_evidence": _with_evidence(
             state,
             ExecutionEvidence(
@@ -75,14 +91,21 @@ async def invoice_node(state: PlannerAppState) -> dict:
 
         result = await InvoiceA2AClient().ask(_task_instruction(task))
         task["status"] = "completed"
+        remote_evidence = _extract_remote_evidence(result)
 
         return {
             "planner_output": planner_output,
             "invoice_result": result,
+            "invoice_context": _invoice_context_from_result(
+                result,
+                state=state,
+                task=task,
+                evidence=remote_evidence,
+            ) or state.get("invoice_context", {}),
             "execution_evidence": _with_evidence(
                 state,
                 _dispatch_evidence(task),
-                *_extract_remote_evidence(result),
+                *remote_evidence,
                 _agent_result_evidence("invoice", completed=True),
             ),
         }
@@ -158,53 +181,7 @@ async def final_response_node(state: PlannerAppState) -> dict:
             )
         )
 
-    if not results:
-        planner_output = state.get("planner_output", {})
-        tasks = planner_output.get("tasks", [])
-
-        if not tasks:
-            return {
-                "final_answer": (
-                    "I can help with invoice and music tasks.\n\n"
-                    "Examples:\n"
-                    "- Get latest invoice for customer_id=5\n"
-                    "- Get invoice detail for invoice_id=361\n"
-                    "- Get invoice summary for customer_id=5\n"
-                    "- Get support employee for customer_id=5\n"
-                    "- Show invoices sorted by unit price for customer_id=5\n"
-                    "- Find tracks by artist AC/DC\n"
-                    "- Recommend songs by genre rock\n"
-                    "- Check for song Ligia\n\n"
-                    "For vague music requests like 'recommend some songs', "
-                    "I will ask whether you want to search by artist or by genre."
-                ),
-                "execution_evidence": _with_evidence(
-                    state,
-                    ExecutionEvidence(
-                        kind="aggregation",
-                        agent="aggregator",
-                        operation="capabilities",
-                        status="completed",
-                        summary="Returned supported workflow guidance.",
-                    ),
-                ),
-            }
-
-        return {
-            "final_answer": "I could not complete the request.",
-            "execution_evidence": _with_evidence(
-                state,
-                ExecutionEvidence(
-                    kind="aggregation",
-                    agent="aggregator",
-                    operation="final_response",
-                    status="failed",
-                    summary="No workflow result was available.",
-                ),
-            ),
-        }
-
-    output = aggregator.invoke(
+    output = await aggregator.ainvoke(
         AggregatorInput(
             user_input=state["user_input"],
             results=results,
@@ -218,9 +195,13 @@ async def final_response_node(state: PlannerAppState) -> dict:
             ExecutionEvidence(
                 kind="aggregation",
                 agent="aggregator",
-                operation="final_response",
+                operation="final_response" if results else "general_response",
                 status="completed",
-                summary="Combined completed workflow results; returned values omitted from memory.",
+                summary=(
+                    "Combined completed workflow results; returned values omitted from memory."
+                    if results
+                    else "Generated direct response without domain agent results."
+                ),
             ),
         ),
     }
@@ -274,6 +255,221 @@ def _mark_task_failed(task: dict[str, Any] | None) -> None:
 
 def _failure_result(agent_label: str, exc: Exception) -> str:
     return f"{agent_label} task failed: {exc}"
+
+
+def _planner_memory_context(
+    memory_context: str | None,
+    invoice_context: dict[str, Any] | None,
+) -> str | None:
+    parts = [memory_context.strip()] if memory_context and memory_context.strip() else []
+    formatted_invoice_context = _format_invoice_context(invoice_context)
+    if formatted_invoice_context:
+        parts.append(
+            "Recent same-thread invoice context for follow-up references:\n"
+            f"{formatted_invoice_context}\n"
+            "Use it only when the current user clearly refers to previous invoices."
+        )
+    return "\n\n".join(parts) if parts else None
+
+
+def _apply_invoice_thread_context(
+    planner_output: dict[str, Any],
+    state: PlannerAppState,
+) -> dict[str, Any]:
+    invoice_context = state.get("invoice_context")
+    formatted_context = _format_invoice_context(invoice_context)
+    if not formatted_context:
+        return planner_output
+
+    updated = dict(planner_output)
+    tasks: list[dict[str, Any]] = []
+    user_input = str(state.get("user_input") or "")
+
+    for raw_task in updated.get("tasks", []):
+        if not isinstance(raw_task, dict):
+            continue
+
+        task = dict(raw_task)
+        instruction = str(task.get("instruction") or "")
+        if (
+            task.get("agent") == "invoice"
+            and _should_attach_invoice_context(user_input, instruction)
+            and "Previous same-thread invoice context:" not in instruction
+        ):
+            task["instruction"] = (
+                f"{instruction.strip()} "
+                f"Previous same-thread invoice context: {formatted_context}."
+            ).strip()
+        tasks.append(task)
+
+    updated["tasks"] = tasks
+    return updated
+
+
+def _should_attach_invoice_context(user_input: str, instruction: str) -> bool:
+    combined = f"{user_input} {instruction}".lower()
+    if not any(term in combined for term in ("support employee", "support rep")):
+        return False
+
+    if _has_labeled_number(combined, ("customer_id", "customer id", "invoice_id", "invoice id")):
+        return False
+
+    followup_markers = (
+        "each invoice",
+        "each invoices",
+        "these invoice",
+        "these invoices",
+        "those invoice",
+        "those invoices",
+        "previous invoice",
+        "previous invoices",
+        "for them",
+        "for each",
+    )
+    return any(marker in combined for marker in followup_markers)
+
+
+def _has_labeled_number(text: str, labels: tuple[str, ...]) -> bool:
+    return any(
+        re.search(
+            rf"\b{re.escape(label)}\s*(?:=|:|is)?\s*\d+\b",
+            text,
+            flags=re.IGNORECASE,
+        )
+        for label in labels
+    )
+
+
+def _invoice_context_from_result(
+    result: str,
+    *,
+    state: PlannerAppState,
+    task: dict[str, Any],
+    evidence: list[ExecutionEvidence],
+) -> dict[str, Any]:
+    parsed = _parse_json_object(result)
+    if parsed.get("success") is False:
+        return {}
+
+    content = str(parsed.get("content") or "")
+    data = parsed.get("data")
+    customer_id = (
+        _first_text_value(state.get("customer_id"))
+        or _customer_id_from_evidence(evidence)
+        or _customer_id_from_data(data)
+        or _customer_id_from_text(content)
+        or _customer_id_from_text(str(task.get("instruction") or ""))
+    )
+    invoice_ids = _invoice_ids_from_data(data) or _invoice_ids_from_text(content)
+
+    context: dict[str, Any] = {}
+    if customer_id:
+        context["customer_id"] = customer_id
+    if invoice_ids:
+        context["invoice_ids"] = invoice_ids[:10]
+
+    instruction = str(task.get("instruction") or "").strip()
+    if instruction:
+        context["last_invoice_instruction"] = instruction
+    return context
+
+
+def _parse_json_object(value: str) -> dict[str, Any]:
+    try:
+        parsed = json.loads(value)
+    except (TypeError, json.JSONDecodeError):
+        return {}
+
+    return parsed if isinstance(parsed, dict) else {}
+
+
+def _customer_id_from_evidence(evidence: list[ExecutionEvidence]) -> str | None:
+    for item in evidence:
+        value = item.arguments.get("customer_id")
+        cleaned = _first_text_value(value)
+        if cleaned:
+            return cleaned
+    return None
+
+
+def _customer_id_from_data(data: Any) -> str | None:
+    rows = data if isinstance(data, list) else [data]
+    for row in rows:
+        if isinstance(row, dict):
+            value = row.get("CustomerId") or row.get("customer_id")
+            cleaned = _first_text_value(value)
+            if cleaned:
+                return cleaned
+    return None
+
+
+def _customer_id_from_text(text: str) -> str | None:
+    match = re.search(
+        r"\b(?:customer_id|customer id|customer ID)\s*(?:=|:|is)?\s*(\d+)\b",
+        text,
+        flags=re.IGNORECASE,
+    )
+    return match.group(1) if match else None
+
+
+def _invoice_ids_from_data(data: Any) -> list[str]:
+    rows = data if isinstance(data, list) else [data]
+    values: list[str] = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        value = row.get("InvoiceId") or row.get("invoice_id")
+        cleaned = _first_text_value(value)
+        if cleaned and cleaned not in values:
+            values.append(cleaned)
+    return values
+
+
+def _invoice_ids_from_text(text: str) -> list[str]:
+    values: list[str] = []
+    patterns = (
+        r"\bInvoice ID:\s*(\d+)\b",
+        r"\bInvoiceId['\"]?\s*[:=]\s*(\d+)\b",
+    )
+    for pattern in patterns:
+        for match in re.findall(pattern, text, flags=re.IGNORECASE):
+            if match not in values:
+                values.append(match)
+    return values
+
+
+def _first_text_value(value: Any) -> str | None:
+    if value is None:
+        return None
+
+    text = str(value).strip()
+    return text or None
+
+
+def _format_invoice_context(invoice_context: dict[str, Any] | None) -> str:
+    if not isinstance(invoice_context, dict) or not invoice_context:
+        return ""
+
+    parts: list[str] = []
+    customer_id = _first_text_value(invoice_context.get("customer_id"))
+    if customer_id:
+        parts.append(f"customer_id={customer_id}")
+
+    invoice_ids = invoice_context.get("invoice_ids")
+    if isinstance(invoice_ids, list):
+        cleaned_ids = [
+            str(value).strip()
+            for value in invoice_ids
+            if str(value).strip()
+        ]
+        if cleaned_ids:
+            parts.append(f"invoice_ids={', '.join(cleaned_ids[:10])}")
+
+    instruction = _first_text_value(invoice_context.get("last_invoice_instruction"))
+    if instruction:
+        parts.append(f"last_invoice_instruction={instruction}")
+
+    return "; ".join(parts)
 
 
 def _planner_decision_evidence(planner_output: dict[str, Any]) -> list[dict[str, Any]]:

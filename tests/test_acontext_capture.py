@@ -22,10 +22,15 @@ class FakeSessions:
         self.create_calls: list[dict] = []
         self.store_calls: list[tuple[str, dict]] = []
         self.flush_calls: list[str] = []
+        self.flush_error: Exception | None = None
         self.get_tasks_calls: list[dict] = []
+        self.messages_observing_status_calls: list[str] = []
         self.update_configs_calls: list[dict] = []
         self.disable_task_tracking = False
         self.tasks: list[object] = []
+        self.observing_statuses: list[object] = [
+            SimpleNamespace(observed=1, in_process=0, pending=0)
+        ]
 
     async def create(self, **kwargs):
         self.create_calls.append(kwargs)
@@ -39,10 +44,18 @@ class FakeSessions:
 
     async def flush(self, session_id):
         self.flush_calls.append(session_id)
+        if self.flush_error is not None:
+            raise self.flush_error
 
     async def get_tasks(self, session_id, **kwargs):
         self.get_tasks_calls.append({"session_id": session_id, **kwargs})
         return SimpleNamespace(items=self.tasks)
+
+    async def messages_observing_status(self, session_id):
+        self.messages_observing_status_calls.append(session_id)
+        if self.observing_statuses:
+            return self.observing_statuses.pop(0)
+        return SimpleNamespace(observed=1, in_process=0, pending=0)
 
     async def update_configs(self, session_id, *, configs):
         self.update_configs_calls.append(
@@ -116,11 +129,13 @@ def anyio_backend() -> str:
     return "asyncio"
 
 
-def _capture(client: FakeClient) -> AcontextCapture:
+def _capture(client: FakeClient, *, task_check_attempts: int = 1) -> AcontextCapture:
     return AcontextCapture(
         api_key="test-key",
         base_url="https://example.test/api/v1",
         user_identifier="planner-service",
+        task_check_attempts=task_check_attempts,
+        task_check_interval=0,
         client_factory=lambda: client,
     )
 
@@ -357,7 +372,7 @@ async def test_capture_skips_acontext_transport_errors(caplog) -> None:
 @pytest.mark.anyio
 async def test_workflow_outcome_capture_stores_readable_trace_and_final_answer() -> None:
     client = FakeClient()
-    client.sessions.tasks = [SimpleNamespace(id="task-1")]
+    client.sessions.tasks = [SimpleNamespace(id="task-1", status="success")]
     capture = _capture(client)
     call_id = "tool-call-1"
     response = PlannerServiceResponse(
@@ -429,7 +444,10 @@ async def test_workflow_outcome_capture_stores_readable_trace_and_final_answer()
         "content": "Get latest invoice for customer_id=5",
     }
     assert "Acontext task extraction summary" in captured_json
-    assert "Task 1: invoice agent should complete the instruction" in captured_json
+    assert "Task 1: invoice agent completed the instruction successfully" in captured_json
+    assert "Acontext task status: success" in captured_json
+    assert "completion: Task completed successfully; final answer returned to user" in captured_json
+    assert "should complete the instruction" not in captured_json
     assert "Get latest invoice for customer_id=5" in captured_json
     assert "completed tool get_invoices_by_customer_sorted_by_date" in captured_json
     assert "Invoice agent called MCP tool" not in captured_json
@@ -438,13 +456,17 @@ async def test_workflow_outcome_capture_stores_readable_trace_and_final_answer()
     assert '"InvoiceId": 1' in tool_result_blob["content"]
     assert "Invoice agent completed latest_invoice." not in captured_json
     assert "customer_id=5 BillingAddress=Example email=support@example.com" in captured_json
+    assert "planner_task_hint" not in captured_json
     tool_call_blob = next(blob for blob in blobs if blob.get("tool_calls"))
     assert tool_call_blob["content"] == ""
     assert json.loads(
         tool_call_blob["tool_calls"][0]["function"]["arguments"]
     ) == {"customer_id": "5"}
+    assert client.sessions.messages_observing_status_calls == [
+        acontext_session_id("sensitive-thread")
+    ]
     assert client.sessions.get_tasks_calls == [
-        {"session_id": acontext_session_id("sensitive-thread"), "limit": 1}
+        {"session_id": acontext_session_id("sensitive-thread"), "limit": 10}
     ]
 
 
@@ -478,6 +500,117 @@ async def test_capture_warns_when_acontext_extracts_no_tasks(caplog) -> None:
         )
 
     assert "Acontext extracted no tasks for planner thread no-acontext-tasks" in caplog.text
+
+
+@pytest.mark.anyio
+async def test_capture_waits_for_observing_status_before_checking_tasks() -> None:
+    client = FakeClient()
+    client.sessions.tasks = [SimpleNamespace(id="task-1", status="success")]
+    client.sessions.observing_statuses = [
+        SimpleNamespace(observed=0, in_process=1, pending=0),
+        SimpleNamespace(observed=1, in_process=0, pending=0),
+    ]
+    capture = _capture(client, task_check_attempts=2)
+    response = PlannerServiceResponse(
+        status="completed",
+        thread_id="observing-thread",
+        final_answer="Done.",
+        raw_result={
+            "planner_output": {
+                "tasks": [
+                    {
+                        "agent": "invoice",
+                        "instruction": "Get latest invoice for customer_id=5",
+                        "status": "completed",
+                    }
+                ]
+            }
+        },
+    )
+
+    await capture.capture(
+        user_input="Get latest invoice for customer_id=5",
+        thread_id="observing-thread",
+        resume=False,
+        response=response,
+    )
+
+    session_id = acontext_session_id("observing-thread")
+    assert client.sessions.messages_observing_status_calls == [session_id, session_id]
+    assert client.sessions.get_tasks_calls == [{"session_id": session_id, "limit": 10}]
+
+
+@pytest.mark.anyio
+async def test_capture_warns_when_acontext_task_stays_running(caplog) -> None:
+    client = FakeClient()
+    client.sessions.tasks = [SimpleNamespace(id="task-running", status="running")]
+    capture = _capture(client)
+    response = PlannerServiceResponse(
+        status="completed",
+        thread_id="running-acontext-task",
+        final_answer="Done.",
+        raw_result={
+            "planner_output": {
+                "tasks": [
+                    {
+                        "agent": "invoice",
+                        "instruction": "Get latest invoice for customer_id=5",
+                        "status": "completed",
+                    }
+                ]
+            }
+        },
+    )
+
+    with caplog.at_level("WARNING"):
+        await capture.capture(
+            user_input="Get latest invoice for customer_id=5",
+            thread_id="running-acontext-task",
+            resume=False,
+            response=response,
+        )
+
+    assert "Acontext task status stayed non-terminal" in caplog.text
+    assert "task-running" in caplog.text
+
+
+@pytest.mark.anyio
+async def test_capture_skips_task_check_when_flush_fails(caplog) -> None:
+    client = FakeClient()
+    client.sessions.flush_error = APIError(
+        status_code=500,
+        message="failed to flush session",
+    )
+    capture = _capture(client)
+    response = PlannerServiceResponse(
+        status="completed",
+        thread_id="flush-failure-thread",
+        final_answer="Done.",
+        raw_result={
+            "planner_output": {
+                "tasks": [
+                    {
+                        "agent": "music",
+                        "instruction": "Recommend Jazz songs.",
+                        "status": "completed",
+                    }
+                ]
+            }
+        },
+    )
+
+    with caplog.at_level("WARNING"):
+        await capture.capture(
+            user_input="recommend Jazz songs",
+            thread_id="flush-failure-thread",
+            resume=False,
+            response=response,
+        )
+
+    assert "failed to flush session" in caplog.text
+    assert "Acontext extracted no tasks" not in caplog.text
+    assert client.sessions.messages_observing_status_calls == []
+    assert client.sessions.get_tasks_calls == []
 
 
 @pytest.mark.anyio

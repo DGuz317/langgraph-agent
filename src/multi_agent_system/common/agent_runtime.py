@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 from uuid import uuid4
@@ -39,10 +40,15 @@ class LangChainAgentRuntime:
         agent_name: EvidenceAgent,
         system_prompt: str,
         allowed_tools: set[str] | None = None,
+        required_tool_args: Mapping[str, set[str]] | None = None,
     ) -> None:
         self._agent_name = agent_name
         self._system_prompt = system_prompt
         self._allowed_tools = allowed_tools
+        self._required_tool_args = {
+            tool_name: set(required_args)
+            for tool_name, required_args in (required_tool_args or {}).items()
+        }
         self._agent: Any | None = None
 
     async def ainvoke(self, instruction: str) -> AgentRunResult:
@@ -91,6 +97,10 @@ class LangChainAgentRuntime:
         handler,
     ):
         call_id = str(uuid4())
+        request = _normalize_tool_request(
+            request,
+            required_args=self._required_tool_args.get(request.name, set()),
+        )
         record_execution_evidence(
             ExecutionEvidence(
                 kind="mcp_tool_call",
@@ -103,6 +113,29 @@ class LangChainAgentRuntime:
                 summary=f"Called {request.name}.",
             )
         )
+
+        missing_args = _missing_required_args(
+            request.args,
+            self._required_tool_args.get(request.name, set()),
+        )
+        if missing_args:
+            record_execution_evidence(
+                ExecutionEvidence(
+                    kind="mcp_tool_result",
+                    agent=self._agent_name,
+                    operation=request.name,
+                    status="failed",
+                    call_id=call_id,
+                    summary=(
+                        f"{request.name} was not called because required "
+                        f"argument(s) were missing: {', '.join(missing_args)}."
+                    ),
+                )
+            )
+            raise ValueError(
+                f"Tool {request.name} requires non-empty argument(s): "
+                f"{', '.join(missing_args)}."
+            )
 
         try:
             result = await handler(request)
@@ -170,6 +203,54 @@ def _content_text(content: Any) -> str:
         return "\n".join(part.strip() for part in parts if part.strip())
 
     return str(content).strip() if content is not None else ""
+
+
+def _normalize_tool_request(
+    request: MCPToolCallRequest,
+    *,
+    required_args: set[str],
+) -> MCPToolCallRequest:
+    if not required_args:
+        return request
+
+    normalized_args = dict(request.args)
+    changed = False
+
+    for arg_name in required_args:
+        value = normalized_args.get(arg_name)
+        if value is None or isinstance(value, str):
+            continue
+
+        normalized_args[arg_name] = str(value)
+        changed = True
+
+    if not changed:
+        return request
+
+    return MCPToolCallRequest(
+        name=request.name,
+        args=normalized_args,
+        server_name=request.server_name,
+        headers=request.headers,
+        runtime=request.runtime,
+    )
+
+
+def _missing_required_args(args: dict[str, Any], required_args: set[str]) -> list[str]:
+    missing: list[str] = []
+
+    for arg_name in sorted(required_args):
+        if arg_name not in args:
+            missing.append(arg_name)
+            continue
+
+        value = args[arg_name]
+        if value is None:
+            missing.append(arg_name)
+        elif isinstance(value, str) and not value.strip():
+            missing.append(arg_name)
+
+    return missing
 
 
 def _summarize_tool_result(tool_name: str, result: Any) -> str:

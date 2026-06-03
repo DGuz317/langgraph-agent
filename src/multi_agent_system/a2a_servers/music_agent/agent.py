@@ -14,6 +14,14 @@ MUSIC_TOOL_NAMES = {
     "query_music_database",
 }
 
+MUSIC_TOOL_REQUIRED_ARGS = {
+    "get_albums_by_artist": {"artist"},
+    "get_tracks_by_artist": {"artist"},
+    "get_songs_by_genre": {"genre"},
+    "check_for_songs": {"song_title"},
+    "query_music_database": {"sql_query"},
+}
+
 
 class MusicAgent:
     def __init__(self, runtime: AgentRuntime | None = None) -> None:
@@ -21,6 +29,7 @@ class MusicAgent:
             agent_name="music",
             system_prompt=MUSIC_AGENT_SYSTEM_PROMPT,
             allowed_tools=MUSIC_TOOL_NAMES,
+            required_tool_args=MUSIC_TOOL_REQUIRED_ARGS,
         )
 
     async def ainvoke(self, query: str) -> MusicAgentResponse:
