@@ -42,6 +42,16 @@ async def _post(service: FakePlannerService, payload: dict) -> httpx.Response:
         return await client.post("/planner/invoke", json=payload)
 
 
+async def _get(service: FakePlannerService, path: str) -> httpx.Response:
+    transport = httpx.ASGITransport(app=create_app(service=service))
+
+    async with httpx.AsyncClient(
+        transport=transport,
+        base_url="http://testserver",
+    ) as client:
+        return await client.get(path)
+
+
 @pytest.mark.anyio
 async def test_planner_api_returns_completed_response() -> None:
     service = FakePlannerService(
@@ -76,6 +86,38 @@ async def test_planner_api_returns_completed_response() -> None:
             "resume": None,
         }
     ]
+
+
+@pytest.mark.anyio
+async def test_root_serves_chat_app() -> None:
+    service = FakePlannerService(
+        PlannerServiceResponse(
+            status="completed",
+            thread_id="unused",
+        )
+    )
+    response = await _get(service, "/")
+
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert "Multi-Agent Chat" in response.text
+    assert service.calls == []
+
+
+@pytest.mark.anyio
+async def test_static_assets_are_served() -> None:
+    service = FakePlannerService(
+        PlannerServiceResponse(
+            status="completed",
+            thread_id="unused",
+        )
+    )
+    response = await _get(service, "/static/app.js")
+
+    assert response.status_code == 200
+    assert "javascript" in response.headers["content-type"]
+    assert "/planner/invoke" in response.text
+    assert service.calls == []
 
 
 @pytest.mark.anyio

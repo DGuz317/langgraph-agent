@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Multi-Agent Chat</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">M</div>
+          <div>
+            <div class="brand-title">Multi-Agent Chat</div>
+            <div class="brand-subtitle">Planner workflow</div>
+          </div>
+        </div>
+
+        <button class="new-chat-button" id="newChatButton" type="button">
+          <span aria-hidden="true">+</span>
+          New chat
+        </button>
+
+        <section class="sidebar-section">
+          <div class="sidebar-label">Examples</div>
+          <button class="prompt-button" type="button" data-prompt="Show me the latest invoice for customer 5.">
+            Latest invoice
+          </button>
+          <button class="prompt-button" type="button" data-prompt="Find albums by AC/DC.">
+            Music lookup
+          </button>
+          <button class="prompt-button" type="button" data-prompt="Get the latest invoice for customer 5 and then find music by AC/DC.">
+            Multi-agent request
+          </button>
+        </section>
+
+        <section class="sidebar-section sessions-section">
+          <div class="sidebar-label">Recent chats</div>
+          <div class="session-list" id="sessionList"></div>
+        </section>
+      </aside>
+
+      <main class="chat-workspace">
+        <header class="topbar">
+          <button class="icon-button menu-button" id="menuButton" type="button" aria-label="Toggle sidebar">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <div>
+            <h1>Conversation</h1>
+            <p id="threadLabel">New thread</p>
+          </div>
+        </header>
+
+        <section class="conversation" id="conversation" aria-live="polite"></section>
+
+        <section class="composer-wrap">
+          <form class="composer" id="chatForm">
+            <textarea
+              id="messageInput"
+              name="message"
+              rows="1"
+              placeholder="Ask the planner about invoices, music, or a multi-agent workflow..."
+              autocomplete="off"
+              required
+            ></textarea>
+            <button class="send-button" id="sendButton" type="submit" aria-label="Send message">
+              <span>Send</span>
+            </button>
+          </form>
+          <div class="status-line" id="statusLine">Ready</div>
+        </section>
+      </main>
+
+      <aside class="execution-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Execution</h2>
+            <p>Planner, agents, and final response</p>
+          </div>
+          <div class="status-pill idle" id="runStatus">Idle</div>
+        </div>
+        <div class="step-list" id="stepList"></div>
+        <div class="evidence-list" id="evidenceList"></div>
+      </aside>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
