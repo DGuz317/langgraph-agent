@@ -1,7 +1,7 @@
 from typing import Any
 from uuid import uuid4
 
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 
 from multi_agent_system.common.llm import get_llm
 from multi_agent_system.common.observability import trace_config
@@ -23,11 +23,13 @@ class PlannerAgent:
         user_input: str,
         *,
         memory_context: str | None = None,
+        conversation_messages: list[dict[str, str]] | None = None,
     ) -> PlannerOutput:
         try:
             output = await self._invoke_planner_once(
                 user_input,
                 memory_context=memory_context,
+                conversation_messages=conversation_messages,
             )
             return self._normalize_output(output)
 
@@ -37,6 +39,7 @@ class PlannerAgent:
                     user_input=user_input,
                     error=first_error,
                     memory_context=memory_context,
+                    conversation_messages=conversation_messages,
                 )
                 return self._normalize_output(repaired_output)
 
@@ -52,18 +55,16 @@ class PlannerAgent:
         user_input: str,
         *,
         memory_context: str | None = None,
+        conversation_messages: list[dict[str, str]] | None = None,
     ) -> PlannerOutput:
         structured_llm = self._get_structured_llm()
 
         messages = [
             SystemMessage(content=PLANNER_SYSTEM_PROMPT),
             *_memory_messages(memory_context),
-            HumanMessage(
-                content=(
-                    "Return a valid PlannerOutput for the following request.\n"
-                    "Do not include explanations outside the structured output.\n\n"
-                    f"{user_input}"
-                )
+            *_planner_request_messages(
+                user_input,
+                conversation_messages=conversation_messages,
             ),
         ]
 
@@ -82,6 +83,7 @@ class PlannerAgent:
         user_input: str,
         error: Exception,
         memory_context: str | None = None,
+        conversation_messages: list[dict[str, str]] | None = None,
     ) -> PlannerOutput:
         structured_llm = self._get_structured_llm()
         repair_prompt = self._build_repair_prompt(
@@ -92,6 +94,7 @@ class PlannerAgent:
         messages = [
             SystemMessage(content=PLANNER_SYSTEM_PROMPT),
             *_memory_messages(memory_context),
+            *_conversation_messages(conversation_messages),
             HumanMessage(content=repair_prompt),
         ]
 
@@ -206,3 +209,52 @@ def _memory_messages(memory_context: str | None) -> list[SystemMessage]:
             )
         )
     ]
+
+
+def _planner_request_messages(
+    user_input: str,
+    *,
+    conversation_messages: list[dict[str, str]] | None,
+) -> list[BaseMessage]:
+    conversation = _conversation_messages(conversation_messages)
+    if conversation:
+        return [
+            SystemMessage(
+                content=(
+                    "Return a valid PlannerOutput for the latest user message "
+                    "in the conversation. Use prior messages only to resolve "
+                    "same-thread follow-ups, clarifications, and references. "
+                    "Do not include explanations outside the structured output."
+                )
+            ),
+            *conversation,
+        ]
+
+    return [
+        HumanMessage(
+            content=(
+                "Return a valid PlannerOutput for the following request.\n"
+                "Do not include explanations outside the structured output.\n\n"
+                f"{user_input}"
+            )
+        )
+    ]
+
+
+def _conversation_messages(
+    messages: list[dict[str, str]] | None,
+) -> list[BaseMessage]:
+    converted: list[BaseMessage] = []
+
+    for message in messages or []:
+        role = str(message.get("role") or "").strip().lower()
+        content = str(message.get("content") or "").strip()
+        if not content:
+            continue
+
+        if role == "user":
+            converted.append(HumanMessage(content=content))
+        elif role in {"assistant", "ai"}:
+            converted.append(AIMessage(content=content))
+
+    return converted

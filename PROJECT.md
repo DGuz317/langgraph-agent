@@ -4,7 +4,7 @@
 
 This project is a Python multi-agent system for invoice and music queries. It uses LangGraph for orchestration, A2A services for domain-agent boundaries, FastMCP tools for database access, LangChain agents for tool-calling behavior, and the Chinook SQLite database as the sample data source.
 
-The current checkpoint has moved past a rule-based demo. The planner produces structured tasks, LangGraph owns routing and human-in-the-loop control, invoice and music run as LangChain MCP agents behind A2A services, and Acontext observes completed workflows for task tracking and reusable memory.
+The current checkpoint has moved past a rule-based demo. The planner produces structured tasks, LangGraph owns routing and same-thread state, invoice and music run as LangChain MCP agents behind A2A services, LangSmith owns execution tracing, and Acontext is used only as an optional skill-learning memory layer.
 
 ## Architecture
 
@@ -13,23 +13,23 @@ User input
 -> Planner CLI or POST /planner/invoke
 -> PlannerService
 -> optional Acontext recall
+-> checkpointed same-thread messages
 -> PlannerAgent structured PlannerOutput
 -> LangGraph planner_app
--> optional HITL interrupt/resume
 -> natural-language task instruction
 -> Invoice/Music A2A service
 -> LangChain agent runtime
 -> FastMCP database tools
 -> internal Aggregator
 -> final answer
--> optional Acontext capture/task tracking
+-> optional Acontext skill learning
 ```
 
 Core boundaries:
 
 - `planner/` owns the planner prompt, structured `PlannerOutput`, and LLM repair path.
-- `planner_app/` owns the LangGraph workflow, HITL, thread state, domain dispatch, and final response node.
-- `orchestrator/` owns `PlannerService`, the FastAPI endpoint, Acontext recall, and Acontext capture.
+- `planner_app/` owns the LangGraph workflow, checkpointed thread state, domain dispatch, and final response node.
+- `orchestrator/` owns `PlannerService`, the FastAPI endpoint, Acontext recall, and Acontext skill-learning capture.
 - `a2a_client/` owns JSON-RPC clients for external A2A services.
 - `a2a_servers/invoice_agent/` owns the invoice LangChain MCP agent and A2A executor.
 - `a2a_servers/music_agent/` owns the music LangChain MCP agent and A2A executor.
@@ -58,7 +58,7 @@ Invoice agent capabilities:
 - Invoice summary totals by customer.
 - Invoice rows sorted by invoice-line unit price.
 - Customer support employee lookup.
-- Support employee for invoice/customer questions.
+- Support employee lookup by invoice ID, with optional customer ID validation.
 - Read-only invoice database questions through the allowed invoice query tool.
 
 Music agent capabilities:
@@ -75,23 +75,22 @@ Current invoice support employee rule:
 - Normal invoice-list queries should return invoice information only.
 - Normal invoice-list answers must not add `Support Employee: [Not Available]`.
 - If a user later asks for support employee for the same invoices in the same thread, the planner can use same-thread invoice context.
+- MCP invoice ID and customer ID arguments accept model-produced strings or integers and are coerced before parameterized SQL execution.
+- Freeform read-only invoice SQL returns a controlled error payload for database execution mistakes such as nonexistent columns, while domain/security validation still rejects unsafe or cross-domain queries.
 
 This corrects the older rule that every invoice row should always include support employee data.
 
-## HITL And Thread Context
+## Thread Context And Memory
 
-Human-in-the-loop interrupts are used when critical information is missing and the task cannot be executed safely.
+LangGraph checkpointers preserve short-term state for the same `thread_id`. The planner now receives checkpointed user/assistant messages as real chat history, not only a compressed text summary. This lets the LLM reason over same-thread follow-ups and clarification answers using the same pattern as LangGraph short-term memory.
 
-Critical fields currently guarded:
+Current state fields include:
 
-- `customer_id`
-- `invoice_id`
-- `music_search_type`
-- `artist`
-- `genre`
-- `song_title`
+- `messages`: recent user/assistant turns for the same thread.
+- `invoice_context`: sanitized invoice follow-up context such as customer ID, recent invoice IDs, and last invoice instruction.
+- domain results and final answer values for the current run.
 
-Interrupted runs preserve the LangGraph `thread_id` and resume with `Command(resume=...)`.
+Use the same `thread_id` for normal follow-up messages. The deprecated `resume` API field is ignored for normal conversation; it should only be used again if real LangGraph interrupts are reintroduced.
 
 The planner also stores a small sanitized same-thread invoice context after successful invoice results. The context can include:
 
@@ -99,7 +98,7 @@ The planner also stores a small sanitized same-thread invoice context after succ
 - recent `invoice_ids`
 - the last invoice instruction
 
-This allows follow-up requests such as `Can you provide the support employee for each invoices?` to refer to the previous invoice result without forcing the user to restate the customer ID.
+This allows follow-up requests such as `Can you provide the support employee for each invoices?` to refer to the previous invoice result without forcing the user to restate invoice IDs.
 
 ## Aggregator Behavior
 
@@ -110,24 +109,21 @@ The aggregator remains internal. It has two jobs:
 
 That means a message such as `Hello, what can you do?` should be handled by the aggregator LLM path, not by hard-coded text in `planner_app/nodes.py`.
 
-## Acontext Capture And Task Tracking
+## Acontext Skill Learning And LangSmith Tracing
 
-Acontext is optional. When enabled, it observes planner interactions and can learn reusable memory from completed workflows.
+Acontext is optional. When enabled, it stores compact user/assistant outcomes for skill learning and recall. It is not the task-tracking or execution-tracing source for this app.
 
-The current capture flow follows Acontext task-tracking behavior:
+Current Acontext behavior:
 
-1. Store the real user message as a user message.
-2. Store planner decisions and workflow progress as assistant messages.
-3. Store MCP tool calls as OpenAI-style assistant tool calls.
-4. Store MCP tool results as OpenAI-style tool messages.
-5. Store the final assistant answer.
-6. On terminal planner responses, call `flush(session_id)`.
-7. Poll `messages_observing_status(session_id)`.
-8. Check `get_tasks(session_id)` after observing has had a chance to process messages.
+1. Store the real user message.
+2. Store the final assistant answer.
+3. Disable Acontext task tracking for created sessions.
+4. On completed planner responses, flush and submit the session to learning.
+5. Fail open if Acontext is unavailable.
 
-Synthetic task-hint user messages were removed. Acontext treats distinct user requests as tasks, so workflow progress should be assistant/tool progress within the real user task, not a fake user request.
+Planner execution does not wait on long Acontext task extraction. Acontext recall is also fail-open, so invoice/music requests still complete when the local Acontext API is unavailable.
 
-If Acontext flush fails, planner execution still succeeds. Capture logs a warning and skips task verification for that interaction.
+LangSmith tracing is the execution observability layer. Graph and API calls use explicit run names, tags, and metadata so traces show planner, domain-agent, tool, and aggregation flow without relying on Acontext task extraction.
 
 Acontext references used for this checkpoint:
 
@@ -177,13 +173,13 @@ POST http://localhost:12000/planner/invoke
 }
 ```
 
-If the response is interrupted, resume the same thread:
+For normal same-thread follow-ups, keep the same `thread_id` and omit `resume` or set it to `false`:
 
 ```json
 {
   "user_input": "My customer id is 1",
   "thread_id": "example-thread",
-  "resume": true
+  "resume": false
 }
 ```
 
@@ -194,9 +190,10 @@ If the response is interrupted, resume the same thread:
 - Default LLM provider is Ollama: `MODEL_PROVIDER=ollama`, `LLM_MODEL=gpt-oss`.
 - OpenAI, Google, and Anthropic require their matching API key.
 - Acontext is optional and fails open if its local API is unavailable.
-- `ACONTEXT_ENABLED=true` enables capture.
+- `ACONTEXT_ENABLED=true` enables skill-learning capture.
 - `ACONTEXT_RECALL_ENABLED=true` enables recall into planner guidance.
 - `ACONTEXT_BASE_URL` defaults to the local Acontext API endpoint.
+- LangSmith tracing is configured through the standard LangSmith environment variables.
 - `langgraph.json` is empty; use the scripts above instead of assuming LangGraph dev-server config.
 
 ## Testing
@@ -207,16 +204,17 @@ Run all local tests:
 UV_CACHE_DIR=/tmp/uv-cache uv run pytest tests -q
 ```
 
-Current checkpoint result:
+Recent focused verification:
 
 ```text
-135 passed, 41 skipped
+Planner focused tests: 17 passed
+Real MCP integration tests: 28 passed
 ```
 
 Useful focused tests:
 
 ```bash
-UV_CACHE_DIR=/tmp/uv-cache uv run pytest tests/test_planner_hitl.py tests/test_planner_workflow.py -q
+UV_CACHE_DIR=/tmp/uv-cache uv run pytest tests/test_planner_agent.py tests/test_planner_workflow.py -q
 UV_CACHE_DIR=/tmp/uv-cache uv run pytest tests/test_aggregator.py tests/test_acontext_capture.py -q
 UV_CACHE_DIR=/tmp/uv-cache uv run pytest tests/test_langchain_domain_agents.py tests/test_a2a_client.py -q
 ```
@@ -234,26 +232,24 @@ RUN_ACONTEXT_INTEGRATION_TESTS=1 UV_CACHE_DIR=/tmp/uv-cache uv run pytest tests/
 
 Completed in this checkpoint:
 
-- Required MCP tool args are normalized to strings and validated before FastMCP receives a tool call.
-- Missing `customer_id=None` no longer reaches invoice MCP tools.
-- HITL deterministically detects missing critical invoice/music fields before dispatch.
-- Resume answers are rechecked; unresolved critical fields interrupt again instead of being blindly cleared.
-- Duplicate and scratch tests were consolidated.
-- Invoice support employee behavior changed to explicit-only.
-- General/no-task final responses moved into the internal aggregator LLM path.
-- Same-thread invoice context was added for support-employee follow-up requests.
-- Acontext capture now uses real user messages plus assistant/tool progress and observes flush status before task checks.
+- Planner short-term memory now passes checkpointed same-thread messages into the structured planner LLM as chat history.
+- Normal same-thread follow-ups use `thread_id`; `resume` is no longer used for ordinary conversation continuation.
+- Invoice support employee behavior is explicit-only.
+- Invoice support employee lookup works with invoice ID alone, with optional customer ID validation.
+- MCP invoice/customer ID tools tolerate model-produced integers and coerce them before parameterized SQL execution.
+- Freeform read-only SQL query tools return controlled database error payloads for execution mistakes.
+- General/no-task final responses are handled by the internal aggregator LLM path.
+- Acontext capture is reduced to skill-learning outcomes and fails open.
+- LangSmith is the tracing layer for planner and agent execution.
 - Graphify output was refreshed with `graphify update .`.
-
-Staged code currently leaves unrelated local changes to `src/multi_agent_system/config.py` and `uv.lock` unstaged.
 
 ## Roadmap
 
 Near-term:
 
-- Validate the explicit support-employee flow against real MCP and A2A services.
-- Confirm Acontext dashboard task extraction for interrupted/resumed planner threads.
-- Decide whether to remove legacy support-employee integration tests that assume always-on enrichment.
+- Validate same-thread customer clarification behavior against the local LLM after the planner message-history change.
+- Run a live API smoke for: underspecified invoice request, customer ID follow-up, support employee follow-up.
+- Continue removing legacy interrupt/resume assumptions from docs and tests where they no longer match the product flow.
 
 Medium-term:
 

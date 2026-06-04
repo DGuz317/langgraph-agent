@@ -39,11 +39,18 @@ class FakePlanner:
         self.output = output
         self.calls: list[dict] = []
 
-    async def ainvoke(self, user_input: str, *, memory_context: str | None = None):
+    async def ainvoke(
+        self,
+        user_input: str,
+        *,
+        memory_context: str | None = None,
+        conversation_messages: list[dict[str, str]] | None = None,
+    ):
         self.calls.append(
             {
                 "user_input": user_input,
                 "memory_context": memory_context,
+                "conversation_messages": conversation_messages,
             }
         )
         return self.output
@@ -158,6 +165,10 @@ async def test_planner_node_reuses_same_thread_invoice_context(
     assert "invoice_ids=382, 327" in instruction
     assert result["missing_fields"] == []
     assert "Recent same-thread invoice context" in fake_planner.calls[0]["memory_context"]
+    assert fake_planner.calls[0]["conversation_messages"][-1] == {
+        "role": "user",
+        "content": "Can you provide the support employee for each invoices?",
+    }
     assert result["invoice_result"] is None
 
 

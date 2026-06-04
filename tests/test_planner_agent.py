@@ -15,6 +15,7 @@ class RepairablePlannerAgent(PlannerAgent):
         user_input: str,
         *,
         memory_context: str | None = None,
+        conversation_messages: list[dict[str, str]] | None = None,
     ) -> PlannerOutput:
         return self._coerce_planner_output(self.first_output)
 
@@ -24,6 +25,7 @@ class RepairablePlannerAgent(PlannerAgent):
         user_input: str,
         error: Exception,
         memory_context: str | None = None,
+        conversation_messages: list[dict[str, str]] | None = None,
     ) -> PlannerOutput:
         self.repair_called = True
         return self._coerce_planner_output(self.repair_output)
@@ -38,6 +40,7 @@ class FailingPlannerAgent(PlannerAgent):
         user_input: str,
         *,
         memory_context: str | None = None,
+        conversation_messages: list[dict[str, str]] | None = None,
     ) -> PlannerOutput:
         raise ValueError("first planner attempt failed")
 
@@ -47,6 +50,7 @@ class FailingPlannerAgent(PlannerAgent):
         user_input: str,
         error: Exception,
         memory_context: str | None = None,
+        conversation_messages: list[dict[str, str]] | None = None,
     ) -> PlannerOutput:
         self.repair_called = True
         raise ValueError("repair planner attempt failed")
@@ -116,6 +120,53 @@ async def test_planner_injects_memory_context_as_system_guidance(monkeypatch) ->
     assert fake_llm.messages[1].type == "system"
     assert "Relevant sanitized memory skills" in fake_llm.messages[1].content
     assert "Do not invent missing values from memory" in fake_llm.messages[1].content
+
+
+@pytest.mark.anyio
+async def test_planner_passes_same_thread_messages_as_chat_history(monkeypatch) -> None:
+    class FakeStructuredLLM:
+        def __init__(self) -> None:
+            self.messages = []
+
+        async def ainvoke(self, messages):
+            self.messages = messages
+            return PlannerOutput(
+                status="completed",
+                tasks=[],
+                confidence=1.0,
+                requires_aggregation=False,
+            )
+
+    fake_llm = FakeStructuredLLM()
+
+    class FakeLLM:
+        def with_structured_output(self, schema):
+            return fake_llm
+
+    monkeypatch.setattr(
+        "multi_agent_system.planner.agent.get_llm",
+        lambda: FakeLLM(),
+    )
+
+    planner = PlannerAgent()
+    await planner.ainvoke(
+        "my customer id is 3",
+        conversation_messages=[
+            {"role": "user", "content": "show me 2 most recent invoice"},
+            {"role": "assistant", "content": "Could you provide the customer id?"},
+            {"role": "user", "content": "my customer id is 3"},
+        ],
+    )
+
+    assert [message.type for message in fake_llm.messages] == [
+        "system",
+        "system",
+        "human",
+        "ai",
+        "human",
+    ]
+    assert "latest user message" in fake_llm.messages[1].content
+    assert fake_llm.messages[-1].content == "my customer id is 3"
 
 
 @pytest.mark.anyio

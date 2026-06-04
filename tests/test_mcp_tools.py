@@ -321,6 +321,28 @@ def test_get_employee_by_invoice_and_customer_returns_support_employee(mcp_serve
     assert "@" in result["Email"]
 
 
+def test_get_employee_by_invoice_and_customer_accepts_numeric_customer_id(
+    mcp_server,
+    db,
+) -> None:
+    invoice_id = _latest_invoice_id_for_customer(db, "5")
+
+    result = _call_tool(
+        mcp_server,
+        "get_employee_by_invoice_and_customer",
+        {
+            "invoice_id": int(invoice_id),
+            "customer_id": 5,
+        },
+    )
+
+    assert isinstance(result, dict)
+    assert "error" not in result
+    assert result["FirstName"]
+    assert result["Title"]
+    assert "@" in result["Email"]
+
+
 def test_get_employee_by_invoice_returns_support_employee_without_customer_id(
     mcp_server,
     db,
@@ -515,6 +537,18 @@ def test_query_invoice_database_runs_read_only_select(mcp_server) -> None:
     rows = _assert_non_empty_list_of_dicts(result)
     assert len(rows) == 2
     assert all(row["CustomerId"] == 5 for row in rows)
+
+
+def test_query_invoice_database_returns_error_for_invalid_column(mcp_server) -> None:
+    result = _call_tool(
+        mcp_server,
+        "query_invoice_database",
+        {"sql_query": "SELECT SupportEmployeeId FROM Invoice LIMIT 1"},
+    )
+
+    assert isinstance(result, dict)
+    assert "error" in result
+    assert "SupportEmployeeId" in result["error"]
 
 
 def test_query_music_database_rejects_cross_domain_tables(mcp_server) -> None:

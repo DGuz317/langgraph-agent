@@ -1,4 +1,5 @@
 import ast
+from typing import Any
 
 from fastmcp import FastMCP
 from langchain_community.utilities import SQLDatabase
@@ -6,7 +7,7 @@ from langchain_community.utilities import SQLDatabase
 
 def register_invoice_tools(mcp: FastMCP, db: SQLDatabase) -> None:
     @mcp.tool()
-    def get_invoice_by_id(invoice_id: str) -> dict:
+    def get_invoice_by_id(invoice_id: str | int) -> dict:
         """
         Look up a single invoice by its ID.
         """
@@ -16,7 +17,7 @@ def register_invoice_tools(mcp: FastMCP, db: SQLDatabase) -> None:
             FROM Invoice
             WHERE InvoiceId = :invoice_id;
             """,
-            parameters={"invoice_id": invoice_id},
+            parameters={"invoice_id": _clean_id(invoice_id)},
             include_columns=True,
         )
 
@@ -27,7 +28,7 @@ def register_invoice_tools(mcp: FastMCP, db: SQLDatabase) -> None:
         return parsed[0] if isinstance(parsed, list) else parsed
 
     @mcp.tool()
-    def get_invoices_by_customer_sorted_by_date(customer_id: str) -> list[dict]:
+    def get_invoices_by_customer_sorted_by_date(customer_id: str | int) -> list[dict]:
         """
         Look up all invoices for a customer using their ID.
         Results are sorted by invoice date descending.
@@ -39,7 +40,7 @@ def register_invoice_tools(mcp: FastMCP, db: SQLDatabase) -> None:
             WHERE CustomerId = :customer_id
             ORDER BY InvoiceDate DESC;
             """,
-            parameters={"customer_id": customer_id},
+            parameters={"customer_id": _clean_id(customer_id)},
             include_columns=True,
         )
 
@@ -49,7 +50,7 @@ def register_invoice_tools(mcp: FastMCP, db: SQLDatabase) -> None:
         return ast.literal_eval(result)
 
     @mcp.tool()
-    def get_invoice_summary_by_customer(customer_id: str) -> dict:
+    def get_invoice_summary_by_customer(customer_id: str | int) -> dict:
         """
         Return invoice count and total billed amount for a customer.
         """
@@ -62,7 +63,7 @@ def register_invoice_tools(mcp: FastMCP, db: SQLDatabase) -> None:
             WHERE CustomerId = :customer_id
             GROUP BY CustomerId;
             """,
-            parameters={"customer_id": customer_id},
+            parameters={"customer_id": _clean_id(customer_id)},
             include_columns=True,
         )
 
@@ -73,7 +74,7 @@ def register_invoice_tools(mcp: FastMCP, db: SQLDatabase) -> None:
         return parsed[0] if isinstance(parsed, list) else parsed
 
     @mcp.tool()
-    def get_invoices_sorted_by_unit_price(customer_id: str) -> list[dict]:
+    def get_invoices_sorted_by_unit_price(customer_id: str | int) -> list[dict]:
         """
         Look up all invoices for a customer and sort invoice lines by unit price descending.
         """
@@ -87,7 +88,7 @@ def register_invoice_tools(mcp: FastMCP, db: SQLDatabase) -> None:
 
         result = db.run(
             query,
-            parameters={"customer_id": customer_id},
+            parameters={"customer_id": _clean_id(customer_id)},
             include_columns=True,
         )
 
@@ -98,8 +99,8 @@ def register_invoice_tools(mcp: FastMCP, db: SQLDatabase) -> None:
 
     @mcp.tool()
     def get_employee_by_invoice_and_customer(
-        invoice_id: str,
-        customer_id: str | None = None,
+        invoice_id: str | int,
+        customer_id: str | int | None = None,
     ) -> dict:
         """
         Return support employee information for a specific invoice.
@@ -115,10 +116,13 @@ def register_invoice_tools(mcp: FastMCP, db: SQLDatabase) -> None:
             JOIN Invoice ON Invoice.CustomerId = Customer.CustomerId
             WHERE Invoice.InvoiceId = :invoice_id
         """
-        parameters = {"invoice_id": invoice_id}
-        if customer_id:
+        invoice_id_value = _clean_id(invoice_id)
+        customer_id_value = _clean_id(customer_id) if customer_id is not None else None
+
+        parameters = {"invoice_id": invoice_id_value}
+        if customer_id_value:
             query += " AND Invoice.CustomerId = :customer_id"
-            parameters["customer_id"] = customer_id
+            parameters["customer_id"] = customer_id_value
         query += ";"
 
         result = db.run(
@@ -128,16 +132,16 @@ def register_invoice_tools(mcp: FastMCP, db: SQLDatabase) -> None:
         )
 
         if not result:
-            message = f"No employee found for invoice_id={invoice_id}"
-            if customer_id:
-                message += f" and customer_id={customer_id}"
+            message = f"No employee found for invoice_id={invoice_id_value}"
+            if customer_id_value:
+                message += f" and customer_id={customer_id_value}"
             return {"error": f"{message}."}
 
         parsed = ast.literal_eval(result)
         return parsed[0] if isinstance(parsed, list) else parsed
 
     @mcp.tool()
-    def get_employee_by_customer(customer_id: str) -> dict:
+    def get_employee_by_customer(customer_id: str | int) -> dict:
         """
         Return the support employee assigned to a customer.
         """
@@ -148,7 +152,7 @@ def register_invoice_tools(mcp: FastMCP, db: SQLDatabase) -> None:
             JOIN Customer ON Customer.SupportRepId = Employee.EmployeeId
             WHERE Customer.CustomerId = :customer_id;
             """,
-            parameters={"customer_id": customer_id},
+            parameters={"customer_id": _clean_id(customer_id)},
             include_columns=True,
         )
 
@@ -157,3 +161,7 @@ def register_invoice_tools(mcp: FastMCP, db: SQLDatabase) -> None:
 
         parsed = ast.literal_eval(result)
         return parsed[0] if isinstance(parsed, list) else parsed
+
+
+def _clean_id(value: Any) -> str:
+    return str(value).strip()

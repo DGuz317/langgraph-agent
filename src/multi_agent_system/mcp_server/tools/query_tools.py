@@ -3,6 +3,7 @@ import re
 
 from fastmcp import FastMCP
 from langchain_community.utilities import SQLDatabase
+from sqlalchemy.exc import SQLAlchemyError
 
 
 INVOICE_TABLES = {
@@ -62,7 +63,10 @@ def _run_read_only_query(
     allowed_tables: set[str],
 ) -> list[dict] | dict:
     cleaned = _validate_select_query(sql_query, allowed_tables=allowed_tables)
-    result = db.run(cleaned, include_columns=True)
+    try:
+        result = db.run(cleaned, include_columns=True)
+    except SQLAlchemyError as exc:
+        return {"error": f"Database query failed: {exc}"}
 
     if not result:
         return []

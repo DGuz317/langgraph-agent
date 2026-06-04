@@ -34,9 +34,13 @@ async def planner_node(state: PlannerAppState) -> dict:
         output = await planner.ainvoke(
             state["user_input"],
             memory_context=memory_context,
+            conversation_messages=messages,
         )
     else:
-        output = await planner.ainvoke(state["user_input"])
+        output = await planner.ainvoke(
+            state["user_input"],
+            conversation_messages=messages,
+        )
 
     planner_output = _apply_invoice_thread_context(
         output.model_dump(),
