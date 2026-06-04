@@ -21,6 +21,12 @@ Rules:
 - If required information is clearly missing, set missing_fields using ordinary
   field names such as customer_id, invoice_id, artist, genre, song_title, or
   music_search_type.
+- If the current message is a direct follow-up, use recent same-thread
+  conversation context to resolve references like "this invoice" or
+  "that customer" before deciding information is missing.
+- If the current message only supplies information requested by the previous
+  assistant message, combine it with the previous unresolved user request and
+  create the task for that original request.
 - Use requires_aggregation=true when more than one task is returned.
 
 Examples:

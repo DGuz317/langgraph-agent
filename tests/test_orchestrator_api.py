@@ -159,7 +159,7 @@ async def test_planner_api_allows_omitted_resume_for_existing_thread() -> None:
 
 
 @pytest.mark.anyio
-async def test_planner_api_rejects_resume_without_thread_id() -> None:
+async def test_planner_api_accepts_deprecated_resume_without_thread_id() -> None:
     service = FakePlannerService(
         PlannerServiceResponse(
             status="completed",
@@ -175,8 +175,14 @@ async def test_planner_api_rejects_resume_without_thread_id() -> None:
         },
     )
 
-    assert response.status_code == 422
-    assert service.calls == []
+    assert response.status_code == 200
+    assert service.calls == [
+        {
+            "user_input": "5",
+            "thread_id": None,
+            "resume": True,
+        }
+    ]
 
 
 @pytest.mark.anyio

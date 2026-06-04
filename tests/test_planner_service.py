@@ -1,3 +1,4 @@
+import asyncio
 from types import SimpleNamespace
 
 import pytest
@@ -31,6 +32,9 @@ class FakeGraph:
         if self.error is not None:
             raise self.error
 
+        if callable(self.result):
+            return self.result(payload, config)
+
         return self.result
 
     async def aget_state(self, config):
@@ -52,6 +56,18 @@ class FakeCapture:
         self.calls.append(kwargs)
         if self.error is not None:
             raise self.error
+
+
+class BlockingCapture:
+    def __init__(self) -> None:
+        self.started = asyncio.Event()
+        self.release = asyncio.Event()
+        self.calls = []
+
+    async def capture(self, **kwargs) -> None:
+        self.calls.append(kwargs)
+        self.started.set()
+        await self.release.wait()
 
 
 class FakeMemoryRecall:
@@ -112,18 +128,16 @@ async def test_planner_service_returns_completed_response() -> None:
     assert response.final_answer == "Done."
     assert response.needs_resume is False
     assert graph.calls[0]["payload"] == {"user_input": "hello"}
-    assert graph.calls[0]["config"] == {
-        "configurable": {
-            "thread_id": "thread-1",
-        }
-    }
-    assert graph.state_calls == [
-        {
-            "configurable": {
-                "thread_id": "thread-1",
-            }
-        }
+    assert graph.calls[0]["config"]["configurable"] == {"thread_id": "thread-1"}
+    assert graph.calls[0]["config"]["run_name"] == "planner.invoke"
+    assert graph.calls[0]["config"]["tags"] == [
+        "multi-agent-system",
+        "planner",
+        "api",
     ]
+    assert graph.calls[0]["config"]["metadata"]["thread_id"] == "thread-1"
+    assert graph.calls[0]["config"]["metadata"]["request_id"]
+    assert graph.state_calls == []
 
 
 @pytest.mark.anyio
@@ -143,7 +157,7 @@ async def test_planner_service_generates_thread_id_when_missing() -> None:
 
 
 @pytest.mark.anyio
-async def test_planner_service_returns_interrupt_response() -> None:
+async def test_planner_service_converts_legacy_interrupt_to_completed_response() -> None:
     graph = FakeGraph(
         result={
             "__interrupt__": [
@@ -162,19 +176,20 @@ async def test_planner_service_returns_interrupt_response() -> None:
         thread_id="thread-1",
     )
 
-    assert response.status == "interrupted"
+    assert response.status == "completed"
     assert response.thread_id == "thread-1"
-    assert response.needs_resume is True
-    assert response.interrupt_message == "Could you provide your customer ID?"
-    assert response.final_answer is None
+    assert response.needs_resume is False
+    assert response.interrupt_message is None
+    assert response.final_answer == "Could you provide your customer ID?"
 
 
 @pytest.mark.anyio
-async def test_planner_service_resumes_with_command() -> None:
+async def test_planner_service_ignores_deprecated_resume_flag() -> None:
     graph = FakeGraph(
         result={
             "final_answer": "Latest invoice found.",
-        }
+        },
+        state_interrupts=(FakeInterrupt("Provide customer ID."),),
     )
     service = PlannerService(graph=graph, capture=None, memory_recall=None)
 
@@ -184,16 +199,67 @@ async def test_planner_service_resumes_with_command() -> None:
         resume=True,
     )
 
-    payload = graph.calls[0]["payload"]
-
     assert response.status == "completed"
     assert response.final_answer == "Latest invoice found."
-    assert payload.__class__.__name__ == "Command"
+    assert graph.calls[0]["payload"] == {"user_input": "5"}
     assert graph.calls[0]["config"]["configurable"]["thread_id"] == "thread-1"
 
 
 @pytest.mark.anyio
-async def test_planner_service_auto_resumes_interrupted_thread() -> None:
+async def test_planner_service_explicit_resume_without_interrupt_is_follow_up() -> None:
+    graph = FakeGraph(
+        result={
+            "final_answer": "Here are 5 AC/DC tracks.",
+        },
+        state_interrupts=(),
+    )
+    service = PlannerService(graph=graph, capture=None, memory_recall=None)
+
+    response = await service.invoke(
+        "Show me 5 AC/DC tracks",
+        thread_id="thread-1",
+        resume=True,
+    )
+
+    assert response.status == "completed"
+    assert response.final_answer == "Here are 5 AC/DC tracks."
+    assert graph.calls[0]["payload"] == {"user_input": "Show me 5 AC/DC tracks"}
+    assert graph.calls[0]["config"]["configurable"]["thread_id"] == "thread-1"
+
+
+@pytest.mark.anyio
+async def test_planner_service_same_thread_follow_up_routes_new_request() -> None:
+    def result_for_payload(payload, _config):
+        if payload == {"user_input": "Show me 5 AC/DC tracks"}:
+            return {
+                "planner_output": {
+                    "tasks": [
+                        {
+                            "agent": "music",
+                            "instruction": "Show 5 AC/DC tracks.",
+                            "status": "completed",
+                        }
+                    ]
+                },
+                "final_answer": "Music Agent result:\n5 AC/DC tracks",
+            }
+        return {"final_answer": "stale invoice answer"}
+
+    graph = FakeGraph(result=result_for_payload, state_interrupts=())
+    service = PlannerService(graph=graph, capture=None, memory_recall=None)
+
+    response = await service.invoke(
+        "Show me 5 AC/DC tracks",
+        thread_id="thread-1",
+        resume=True,
+    )
+
+    assert response.final_answer == "Music Agent result:\n5 AC/DC tracks"
+    assert response.raw_result["planner_output"]["tasks"][0]["agent"] == "music"
+
+
+@pytest.mark.anyio
+async def test_planner_service_existing_thread_uses_normal_user_input() -> None:
     graph = FakeGraph(
         result={
             "final_answer": "Latest invoice found.",
@@ -207,21 +273,20 @@ async def test_planner_service_auto_resumes_interrupted_thread() -> None:
         thread_id="thread-1",
     )
 
-    payload = graph.calls[0]["payload"]
-
     assert response.status == "completed"
-    assert payload.__class__.__name__ == "Command"
+    assert graph.calls[0]["payload"] == {"user_input": "5"}
 
 
 @pytest.mark.anyio
-async def test_planner_service_explicit_resume_requires_thread_id() -> None:
+async def test_planner_service_deprecated_resume_without_thread_id_is_allowed() -> None:
     graph = FakeGraph(result={"final_answer": "Done."})
     service = PlannerService(graph=graph, capture=None, memory_recall=None)
 
-    with pytest.raises(ValueError, match="thread_id"):
-        await service.invoke("5", resume=True)
+    response = await service.invoke("5", resume=True)
 
-    assert graph.calls == []
+    assert response.status == "completed"
+    assert response.thread_id
+    assert graph.calls[0]["payload"] == {"user_input": "5"}
 
 
 @pytest.mark.anyio
@@ -281,6 +346,31 @@ async def test_planner_service_capture_failure_does_not_change_response() -> Non
 
     assert response.status == "completed"
     assert response.final_answer == "Done."
+
+
+@pytest.mark.anyio
+async def test_planner_service_can_capture_in_background() -> None:
+    graph = FakeGraph(result={"final_answer": "Done."})
+    capture = BlockingCapture()
+    service = PlannerService(
+        graph=graph,
+        capture=capture,
+        memory_recall=None,
+        capture_in_background=True,
+    )
+
+    response = await asyncio.wait_for(
+        service.invoke("hello", thread_id="thread-background-capture"),
+        timeout=1,
+    )
+
+    assert response.status == "completed"
+    assert response.final_answer == "Done."
+
+    await asyncio.wait_for(capture.started.wait(), timeout=1)
+    capture.release.set()
+    if service._background_capture_tasks:
+        await asyncio.gather(*service._background_capture_tasks)
 
 
 @pytest.mark.anyio

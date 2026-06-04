@@ -23,7 +23,7 @@ INVOICE_TOOL_REQUIRED_ARGS = {
     "get_invoices_by_customer_sorted_by_date": {"customer_id"},
     "get_invoice_summary_by_customer": {"customer_id"},
     "get_invoices_sorted_by_unit_price": {"customer_id"},
-    "get_employee_by_invoice_and_customer": {"invoice_id", "customer_id"},
+    "get_employee_by_invoice_and_customer": {"invoice_id"},
     "get_employee_by_customer": {"customer_id"},
     "query_invoice_database": {"sql_query"},
 }

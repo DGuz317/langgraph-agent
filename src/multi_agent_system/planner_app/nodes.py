@@ -8,10 +8,6 @@ from multi_agent_system.aggregator.agent import AggregatorAgent
 from multi_agent_system.aggregator.schemas import AggregatorInput, AgentResult
 from multi_agent_system.common.execution_evidence import ExecutionEvidence
 from multi_agent_system.planner.agent import PlannerAgent
-from multi_agent_system.planner_app.hitl import (
-    ensure_required_task_fields,
-    interrupt_for_missing_info,
-)
 from multi_agent_system.planner_app.state import PlannerAppState
 
 
@@ -20,9 +16,19 @@ aggregator = AggregatorAgent()
 
 
 async def planner_node(state: PlannerAppState) -> dict:
+    messages = _append_message(
+        state.get("messages", []),
+        role="user",
+        content=state["user_input"],
+    )
+    invoice_context = _merge_invoice_context(
+        state.get("invoice_context"),
+        _invoice_context_from_messages(messages),
+    )
     memory_context = _planner_memory_context(
         state.get("memory_context"),
-        state.get("invoice_context"),
+        invoice_context,
+        messages,
     )
     if memory_context:
         output = await planner.ainvoke(
@@ -34,51 +40,17 @@ async def planner_node(state: PlannerAppState) -> dict:
 
     planner_output = _apply_invoice_thread_context(
         output.model_dump(),
-        state,
+        {**state, "invoice_context": invoice_context},
     )
-    planner_output = ensure_required_task_fields(planner_output)
     return {
+        "messages": messages,
+        "invoice_context": invoice_context,
         "planner_output": planner_output,
         "missing_fields": planner_output.get("missing_fields", []),
         "execution_evidence": _planner_decision_evidence(planner_output),
         "invoice_result": None,
         "music_result": None,
         "final_answer": None,
-    }
-
-
-async def missing_info_node(state: PlannerAppState) -> dict:
-    missing_fields = state.get("missing_fields", [])
-    extracted = interrupt_for_missing_info(missing_fields)
-
-    planner_output = _copy_planner_output(state)
-    tasks = planner_output.get("tasks", [])
-
-    extra_context = _format_extracted_fields(extracted)
-    for task in tasks:
-        if extra_context:
-            task["instruction"] = (
-                f"{task.get('instruction', '').strip()} "
-                f"Additional user-provided information: {extra_context}."
-            ).strip()
-
-    planner_output = ensure_required_task_fields(planner_output)
-
-    return {
-        **extracted,
-        "planner_output": planner_output,
-        "missing_fields": planner_output.get("missing_fields", []),
-        "execution_evidence": _with_evidence(
-            state,
-            ExecutionEvidence(
-                kind="hitl_resume",
-                agent="planner",
-                operation="required_fields",
-                status="completed",
-                fields=sorted(extracted),
-                summary="Required fields were supplied; values omitted from memory.",
-            ),
-        ),
     }
 
 
@@ -181,14 +153,21 @@ async def final_response_node(state: PlannerAppState) -> dict:
             )
         )
 
+    user_input = _response_user_input(state)
     output = await aggregator.ainvoke(
         AggregatorInput(
-            user_input=state["user_input"],
+            user_input=user_input,
             results=results,
         )
     )
+    messages = _append_message(
+        state.get("messages", []),
+        role="assistant",
+        content=output.final_answer,
+    )
 
     return {
+        "messages": messages,
         "final_answer": output.final_answer,
         "execution_evidence": _with_evidence(
             state,
@@ -239,15 +218,6 @@ def _task_instruction(task: dict[str, Any]) -> str:
     return instruction
 
 
-def _format_extracted_fields(values: dict[str, Any]) -> str:
-    pairs = [
-        f"{key}={value}"
-        for key, value in values.items()
-        if str(value).strip()
-    ]
-    return ", ".join(pairs)
-
-
 def _mark_task_failed(task: dict[str, Any] | None) -> None:
     if task is not None:
         task["status"] = "failed"
@@ -260,8 +230,16 @@ def _failure_result(agent_label: str, exc: Exception) -> str:
 def _planner_memory_context(
     memory_context: str | None,
     invoice_context: dict[str, Any] | None,
+    messages: list[dict[str, str]] | None = None,
 ) -> str | None:
     parts = [memory_context.strip()] if memory_context and memory_context.strip() else []
+    conversation_context = _format_recent_messages(messages)
+    if conversation_context:
+        parts.append(
+            "Recent same-thread conversation:\n"
+            f"{conversation_context}\n"
+            "Use this only to resolve direct follow-up references in the current message."
+        )
     formatted_invoice_context = _format_invoice_context(invoice_context)
     if formatted_invoice_context:
         parts.append(
@@ -311,7 +289,9 @@ def _should_attach_invoice_context(user_input: str, instruction: str) -> bool:
     if not any(term in combined for term in ("support employee", "support rep")):
         return False
 
-    if _has_labeled_number(combined, ("customer_id", "customer id", "invoice_id", "invoice id")):
+    has_customer_id = _has_labeled_number(combined, ("customer_id", "customer id"))
+    has_invoice_id = _has_labeled_number(combined, ("invoice_id", "invoice id"))
+    if has_customer_id and has_invoice_id:
         return False
 
     followup_markers = (
@@ -323,8 +303,13 @@ def _should_attach_invoice_context(user_input: str, instruction: str) -> bool:
         "those invoices",
         "previous invoice",
         "previous invoices",
+        "this invoice",
+        "this invoices",
+        "current invoice",
+        "current invoices",
         "for them",
         "for each",
+        "for this",
     )
     return any(marker in combined for marker in followup_markers)
 
@@ -353,14 +338,28 @@ def _invoice_context_from_result(
 
     content = str(parsed.get("content") or "")
     data = parsed.get("data")
+    prior_context = state.get("invoice_context")
     customer_id = (
         _first_text_value(state.get("customer_id"))
         or _customer_id_from_evidence(evidence)
         or _customer_id_from_data(data)
         or _customer_id_from_text(content)
         or _customer_id_from_text(str(task.get("instruction") or ""))
+        or (
+            _first_text_value(prior_context.get("customer_id"))
+            if isinstance(prior_context, dict)
+            else None
+        )
     )
     invoice_ids = _invoice_ids_from_data(data) or _invoice_ids_from_text(content)
+    if not invoice_ids and isinstance(prior_context, dict):
+        prior_invoice_ids = prior_context.get("invoice_ids")
+        if isinstance(prior_invoice_ids, list):
+            invoice_ids = [
+                str(value).strip()
+                for value in prior_invoice_ids
+                if str(value).strip()
+            ]
 
     context: dict[str, Any] = {}
     if customer_id:
@@ -372,6 +371,47 @@ def _invoice_context_from_result(
     if instruction:
         context["last_invoice_instruction"] = instruction
     return context
+
+
+def _invoice_context_from_messages(
+    messages: list[dict[str, str]] | None,
+) -> dict[str, Any]:
+    text = "\n".join(
+        str(message.get("content") or "")
+        for message in (messages or [])
+        if str(message.get("content") or "")
+    )
+    customer_id = _customer_id_from_text(text)
+    invoice_ids = _invoice_ids_from_text(text)
+
+    context: dict[str, Any] = {}
+    if customer_id:
+        context["customer_id"] = customer_id
+    if invoice_ids:
+        context["invoice_ids"] = invoice_ids[:10]
+    return context
+
+
+def _merge_invoice_context(
+    current: dict[str, Any] | None,
+    discovered: dict[str, Any] | None,
+) -> dict[str, Any]:
+    merged: dict[str, Any] = dict(current or {})
+
+    for key in ("customer_id", "last_invoice_instruction"):
+        value = _first_text_value((discovered or {}).get(key))
+        if value:
+            merged[key] = value
+
+    discovered_ids = (discovered or {}).get("invoice_ids")
+    if isinstance(discovered_ids, list) and discovered_ids:
+        merged["invoice_ids"] = [
+            str(value).strip()
+            for value in discovered_ids
+            if str(value).strip()
+        ][:10]
+
+    return merged
 
 
 def _parse_json_object(value: str) -> dict[str, Any]:
@@ -404,12 +444,12 @@ def _customer_id_from_data(data: Any) -> str | None:
 
 
 def _customer_id_from_text(text: str) -> str | None:
-    match = re.search(
-        r"\b(?:customer_id|customer id|customer ID)\s*(?:=|:|is)?\s*(\d+)\b",
+    matches = re.findall(
+        r"\b(?:customer_id|customer id|customerID|customerId)\s*(?:=|:|is)?\s*(\d+)\b",
         text,
         flags=re.IGNORECASE,
     )
-    return match.group(1) if match else None
+    return matches[-1] if matches else None
 
 
 def _invoice_ids_from_data(data: Any) -> list[str]:
@@ -430,6 +470,7 @@ def _invoice_ids_from_text(text: str) -> list[str]:
     patterns = (
         r"\bInvoice ID:\s*(\d+)\b",
         r"\bInvoiceId['\"]?\s*[:=]\s*(\d+)\b",
+        r"\bInvoiceId\W*[:=]\W*(\d+)\b",
     )
     for pattern in patterns:
         for match in re.findall(pattern, text, flags=re.IGNORECASE):
@@ -470,6 +511,54 @@ def _format_invoice_context(invoice_context: dict[str, Any] | None) -> str:
         parts.append(f"last_invoice_instruction={instruction}")
 
     return "; ".join(parts)
+
+
+def _response_user_input(state: PlannerAppState) -> str:
+    missing_fields = state.get("missing_fields", [])
+    if not missing_fields:
+        return state["user_input"]
+
+    return (
+        f"Current user message: {state['user_input']}\n"
+        f"Planner needs more information before routing: {', '.join(missing_fields)}.\n"
+        "Ask the user one concise follow-up question. Do not claim that tools were called."
+    )
+
+
+def _append_message(
+    messages: list[dict[str, str]] | None,
+    *,
+    role: str,
+    content: str,
+    limit: int = 12,
+) -> list[dict[str, str]]:
+    updated = [
+        {"role": str(message.get("role") or ""), "content": str(message.get("content") or "")}
+        for message in (messages or [])
+        if str(message.get("role") or "") and str(message.get("content") or "")
+    ]
+    updated.append({"role": role, "content": content})
+    return updated[-limit:]
+
+
+def _format_recent_messages(
+    messages: list[dict[str, str]] | None,
+    *,
+    max_messages: int = 6,
+    max_chars: int = 1600,
+) -> str:
+    lines: list[str] = []
+    for message in (messages or [])[-max_messages:]:
+        role = str(message.get("role") or "").strip()
+        content = " ".join(str(message.get("content") or "").split())
+        if not role or not content:
+            continue
+        lines.append(f"{role}: {content}")
+
+    text = "\n".join(lines)
+    if len(text) <= max_chars:
+        return text
+    return text[-max_chars:]
 
 
 def _planner_decision_evidence(planner_output: dict[str, Any]) -> list[dict[str, Any]]:

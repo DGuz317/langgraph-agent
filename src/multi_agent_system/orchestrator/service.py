@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
-from langgraph.types import Command
-
+from multi_agent_system.common.observability import trace_config
 from multi_agent_system.orchestrator.schemas import PlannerServiceResponse
 from multi_agent_system.planner_app.graph import planner_graph
 
@@ -26,8 +26,10 @@ class PlannerService:
         graph: Any | None = None,
         capture: PlannerInteractionCapture | None | object = _DEFAULT_CAPTURE,
         memory_recall: PlannerMemoryRecall | None | object = _DEFAULT_MEMORY_RECALL,
+        capture_in_background: bool | None = None,
     ) -> None:
         self.graph = graph or planner_graph
+        using_default_capture = capture is _DEFAULT_CAPTURE
         if capture is _DEFAULT_CAPTURE:
             from multi_agent_system.orchestrator.acontext_capture import (
                 build_acontext_capture,
@@ -35,6 +37,12 @@ class PlannerService:
 
             capture = build_acontext_capture()
         self.capture = capture
+        self._capture_in_background = (
+            using_default_capture
+            if capture_in_background is None
+            else capture_in_background
+        )
+        self._background_capture_tasks: set[asyncio.Task[None]] = set()
         if memory_recall is _DEFAULT_MEMORY_RECALL:
             from multi_agent_system.orchestrator.acontext_memory import (
                 build_acontext_memory_recall,
@@ -55,8 +63,8 @@ class PlannerService:
         Args:
             user_input: New user query, or HITL resume answer when resume=True.
             thread_id: Existing thread id for resume, or None for a new thread.
-            resume: Whether to send user_input as Command(resume=...). When
-                omitted, an existing interrupted thread is auto-resumed.
+            resume: Deprecated compatibility flag. Conversation continuity is
+                controlled by thread_id.
 
         Returns:
             PlannerServiceResponse with completed/interrupted/failed status.
@@ -67,21 +75,27 @@ class PlannerService:
                 "thread_id": active_thread_id,
             }
         }
-        should_resume = await self._should_resume(
-            thread_id=thread_id,
-            active_thread_id=active_thread_id,
-            resume=resume,
-            config=config,
+        if resume is not None:
+            logger.warning(
+                "Ignoring deprecated resume=%s for planner thread %s; "
+                "send thread_id with normal user_input for same-thread conversation.",
+                resume,
+                active_thread_id,
+            )
+        request_id = str(uuid4())
+        config.update(
+            trace_config(
+                run_name="planner.invoke",
+                thread_id=active_thread_id,
+                request_id=request_id,
+                tags=["planner", "api"],
+            )
         )
         memory = await self._recall_memory(user_input, thread_id=active_thread_id)
 
-        payload: Any
-        if should_resume:
-            payload = Command(resume=user_input)
-        else:
-            payload = {"user_input": user_input}
-            if memory.context:
-                payload["memory_context"] = memory.context
+        payload: dict[str, Any] = {"user_input": user_input}
+        if memory.context:
+            payload["memory_context"] = memory.context
 
         try:
             result = await self.graph.ainvoke(payload, config=config)
@@ -97,10 +111,11 @@ class PlannerService:
         else:
             if _has_interrupt(result):
                 response = PlannerServiceResponse(
-                    status="interrupted",
+                    status="completed",
                     thread_id=active_thread_id,
-                    interrupt_message=_extract_interrupt_message(result),
-                    needs_resume=True,
+                    final_answer=_extract_interrupt_message(result),
+                    interrupt_message=None,
+                    needs_resume=False,
                     raw_result=_with_memory_metadata(
                         _safe_raw_result(result),
                         memory.metadata,
@@ -121,42 +136,10 @@ class PlannerService:
         await self._capture_interaction(
             user_input=user_input,
             thread_id=active_thread_id,
-            resume=should_resume,
+            resume=False,
             response=response,
         )
         return response
-
-    async def _should_resume(
-        self,
-        *,
-        thread_id: str | None,
-        active_thread_id: str,
-        resume: bool | None,
-        config: dict[str, Any],
-    ) -> bool:
-        if resume is True:
-            if not thread_id:
-                raise ValueError("resume=True requires an existing thread_id.")
-            return True
-
-        if resume is False or thread_id is None:
-            return False
-
-        aget_state = getattr(self.graph, "aget_state", None)
-        if aget_state is None:
-            return False
-
-        try:
-            snapshot = await aget_state(config)
-        except Exception:
-            logger.debug(
-                "Unable to inspect planner thread %s for auto-resume.",
-                active_thread_id,
-                exc_info=True,
-            )
-            return False
-
-        return bool(getattr(snapshot, "interrupts", ()))
 
     async def _capture_interaction(
         self,
@@ -169,6 +152,34 @@ class PlannerService:
         if self.capture is None:
             return
 
+        if self._capture_in_background:
+            task = asyncio.create_task(
+                self._capture_interaction_safely(
+                    user_input=user_input,
+                    thread_id=thread_id,
+                    resume=resume,
+                    response=response,
+                )
+            )
+            self._background_capture_tasks.add(task)
+            task.add_done_callback(self._background_capture_tasks.discard)
+            return
+
+        await self._capture_interaction_safely(
+            user_input=user_input,
+            thread_id=thread_id,
+            resume=resume,
+            response=response,
+        )
+
+    async def _capture_interaction_safely(
+        self,
+        *,
+        user_input: str,
+        thread_id: str,
+        resume: bool,
+        response: PlannerServiceResponse,
+    ) -> None:
         try:
             await self.capture.capture(
                 user_input=user_input,

@@ -22,8 +22,8 @@ from multi_agent_system.orchestrator.acontext_common import (
 logger = logging.getLogger(__name__)
 
 RecallStatus = Literal["disabled", "ok", "empty", "failed"]
-LEARNING_WAIT_TIMEOUT_SECONDS = 1000
-LEARNING_WAIT_POLL_SECONDS = 1.0
+DEFAULT_LEARNING_WAIT_TIMEOUT_SECONDS = 3.0
+DEFAULT_LEARNING_WAIT_POLL_SECONDS = 0.5
 
 
 @dataclass(frozen=True)
@@ -67,6 +67,8 @@ class AcontextMemoryRecall:
         limit: int = 3,
         max_chars: int = 3000,
         timeout: float = 1000.0,
+        learning_wait_timeout: float = DEFAULT_LEARNING_WAIT_TIMEOUT_SECONDS,
+        learning_wait_poll: float = DEFAULT_LEARNING_WAIT_POLL_SECONDS,
         client_factory: Callable[[], AcontextAsyncClient] | None = None,
         skill_selector: SkillSelector | None = None,
     ) -> None:
@@ -76,6 +78,8 @@ class AcontextMemoryRecall:
         self._limit = max(0, limit)
         self._max_chars = max(0, max_chars)
         self._timeout = timeout
+        self._learning_wait_timeout = max(0.0, learning_wait_timeout)
+        self._learning_wait_poll = max(0.0, learning_wait_poll)
         self._client_factory = client_factory or self._build_client
         self._skill_selector = skill_selector or _select_relevant_skills
 
@@ -159,13 +163,19 @@ class AcontextMemoryRecall:
         thread_id: str,
     ) -> None:
         session_id = acontext_session_id(thread_id)
+        if self._learning_wait_timeout == 0:
+            logger.debug(
+                "Acontext learning wait disabled for planner thread %s.",
+                thread_id,
+            )
+            return
 
         try:
             learning = await client.learning_spaces.wait_for_learning(
                 space_id,
                 session_id=session_id,
-                timeout=LEARNING_WAIT_TIMEOUT_SECONDS,
-                poll_interval=LEARNING_WAIT_POLL_SECONDS,
+                timeout=self._learning_wait_timeout,
+                poll_interval=self._learning_wait_poll,
             )
         except APIError as exc:
             if exc.status_code == 404:
@@ -238,6 +248,8 @@ def build_acontext_memory_recall() -> PlannerMemoryRecall | None:
         max_chars=settings.acontext_recall_max_chars,
         timeout=settings.acontext_timeout,
         skill_selector=_llm_select_relevant_skills,
+        learning_wait_timeout=settings.acontext_learning_wait_timeout,
+        learning_wait_poll=settings.acontext_learning_wait_poll,
     )
 
 

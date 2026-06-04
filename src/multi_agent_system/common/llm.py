@@ -1,52 +1,53 @@
+from langchain.chat_models import init_chat_model
 from langchain_core.language_models.chat_models import BaseChatModel
 
 from multi_agent_system.config import settings
+from multi_agent_system.common.observability import configure_observability
 
 
 def get_llm() -> BaseChatModel:
-    if settings.model_provider == "ollama":
-        from langchain_ollama import ChatOllama
+    configure_observability()
+    provider, model = _model_provider_and_name()
+    kwargs = _provider_kwargs(provider)
+    return init_chat_model(
+        model,
+        model_provider=provider,
+        temperature=settings.llm_temperature,
+        **kwargs,
+    )
 
-        return ChatOllama(
-            model=settings.llm_model,
-            base_url=settings.ollama_api_url,
-            temperature=settings.llm_temperature,
-        )
 
-    if settings.model_provider == "openai":
-        from langchain_openai import ChatOpenAI
+def _model_provider_and_name() -> tuple[str, str]:
+    if ":" in settings.llm_model:
+        provider, model = settings.llm_model.split(":", 1)
+        return _normalize_provider(provider), model
 
+    return _normalize_provider(settings.model_provider), settings.llm_model
+
+
+def _normalize_provider(provider: str) -> str:
+    if provider == "google":
+        return "google_genai"
+    return provider
+
+
+def _provider_kwargs(provider: str) -> dict[str, str]:
+    if provider == "ollama":
+        return {"base_url": settings.ollama_api_url}
+
+    if provider == "openai":
         if not settings.openai_api_key:
-            raise ValueError("OPENAI_API_KEY is required when MODEL_PROVIDER=openai")
+            raise ValueError("OPENAI_API_KEY is required for openai models.")
+        return {"api_key": settings.openai_api_key}
 
-        return ChatOpenAI(
-            model=settings.llm_model,
-            api_key=settings.openai_api_key,
-            temperature=settings.llm_temperature,
-        )
-
-    if settings.model_provider == "google":
-        from langchain_google_genai import ChatGoogleGenerativeAI
-
+    if provider == "google_genai":
         if not settings.google_api_key:
-            raise ValueError("GOOGLE_API_KEY is required when MODEL_PROVIDER=google")
+            raise ValueError("GOOGLE_API_KEY is required for google_genai models.")
+        return {"google_api_key": settings.google_api_key}
 
-        return ChatGoogleGenerativeAI(
-            model=settings.llm_model,
-            google_api_key=settings.google_api_key,
-            temperature=settings.llm_temperature,
-        )
-
-    if settings.model_provider == "anthropic":
-        from langchain_anthropic import ChatAnthropic
-
+    if provider == "anthropic":
         if not settings.anthropic_api_key:
-            raise ValueError("ANTHROPIC_API_KEY is required when MODEL_PROVIDER=anthropic")
+            raise ValueError("ANTHROPIC_API_KEY is required for anthropic models.")
+        return {"api_key": settings.anthropic_api_key}
 
-        return ChatAnthropic(
-            model=settings.llm_model,
-            api_key=settings.anthropic_api_key,
-            temperature=settings.llm_temperature,
-        )
-
-    raise ValueError(f"Unsupported MODEL_PROVIDER={settings.model_provider}")
+    return {}

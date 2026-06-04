@@ -2,12 +2,12 @@ from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-ModelProvider = Literal["ollama", "openai", "google", "anthropic"]
+ModelProvider = Literal["ollama", "openai", "google", "anthropic", "google_genai"]
 
 class Settings(BaseSettings):
     # LLM
     model_provider: ModelProvider = "ollama"
-    llm_model: str = "gpt-oss"
+    llm_model: str = "ollama:gpt-oss"
     llm_temperature: float = 0
 
     # Ollama
@@ -35,22 +35,23 @@ class Settings(BaseSettings):
     music_a2a_url: str = "http://localhost:11002"
     a2a_timeout_seconds: int = 30
 
-    # TODO: Langsmith can not track eventhough i had enabled langsmith tracing
     # LangSmith
     langsmith_api_key: str | None = None
     langsmith_endpoint: str = "https://api.smith.langchain.com"
     langsmith_tracing: bool = True
     langsmith_project: str = "multi-agent-system"
 
-    # Acontext skill-memory capture
-    acontext_enabled: bool = True
+    # Acontext skill-memory learning and recall
+    acontext_enabled: bool = False
     acontext_api_key: str | None = None
     acontext_base_url: str = "http://localhost:8029/api/v1"
     acontext_user_identifier: str = "multi-agent-system"
     acontext_timeout: float = 1000.0
-    acontext_recall_enabled: bool = True
+    acontext_recall_enabled: bool = False
     acontext_recall_limit: int = 3
     acontext_recall_max_chars: int = 3000
+    acontext_learning_wait_timeout: float = 3.0
+    acontext_learning_wait_poll: float = 0.5
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -58,5 +59,4 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-# TODO: Too many tests. Only keep or combine all the test into specific tests per services (example: test a2a invoice, test acontext, test mcp tools,...) with the online services, not with fake services
 settings = Settings()

@@ -16,6 +16,8 @@ from multi_agent_system.common.execution_evidence import (
     record_execution_evidence,
 )
 from multi_agent_system.common.llm import get_llm
+from multi_agent_system.common.observability import trace_config
+from multi_agent_system.common.runnable import ainvoke_with_optional_config
 from multi_agent_system.config import settings
 
 
@@ -53,8 +55,13 @@ class LangChainAgentRuntime:
 
     async def ainvoke(self, instruction: str) -> AgentRunResult:
         agent = await self._get_agent()
-        result = await agent.ainvoke(
-            {"messages": [{"role": "user", "content": instruction}]}
+        result = await ainvoke_with_optional_config(
+            agent,
+            {"messages": [{"role": "user", "content": instruction}]},
+            config=trace_config(
+                run_name=f"{self._agent_name}.agent",
+                tags=[self._agent_name, "agent"],
+            ),
         )
         messages = _result_messages(result)
         return AgentRunResult(

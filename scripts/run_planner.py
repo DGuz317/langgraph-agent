@@ -16,7 +16,6 @@ async def main() -> None:
         print("Type 'exit' to quit.")
 
         active_thread_id: str | None = None
-        waiting_for_resume = False
 
         while True:
             user_input = input("\nUser: ").strip()
@@ -30,25 +29,16 @@ async def main() -> None:
             response = await service.invoke(
                 user_input,
                 thread_id=active_thread_id,
-                resume=waiting_for_resume,
             )
 
             print("Assistant:")
 
-            if response.status == "interrupted":
-                active_thread_id = response.thread_id
-                waiting_for_resume = True
-                print(response.interrupt_message)
-                continue
-
             if response.status == "failed":
                 active_thread_id = None
-                waiting_for_resume = False
                 print(response.final_answer or "System error.")
                 continue
 
-            active_thread_id = None
-            waiting_for_resume = False
+            active_thread_id = response.thread_id
             print(response.final_answer or "I could not complete the request.")
 
 

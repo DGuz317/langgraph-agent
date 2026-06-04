@@ -3,7 +3,7 @@ from multi_agent_system.planner_app.state import PlannerAppState
 
 async def route_after_planner(state: PlannerAppState) -> str:
     if state.get("missing_fields"):
-        return "missing_info"
+        return "final_response"
 
     planner_output = state["planner_output"]
     tasks = planner_output["tasks"]

@@ -8,6 +8,8 @@ from multi_agent_system.aggregator.schemas import (
     AggregatorOutput,
 )
 from multi_agent_system.common.llm import get_llm
+from multi_agent_system.common.observability import trace_config
+from multi_agent_system.common.runnable import ainvoke_with_optional_config
 
 
 AGGREGATOR_GENERAL_RESPONSE_PROMPT = """
@@ -26,11 +28,16 @@ class AggregatorAgent:
         if data.results:
             return self.invoke(data)
 
-        result = await get_llm().ainvoke(
+        result = await ainvoke_with_optional_config(
+            get_llm(),
             [
                 SystemMessage(content=AGGREGATOR_GENERAL_RESPONSE_PROMPT),
                 HumanMessage(content=data.user_input),
-            ]
+            ],
+            config=trace_config(
+                run_name="aggregator.llm",
+                tags=["aggregator", "llm"],
+            ),
         )
         return AggregatorOutput(
             final_answer=_content_text(getattr(result, "content", ""))

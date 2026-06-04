@@ -10,18 +10,18 @@ from multi_agent_system.planner_app.edges import (
 from multi_agent_system.planner_app.nodes import (
     final_response_node,
     invoice_node,
-    missing_info_node,
     music_node,
     planner_node,
 )
 from multi_agent_system.planner_app.state import PlannerAppState
+
+PLANNER_GRAPH_NAME = "planner.workflow"
 
 
 def build_graph(checkpointer: Any | None = None):
     graph = StateGraph(PlannerAppState)
 
     graph.add_node("planner", planner_node)
-    graph.add_node("missing_info", missing_info_node)
     graph.add_node("invoice", invoice_node)
     graph.add_node("music", music_node)
     graph.add_node("final_response", final_response_node)
@@ -32,18 +32,6 @@ def build_graph(checkpointer: Any | None = None):
         "planner",
         route_after_planner,
         {
-            "missing_info": "missing_info",
-            "invoice": "invoice",
-            "music": "music",
-            "final_response": "final_response",
-        },
-    )
-
-    graph.add_conditional_edges(
-        "missing_info",
-        route_after_planner,
-        {
-            "missing_info": "missing_info",
             "invoice": "invoice",
             "music": "music",
             "final_response": "final_response",
@@ -64,7 +52,8 @@ def build_graph(checkpointer: Any | None = None):
 
 
     return graph.compile(
-        checkpointer=checkpointer or InMemorySaver()
+        checkpointer=checkpointer or InMemorySaver(),
+        name=PLANNER_GRAPH_NAME,
     )
 
 

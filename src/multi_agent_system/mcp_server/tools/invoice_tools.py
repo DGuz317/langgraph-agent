@@ -99,10 +99,14 @@ def register_invoice_tools(mcp: FastMCP, db: SQLDatabase) -> None:
     @mcp.tool()
     def get_employee_by_invoice_and_customer(
         invoice_id: str,
-        customer_id: str,
+        customer_id: str | None = None,
     ) -> dict:
         """
-        Return support employee information for a specific invoice and customer.
+        Return support employee information for a specific invoice.
+
+        If customer_id is provided, it is used as an additional validation
+        filter. InvoiceId alone is enough to identify the customer through the
+        invoice row.
         """
         query = """
             SELECT Employee.FirstName, Employee.Title, Employee.Email
@@ -110,25 +114,24 @@ def register_invoice_tools(mcp: FastMCP, db: SQLDatabase) -> None:
             JOIN Customer ON Customer.SupportRepId = Employee.EmployeeId
             JOIN Invoice ON Invoice.CustomerId = Customer.CustomerId
             WHERE Invoice.InvoiceId = :invoice_id
-              AND Invoice.CustomerId = :customer_id;
         """
+        parameters = {"invoice_id": invoice_id}
+        if customer_id:
+            query += " AND Invoice.CustomerId = :customer_id"
+            parameters["customer_id"] = customer_id
+        query += ";"
 
         result = db.run(
             query,
-            parameters={
-                "invoice_id": invoice_id,
-                "customer_id": customer_id,
-            },
+            parameters=parameters,
             include_columns=True,
         )
 
         if not result:
-            return {
-                "error": (
-                    f"No employee found for invoice_id={invoice_id} "
-                    f"and customer_id={customer_id}."
-                )
-            }
+            message = f"No employee found for invoice_id={invoice_id}"
+            if customer_id:
+                message += f" and customer_id={customer_id}"
+            return {"error": f"{message}."}
 
         parsed = ast.literal_eval(result)
         return parsed[0] if isinstance(parsed, list) else parsed

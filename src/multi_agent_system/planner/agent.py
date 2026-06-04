@@ -4,6 +4,8 @@ from uuid import uuid4
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from multi_agent_system.common.llm import get_llm
+from multi_agent_system.common.observability import trace_config
+from multi_agent_system.common.runnable import ainvoke_with_optional_config
 from multi_agent_system.planner.prompts import (
     PLANNER_REPAIR_PROMPT,
     PLANNER_SYSTEM_PROMPT,
@@ -65,7 +67,11 @@ class PlannerAgent:
             ),
         ]
 
-        result = await structured_llm.ainvoke(messages)
+        result = await ainvoke_with_optional_config(
+            structured_llm,
+            messages,
+            config=trace_config(run_name="planner.llm", tags=["planner", "llm"]),
+        )
 
         return self._coerce_planner_output(result)
 
@@ -89,7 +95,11 @@ class PlannerAgent:
             HumanMessage(content=repair_prompt),
         ]
 
-        result = await structured_llm.ainvoke(messages)
+        result = await ainvoke_with_optional_config(
+            structured_llm,
+            messages,
+            config=trace_config(run_name="planner.repair", tags=["planner", "llm"]),
+        )
 
         return self._coerce_planner_output(result)
 

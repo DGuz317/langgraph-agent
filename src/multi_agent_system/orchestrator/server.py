@@ -3,6 +3,7 @@ from typing import Protocol
 from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
 
+from multi_agent_system.common.observability import configure_observability
 from multi_agent_system.orchestrator.schemas import (
     PlannerInvokeRequest,
     PlannerServiceResponse,
@@ -22,6 +23,7 @@ class PlannerServiceProtocol(Protocol):
 
 
 def create_app(service: PlannerServiceProtocol | None = None) -> FastAPI:
+    configure_observability()
     planner_service = service or PlannerService()
     app = FastAPI(
         title="Multi Agent Planner API",

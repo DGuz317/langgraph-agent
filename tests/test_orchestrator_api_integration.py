@@ -44,7 +44,7 @@ async def test_real_planner_api_completes_invoice_flow() -> None:
 
 
 @pytest.mark.anyio
-async def test_real_planner_api_interrupts_and_resumes_invoice_flow() -> None:
+async def test_real_planner_api_clarifies_and_continues_same_thread() -> None:
     from multi_agent_system.orchestrator.server import create_app
 
     transport = httpx.ASGITransport(app=create_app())
@@ -60,17 +60,16 @@ async def test_real_planner_api_interrupts_and_resumes_invoice_flow() -> None:
         interrupted_body = interrupted.json()
 
         assert interrupted.status_code == 200, interrupted_body
-        assert interrupted_body["status"] == "interrupted", interrupted_body
+        assert interrupted_body["status"] == "completed", interrupted_body
         assert interrupted_body["thread_id"] == "integration-hitl-thread"
-        assert interrupted_body["needs_resume"] is True
-        assert interrupted_body["interrupt_message"]
+        assert interrupted_body["needs_resume"] is False
+        assert interrupted_body["final_answer"]
 
         completed = await client.post(
             "/planner/invoke",
             json={
-                "user_input": "5",
+                "user_input": "customer id is 5",
                 "thread_id": interrupted_body["thread_id"],
-                "resume": True,
             },
         )
 

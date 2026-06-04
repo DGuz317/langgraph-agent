@@ -321,6 +321,25 @@ def test_get_employee_by_invoice_and_customer_returns_support_employee(mcp_serve
     assert "@" in result["Email"]
 
 
+def test_get_employee_by_invoice_returns_support_employee_without_customer_id(
+    mcp_server,
+    db,
+) -> None:
+    invoice_id = _latest_invoice_id_for_customer(db, "5")
+
+    result = _call_tool(
+        mcp_server,
+        "get_employee_by_invoice_and_customer",
+        {"invoice_id": invoice_id},
+    )
+
+    assert isinstance(result, dict)
+    assert "error" not in result
+    assert result["FirstName"]
+    assert result["Title"]
+    assert "@" in result["Email"]
+
+
 def test_get_employee_by_invoice_and_customer_returns_error_for_invalid_pair(mcp_server) -> None:
     result = _call_tool(
         mcp_server,

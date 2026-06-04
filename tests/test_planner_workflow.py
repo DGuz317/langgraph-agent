@@ -1,11 +1,10 @@
 import pytest
 
 from multi_agent_system.planner_app.edges import route_after_invoice, route_after_planner
-from multi_agent_system.planner_app.graph import build_graph
+from multi_agent_system.planner_app.graph import PLANNER_GRAPH_NAME, build_graph
 from multi_agent_system.planner_app.nodes import (
     final_response_node,
     invoice_node,
-    missing_info_node,
     music_node,
     planner_node,
 )
@@ -64,7 +63,7 @@ async def test_route_after_planner_routes_by_agent() -> None:
 
 
 @pytest.mark.anyio
-async def test_route_after_planner_routes_missing_info() -> None:
+async def test_route_after_planner_routes_missing_fields_to_final_response() -> None:
     route = await route_after_planner(
         {
             "missing_fields": ["customer_id"],
@@ -72,7 +71,7 @@ async def test_route_after_planner_routes_missing_info() -> None:
         }
     )
 
-    assert route == "missing_info"
+    assert route == "final_response"
 
 
 @pytest.mark.anyio
@@ -93,7 +92,7 @@ async def test_route_after_invoice_runs_music_when_pending() -> None:
 
 
 @pytest.mark.anyio
-async def test_planner_node_adds_missing_customer_id_before_dispatch(
+async def test_planner_node_preserves_planner_missing_fields(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
@@ -104,7 +103,7 @@ async def test_planner_node_adds_missing_customer_id_before_dispatch(
                     {
                         "agent": "invoice",
                         "instruction": "Show the latest invoice.",
-                        "missing_fields": [],
+                        "missing_fields": ["customer_id"],
                         "status": "not_started",
                     }
                 ]
@@ -116,7 +115,7 @@ async def test_planner_node_adds_missing_customer_id_before_dispatch(
 
     assert result["missing_fields"] == ["customer_id"]
     assert result["planner_output"]["tasks"][0]["missing_fields"] == ["customer_id"]
-    assert await route_after_planner(result) == "missing_info"
+    assert await route_after_planner(result) == "final_response"
     assert result["invoice_result"] is None
     assert result["music_result"] is None
     assert result["final_answer"] is None
@@ -303,100 +302,6 @@ async def test_final_response_node_uses_aggregator_for_no_task_response(
 
 
 @pytest.mark.anyio
-async def test_missing_info_node_appends_resume_context(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.setattr(
-        "multi_agent_system.planner_app.nodes.interrupt_for_missing_info",
-        lambda missing_fields: {"genre": "Jazz"},
-    )
-
-    result = await missing_info_node(
-        {
-            "missing_fields": ["genre"],
-            "planner_output": {
-                "tasks": [
-                    {
-                        "agent": "music",
-                        "instruction": "Recommend 5 songs.",
-                        "missing_fields": ["genre"],
-                        "status": "not_started",
-                    }
-                ]
-            },
-        }
-    )
-
-    task = result["planner_output"]["tasks"][0]
-    assert "genre=Jazz" in task["instruction"]
-    assert result["missing_fields"] == []
-
-
-@pytest.mark.anyio
-async def test_missing_info_node_appends_customer_context(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    def fake_interrupt_for_missing_info(missing_fields: list[str]) -> dict:
-        assert missing_fields == ["customer_id"]
-        return {"customer_id": "7"}
-
-    monkeypatch.setattr(
-        "multi_agent_system.planner_app.nodes.interrupt_for_missing_info",
-        fake_interrupt_for_missing_info,
-    )
-
-    result = await missing_info_node(
-        {
-            "missing_fields": ["customer_id"],
-            "planner_output": {
-                "tasks": [
-                    {
-                        "agent": "invoice",
-                        "instruction": "Show the most recent invoice.",
-                        "missing_fields": ["customer_id"],
-                        "status": "not_started",
-                    }
-                ]
-            },
-        }
-    )
-    task = result["planner_output"]["tasks"][0]
-
-    assert "Additional user-provided information: customer_id=7." in task["instruction"]
-    assert task["missing_fields"] == []
-
-
-@pytest.mark.anyio
-async def test_missing_info_node_keeps_unresolved_fields_when_resume_is_unparsed(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.setattr(
-        "multi_agent_system.planner_app.nodes.interrupt_for_missing_info",
-        lambda missing_fields: {},
-    )
-
-    result = await missing_info_node(
-        {
-            "missing_fields": ["customer_id"],
-            "planner_output": {
-                "tasks": [
-                    {
-                        "agent": "invoice",
-                        "instruction": "Show the latest invoice.",
-                        "missing_fields": ["customer_id"],
-                        "status": "not_started",
-                    }
-                ]
-            },
-        }
-    )
-
-    assert result["missing_fields"] == ["customer_id"]
-    assert result["planner_output"]["tasks"][0]["missing_fields"] == ["customer_id"]
-    assert await route_after_planner(result) == "missing_info"
-
-
-@pytest.mark.anyio
 async def test_graph_dispatches_multi_agent_natural_language_tasks(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -451,3 +356,9 @@ async def test_graph_dispatches_multi_agent_natural_language_tasks(
     }
     assert "Invoice Agent result" in result["final_answer"]
     assert "Music Agent result" in result["final_answer"]
+
+
+def test_planner_graph_has_explicit_langsmith_run_name() -> None:
+    graph = build_graph()
+
+    assert graph.get_name() == PLANNER_GRAPH_NAME

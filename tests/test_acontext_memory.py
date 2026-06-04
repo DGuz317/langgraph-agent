@@ -184,8 +184,8 @@ async def test_acontext_memory_recall_waits_for_thread_learning_before_skills() 
             "space-1",
             {
                 "session_id": acontext_session_id("thread-1"),
-                "timeout": 1000.0,
-                "poll_interval": 1.0,
+                "timeout": 3.0,
+                "poll_interval": 0.5,
             },
         )
     ]
@@ -217,6 +217,50 @@ async def test_acontext_memory_recall_continues_when_learning_wait_fails() -> No
 
     assert result.metadata["recall_status"] == "ok"
     assert result.metadata["skill_names"] == ["invoice-routing"]
+
+
+@pytest.mark.anyio
+async def test_acontext_memory_recall_uses_configured_short_learning_wait() -> None:
+    client = FakeClient()
+    recall = AcontextMemoryRecall(
+        api_key="test-key",
+        base_url="https://example.test/api/v1",
+        user_identifier="planner-service",
+        learning_wait_timeout=1.25,
+        learning_wait_poll=0.25,
+        client_factory=lambda: client,
+    )
+
+    result = await recall.recall("invoice", thread_id="thread-short-wait")
+
+    assert result.metadata["recall_status"] == "empty"
+    assert client.learning_spaces.wait_for_learning_calls == [
+        (
+            "space-1",
+            {
+                "session_id": acontext_session_id("thread-short-wait"),
+                "timeout": 1.25,
+                "poll_interval": 0.25,
+            },
+        )
+    ]
+
+
+@pytest.mark.anyio
+async def test_acontext_memory_recall_can_skip_learning_wait() -> None:
+    client = FakeClient()
+    recall = AcontextMemoryRecall(
+        api_key="test-key",
+        base_url="https://example.test/api/v1",
+        user_identifier="planner-service",
+        learning_wait_timeout=0,
+        client_factory=lambda: client,
+    )
+
+    result = await recall.recall("invoice", thread_id="thread-no-wait")
+
+    assert result.metadata["recall_status"] == "empty"
+    assert client.learning_spaces.wait_for_learning_calls == []
 
 
 @pytest.mark.anyio
