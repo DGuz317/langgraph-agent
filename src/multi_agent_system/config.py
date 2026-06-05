@@ -42,12 +42,12 @@ class Settings(BaseSettings):
     langsmith_project: str = "multi-agent-system"
 
     # Acontext skill-memory learning and recall
-    acontext_enabled: bool = False
+    acontext_enabled: bool = True
     acontext_api_key: str | None = None
     acontext_base_url: str = "http://localhost:8029/api/v1"
     acontext_user_identifier: str = "multi-agent-system"
     acontext_timeout: float = 1000.0
-    acontext_recall_enabled: bool = False
+    acontext_recall_enabled: bool = True
     acontext_recall_limit: int = 3
     acontext_recall_max_chars: int = 3000
     acontext_learning_wait_timeout: float = 3.0
